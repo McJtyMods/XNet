@@ -66,6 +66,10 @@ public class FacadeBlock extends NetCableBlock implements ITileEntityProvider {
     @Nullable
     @Override
     public RayTraceResult collisionRayTrace(IBlockState blockState, World world, BlockPos pos, Vec3d start, Vec3d end) {
+        IBlockState mimicBlock = getMimicBlock(world, pos);
+        if (mimicBlock != null) {
+            return mimicBlock.getBlock().collisionRayTrace(mimicBlock, world, pos, start, end);
+        }
         // We do not want the raytracing that happens in the GenericCableBlock
         return super.originalCollisionRayTrace(blockState, world, pos, start, end);
     }
