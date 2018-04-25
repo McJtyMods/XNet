@@ -176,6 +176,7 @@ public abstract class GenericCableBlock extends Block implements WailaInfoProvid
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World worldIn, BlockPos pos) {
         return AABB_EMPTY;
     }
