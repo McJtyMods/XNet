@@ -30,6 +30,7 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.StateMapperBase;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -41,6 +42,7 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.IBlockAccess;
@@ -447,5 +449,19 @@ public class ConnectorBlock extends GenericCableBlock implements ITileEntityProv
     @Override
     public boolean isAdvancedConnector() {
         return false;
+    }
+
+    @Override
+    public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean isActualState) {
+        addCollisionBoxToList(pos, entityBox, collidingBoxes, AABB_CENTER);
+
+        for (EnumFacing facing : EnumFacing.VALUES) {
+            ConnectorType connectorType = getConnectorType(state.getValue(COLOR), worldIn, pos, facing);
+            if (connectorType == ConnectorType.CABLE) {
+                addCollisionBoxToList(pos, entityBox, collidingBoxes, AABBS[facing.getIndex()]);
+            } else if (connectorType == ConnectorType.BLOCK) {
+                addCollisionBoxToList(pos, entityBox, collidingBoxes, AABBS_CONNECTOR[facing.getIndex()]);
+            }
+        }
     }
 }

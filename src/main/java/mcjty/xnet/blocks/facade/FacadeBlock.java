@@ -12,6 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.StateMapperBase;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
@@ -22,6 +23,7 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -35,6 +37,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class FacadeBlock extends NetCableBlock implements ITileEntityProvider {
 
@@ -116,8 +119,6 @@ public class FacadeBlock extends NetCableBlock implements ITileEntityProvider {
         originalBreakBlock(world, pos, state);
     }
 
-
-
     @Override
     @SideOnly(Side.CLIENT)
     public void initModel() {
@@ -150,6 +151,23 @@ public class FacadeBlock extends NetCableBlock implements ITileEntityProvider {
     }
 
     @Override
+    public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean isActualState) {
+        IBlockState mimicBlock = getMimicBlock(worldIn, pos);
+        if (mimicBlock != null) {
+            mimicBlock.getBlock().addCollisionBoxToList(mimicBlock, worldIn, pos, entityBox, collidingBoxes, entityIn, isActualState);
+            return;
+        }
+        addCollisionBoxToList(pos, entityBox, collidingBoxes, FULL_BLOCK_AABB);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World worldIn, BlockPos pos) {
+        IBlockState mimicBlock = getMimicBlock(worldIn, pos);
+        return mimicBlock != null ? mimicBlock.getSelectedBoundingBox(worldIn, pos) : FULL_BLOCK_AABB;
+    }
+
+    @Override
     @SideOnly(Side.CLIENT)
     public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer) {
         return true; // delegated to FacadeBakedModel#getQuads
@@ -175,6 +193,4 @@ public class FacadeBlock extends NetCableBlock implements ITileEntityProvider {
     public boolean isFullCube(IBlockState state) {
         return true;
     }
-
-
 }
