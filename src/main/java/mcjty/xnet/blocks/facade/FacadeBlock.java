@@ -25,8 +25,6 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
@@ -61,17 +59,6 @@ public class FacadeBlock extends NetCableBlock implements ITileEntityProvider {
 
     protected void initTileEntity() {
         GameRegistry.registerTileEntity(FacadeTileEntity.class, XNet.MODID + "_facade");
-    }
-
-    @Nullable
-    @Override
-    public RayTraceResult collisionRayTrace(IBlockState blockState, World world, BlockPos pos, Vec3d start, Vec3d end) {
-        IBlockState mimicBlock = getMimicBlock(world, pos);
-        if (mimicBlock != null) {
-            return mimicBlock.getBlock().collisionRayTrace(mimicBlock, world, pos, start, end);
-        }
-        // We do not want the raytracing that happens in the GenericCableBlock
-        return super.originalCollisionRayTrace(blockState, world, pos, start, end);
     }
 
     @Override
@@ -158,17 +145,18 @@ public class FacadeBlock extends NetCableBlock implements ITileEntityProvider {
     public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean isActualState) {
         IBlockState mimicBlock = getMimicBlock(worldIn, pos);
         if (mimicBlock != null) {
-            mimicBlock.getBlock().addCollisionBoxToList(mimicBlock, worldIn, pos, entityBox, collidingBoxes, entityIn, isActualState);
+            mimicBlock = mimicBlock.getActualState(worldIn, pos);
+            mimicBlock.getBlock().addCollisionBoxToList(mimicBlock, worldIn, pos, entityBox, collidingBoxes, entityIn, true);
             return;
         }
-        addCollisionBoxToList(pos, entityBox, collidingBoxes, FULL_BLOCK_AABB);
+        super.addCollisionBoxToList(state, worldIn, pos, entityBox, collidingBoxes, entityIn, isActualState);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World worldIn, BlockPos pos) {
         IBlockState mimicBlock = getMimicBlock(worldIn, pos);
-        return mimicBlock != null ? mimicBlock.getSelectedBoundingBox(worldIn, pos) : FULL_BLOCK_AABB;
+        return mimicBlock != null ? mimicBlock.getSelectedBoundingBox(worldIn, pos) : super.getSelectedBoundingBox(state, worldIn, pos);
     }
 
     @Override

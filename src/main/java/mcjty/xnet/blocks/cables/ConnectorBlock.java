@@ -453,6 +453,13 @@ public class ConnectorBlock extends GenericCableBlock implements ITileEntityProv
 
     @Override
     public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean isActualState) {
+        IBlockState mimicBlock = getMimicBlock(worldIn, pos);
+        if (mimicBlock != null) {
+            mimicBlock = mimicBlock.getActualState(worldIn, pos);
+            mimicBlock.getBlock().addCollisionBoxToList(mimicBlock, worldIn, pos, entityBox, collidingBoxes, entityIn, true);
+            return;
+        }
+
         addCollisionBoxToList(pos, entityBox, collidingBoxes, AABB_CENTER);
 
         for (EnumFacing facing : EnumFacing.VALUES) {
@@ -463,5 +470,12 @@ public class ConnectorBlock extends GenericCableBlock implements ITileEntityProv
                 addCollisionBoxToList(pos, entityBox, collidingBoxes, AABBS_CONNECTOR[facing.getIndex()]);
             }
         }
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World worldIn, BlockPos pos) {
+        IBlockState mimicBlock = getMimicBlock(worldIn, pos);
+        return mimicBlock != null ? mimicBlock.getSelectedBoundingBox(worldIn, pos) : super.getSelectedBoundingBox(state, worldIn, pos);
     }
 }

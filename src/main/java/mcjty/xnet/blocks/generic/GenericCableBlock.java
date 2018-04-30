@@ -185,9 +185,9 @@ public abstract class GenericCableBlock extends Block implements WailaInfoProvid
     @Nullable
     @Override
     public RayTraceResult collisionRayTrace(IBlockState blockState, World world, BlockPos pos, Vec3d start, Vec3d end) {
-        if (getMimicBlock(world, pos) != null) {
-            // In mimic mode we use original raytrace mode
-            return originalCollisionRayTrace(blockState, world, pos, start, end);
+        IBlockState mimicBlock = getMimicBlock(world, pos);
+        if (mimicBlock != null) {
+            return mimicBlock.getBlock().collisionRayTrace(mimicBlock, world, pos, start, end);
         }
         Vec3d vec3d = start.subtract(pos.getX(), pos.getY(), pos.getZ());
         Vec3d vec3d1 = end.subtract(pos.getX(), pos.getY(), pos.getZ());
@@ -218,10 +218,6 @@ public abstract class GenericCableBlock extends Block implements WailaInfoProvid
     private RayTraceResult checkIntersect(BlockPos pos, Vec3d vec3d, Vec3d vec3d1, AxisAlignedBB boundingBox) {
         RayTraceResult raytraceresult = boundingBox.calculateIntercept(vec3d, vec3d1);
         return raytraceresult == null ? null : new RayTraceResult(raytraceresult.hitVec.addVector(pos.getX(), pos.getY(), pos.getZ()), raytraceresult.sideHit, pos);
-    }
-
-    protected RayTraceResult originalCollisionRayTrace(IBlockState blockState, World world, BlockPos pos, Vec3d start, Vec3d end) {
-        return super.collisionRayTrace(blockState, world, pos, start, end);
     }
 
     @Override
