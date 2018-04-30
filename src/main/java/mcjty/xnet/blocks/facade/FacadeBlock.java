@@ -7,6 +7,7 @@ import mcjty.xnet.blocks.generic.CableColor;
 import mcjty.xnet.init.ModBlocks;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -150,6 +151,14 @@ public class FacadeBlock extends NetCableBlock implements ITileEntityProvider {
     }
 
     @Override
+    public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face) {
+        IBlockState mimicBlock = getMimicBlock(worldIn, pos);
+        if (mimicBlock != null) {
+            return mimicBlock.getBlockFaceShape(worldIn, pos, face);
+        }
+        return super.getBlockFaceShape(worldIn, state, pos, face);
+    }
+
     @SideOnly(Side.CLIENT)
     public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer) {
         return true; // delegated to FacadeBakedModel#getQuads
