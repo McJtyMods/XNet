@@ -80,4 +80,14 @@ public class NetCableBlock extends GenericCableBlock {
         }
     }
 
+    @Override
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+        AxisAlignedBB boundingBox = AABB_CENTER;
+        for (EnumFacing facing : EnumFacing.VALUES) {
+            if (getConnectorType(state.getValue(COLOR), source, pos, facing) != ConnectorType.NONE) {
+                boundingBox = boundingBox.union(AABBS[facing.getIndex()]);
+            }
+        }
+        return boundingBox;
+    }
 }
