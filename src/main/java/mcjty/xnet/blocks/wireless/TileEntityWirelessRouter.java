@@ -166,7 +166,14 @@ public final class TileEntityWirelessRouter extends GenericEnergyReceiverTileEnt
 
         // If the dimension is different at this point there is no connection
         if (world.provider.getDimension() != otherRouter.world.provider.getDimension()) {
-            return false;
+            int tier = getAntennaTier();
+            int tierOther = otherRouter.getAntennaTier();
+            
+            if(tier == tierOther && tier == TIER_INF) {
+                return true;
+            } else {
+                return false;
+            }
         }
 
         double maxSqdist = Math.min(thisRange, otherRange);
