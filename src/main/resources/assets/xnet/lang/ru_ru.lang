@@ -34,7 +34,7 @@ tile.xnet.redstone_proxy_upd.name=Редстоуновый прокси (обн�
 
 tile.xnet.controller.name=Контроллер
 tile.xnet.router.name=Распределитель
-tile.xnet.wireless_router.name=Беспроводной аспределитель
+tile.xnet.wireless_router.name=Беспроводной распределитель
 
 tile.xnet.antenna.name=Антенна
 tile.xnet.antenna_base.name=Антенна (базовая)
