@@ -25,6 +25,7 @@ import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -184,9 +185,9 @@ public abstract class GenericCableBlock extends Block implements WailaInfoProvid
     @Nullable
     @Override
     public RayTraceResult collisionRayTrace(IBlockState blockState, World world, BlockPos pos, Vec3d start, Vec3d end) {
-        if (getMimicBlock(world, pos) != null) {
-            // In mimic mode we use original raytrace mode
-            return originalCollisionRayTrace(blockState, world, pos, start, end);
+        IBlockState mimicBlock = getMimicBlock(world, pos);
+        if (mimicBlock != null) {
+            return mimicBlock.getBlock().collisionRayTrace(mimicBlock, world, pos, start, end);
         }
         Vec3d vec3d = start.subtract(pos.getX(), pos.getY(), pos.getZ());
         Vec3d vec3d1 = end.subtract(pos.getX(), pos.getY(), pos.getZ());
@@ -217,10 +218,6 @@ public abstract class GenericCableBlock extends Block implements WailaInfoProvid
     private RayTraceResult checkIntersect(BlockPos pos, Vec3d vec3d, Vec3d vec3d1, AxisAlignedBB boundingBox) {
         RayTraceResult raytraceresult = boundingBox.calculateIntercept(vec3d, vec3d1);
         return raytraceresult == null ? null : new RayTraceResult(raytraceresult.hitVec.addVector(pos.getX(), pos.getY(), pos.getZ()), raytraceresult.sideHit, pos);
-    }
-
-    protected RayTraceResult originalCollisionRayTrace(IBlockState blockState, World world, BlockPos pos, Vec3d start, Vec3d end) {
-        return super.collisionRayTrace(blockState, world, pos, start, end);
     }
 
     @Override
@@ -309,6 +306,11 @@ public abstract class GenericCableBlock extends Block implements WailaInfoProvid
     @SideOnly(Side.CLIENT)
     public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
         return false;
+    }
+
+    @Override
+    public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face) {
+        return BlockFaceShape.UNDEFINED;
     }
 
     @Override
