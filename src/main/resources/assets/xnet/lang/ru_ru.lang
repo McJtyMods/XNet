@@ -30,7 +30,16 @@ tile.xnet.netcable_green.name=Зелёный сетевой кабель
 tile.xnet.netcable_routing.name=Распределяющий сетевой кабель
 
 tile.xnet.redstone_proxy.name=Редстоуновый прокси
+tile.xnet.redstone_proxy_upd.name=Редстоуновый прокси (обновленный)
 
 tile.xnet.controller.name=Контроллер
 tile.xnet.router.name=Распределитель
+tile.xnet.wireless_router.name=Беспроводной распределитель
+
+tile.xnet.antenna.name=Антенна
+tile.xnet.antenna_base.name=Антенна (базовая)
+tile.xnet.antenna_dish.name=Антенна (тарелка)
+
 itemGroup.XNet=XNet
+
+message.xnet.shiftmessage=<Зажмите Shift>
