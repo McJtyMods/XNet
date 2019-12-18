@@ -30,7 +30,41 @@ tile.xnet.netcable_green.name=Зелёный сетевой кабель
 tile.xnet.netcable_routing.name=Распределяющий сетевой кабель
 
 tile.xnet.redstone_proxy.name=Редстоуновый прокси
+tile.xnet.redstone_proxy_upd.name=Редстоуновый прокси (обновленный)
 
 tile.xnet.controller.name=Контроллер
 tile.xnet.router.name=Распределитель
+tile.xnet.wireless_router.name=Беспроводной распределитель
+tile.xnet.antenna.name=Антенна
+tile.xnet.antenna_base.name=Антенна (база)
+tile.xnet.antenna_dish.name=Антенна (тарелка)
+
 itemGroup.XNet=XNet
+
+message.xnet.shiftmessage=<Зажмите Shift>
+
+message.xnet.router=\
+    @fС помощью этого блока вы можете подключить\n\
+    @fнесколько каналов (контроллеров)
+message.xnet.wireless_router=\
+    @fС помощью этого блока вы можете подключить\n\
+    @fнесколько каналов удалённо\n\
+    @fПодключите это к нормальному распределителю\n\
+    @fиспользуя кабель распределителя\n\
+    @6Необходима антенна!
+message.xnet.controller=\
+    @fБазовый блок для автоматизации\n\
+    @fв XNet
+message.xnet.antenna=\
+    @fУстановите одну или две антенны\n\
+    @fсверху антенны (базы).\n\
+    @6Одна: диапазон %s (%s rf/тик/канал)\n\
+    @6Две: диапазон %s (%s rf/тик/канал)
+message.xnet.antenna_base=\
+    @fБаза должна быть установлена\n\
+    @fна беспроводной распределитель
+message.xnet.antenna_dish=\
+    @fТарелка должна быть установлена\n\
+    @fна базу, что даёт очень\n\
+    @fбольшой беспроводной диапазон\n\
+    @6(%s rf/тик/канал)
