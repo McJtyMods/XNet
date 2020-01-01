@@ -449,4 +449,18 @@ public class ConnectorBlock extends GenericCableBlock implements ITileEntityProv
     public boolean isAdvancedConnector() {
         return false;
     }
+
+    @Override
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+        AxisAlignedBB boundingBox = AABB_CENTER;
+        for (EnumFacing facing : EnumFacing.VALUES) {
+            ConnectorType connectorType = getConnectorType(state.getValue(COLOR), source, pos, facing);
+            if (connectorType == ConnectorType.CABLE) {
+                boundingBox = boundingBox.union(AABBS[facing.getIndex()]);
+            } else if (connectorType == ConnectorType.BLOCK) {
+                boundingBox = boundingBox.union(AABBS_CONNECTOR[facing.getIndex()]);
+            }
+        }
+        return boundingBox;
+    }
 }

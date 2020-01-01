@@ -15,6 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
@@ -66,39 +67,55 @@ public class FacadeItemBlock extends ItemBlock {
         ItemStack itemstack = player.getHeldItem(hand);
 
         if (!itemstack.isEmpty()) {
-
-            if (block == NetCableSetup.netCableBlock) {
-                int i = this.getMetadata(itemstack.getMetadata());
-                FacadeBlock facadeBlock = (FacadeBlock) this.block;
-                IBlockState placementState = facadeBlock.getPlacementState(world, pos, facing, hitX, hitY, hitZ, i, player).withProperty(GenericCableBlock.COLOR, state.getValue(GenericCableBlock.COLOR));
-
-                if (placeBlockAt(itemstack, player, world, pos, facing, hitX, hitY, hitZ, placementState)) {
-                    SoundType soundtype = world.getBlockState(pos).getBlock().getSoundType(world.getBlockState(pos), world, pos, player);
-                    world.playSound(player, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
-                    TileEntity te = world.getTileEntity(pos);
-                    if (te instanceof FacadeTileEntity) {
-                        ((FacadeTileEntity) te).setMimicBlock(getMimicBlock(itemstack));
+            if (block == NetCableSetup.netCableBlock || block == NetCableSetup.connectorBlock || block == NetCableSetup.advancedConnectorBlock) {
+                IBlockState mimicBlock = getMimicBlock(itemstack);
+                if (!canMimicFit(state.getBoundingBox(world, pos), mimicBlock.getBoundingBox(world, pos))) {
+                    if (world.isRemote) {
+                        player.sendStatusMessage(new TextComponentString(mimicBlock.getBlock().getLocalizedName() + " is too small to fit"), false);
                     }
-                    int amount = -1;
-                    itemstack.grow(amount);
+                    return EnumActionResult.FAIL;
                 }
-            } else if (block == NetCableSetup.connectorBlock || block == NetCableSetup.advancedConnectorBlock) {
-                TileEntity te = world.getTileEntity(pos);
-                if (te instanceof ConnectorTileEntity) {
-                    ConnectorTileEntity connectorTileEntity = (ConnectorTileEntity) te;
-                    if (connectorTileEntity.getMimicBlock() == null) {
-                        connectorTileEntity.setMimicBlock(getMimicBlock(itemstack));
+
+                if (block == NetCableSetup.netCableBlock) {
+                    int i = this.getMetadata(itemstack.getMetadata());
+                    FacadeBlock facadeBlock = (FacadeBlock) this.block;
+                    IBlockState placementState = facadeBlock.getPlacementState(world, pos, facing, hitX, hitY, hitZ, i, player).withProperty(GenericCableBlock.COLOR, state.getValue(GenericCableBlock.COLOR));
+
+                    if (placeBlockAt(itemstack, player, world, pos, facing, hitX, hitY, hitZ, placementState)) {
                         SoundType soundtype = world.getBlockState(pos).getBlock().getSoundType(world.getBlockState(pos), world, pos, player);
                         world.playSound(player, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+                        TileEntity te = world.getTileEntity(pos);
+                        if (te instanceof FacadeTileEntity) {
+                            ((FacadeTileEntity) te).setMimicBlock(mimicBlock);
+                        }
                         int amount = -1;
                         itemstack.grow(amount);
-                    } else {
-                        return EnumActionResult.FAIL;
+                    }
+                } else {
+                    TileEntity te = world.getTileEntity(pos);
+                    if (te instanceof ConnectorTileEntity) {
+                        ConnectorTileEntity connectorTileEntity = (ConnectorTileEntity) te;
+                        if (connectorTileEntity.getMimicBlock() == null) {
+                            connectorTileEntity.setMimicBlock(mimicBlock);
+                            SoundType soundtype = world.getBlockState(pos).getBlock().getSoundType(world.getBlockState(pos), world, pos, player);
+                            world.playSound(player, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+                            int amount = -1;
+                            itemstack.grow(amount);
+                        } else {
+                            return EnumActionResult.FAIL;
+                        }
                     }
                 }
             } else if (block == ModBlocks.facadeBlock) {
                 return EnumActionResult.FAIL;
             } else {
+                if (!canMimicFit(GenericCableBlock.AABB_CENTER, state.getBoundingBox(world, pos))) {
+                    if (world.isRemote) {
+                        player.sendStatusMessage(new TextComponentString(block.getLocalizedName() + " is too small to mimic"), false);
+                    }
+                    return EnumActionResult.FAIL;
+                }
+
                 setMimicBlock(itemstack, state);
                 if (world.isRemote) {
                     player.sendStatusMessage(new TextComponentString("Facade is now mimicing " + block.getLocalizedName()), false);
@@ -128,5 +145,9 @@ public class FacadeItemBlock extends ItemBlock {
                 }
             }
         }
+    }
+
+    public boolean canMimicFit(AxisAlignedBB cableBB, AxisAlignedBB mimicBB) {
+        return mimicBB.minX <= cableBB.minX && mimicBB.maxX >= cableBB.maxX && mimicBB.minY <= cableBB.maxY && mimicBB.maxY >= cableBB.maxY && mimicBB.minZ <= cableBB.minZ && mimicBB.maxZ >= cableBB.maxZ;
     }
 }
