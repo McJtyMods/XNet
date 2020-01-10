@@ -26,6 +26,7 @@ import mcjty.xnet.multiblock.XNetBlobData;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.StateMapperBase;
@@ -368,6 +369,22 @@ public class ConnectorBlock extends GenericCableBlock implements ITileEntityProv
         } else {
             return mimicBlock.shouldSideBeRendered(blockAccess, pos, side);
         }
+    }
+
+    @Override
+    public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face) {
+        IBlockState mimicBlock = getMimicBlock(worldIn, pos);
+        if (mimicBlock != null) {
+            return mimicBlock.getBlockFaceShape(worldIn, pos, face);
+        }
+
+        ConnectorType connectorType = getConnectorType(state.getValue(COLOR), worldIn, pos, face);
+        if (connectorType == ConnectorType.CABLE) {
+            return BlockFaceShape.CENTER_SMALL;
+        } else if (connectorType == ConnectorType.BLOCK) {
+            return BlockFaceShape.CENTER_BIG;
+        }
+        return BlockFaceShape.UNDEFINED;
     }
 
     @Override

@@ -5,6 +5,7 @@ import mcjty.xnet.blocks.generic.GenericCableBakedModel;
 import mcjty.xnet.blocks.generic.GenericCableBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.StateMapperBase;
@@ -80,4 +81,11 @@ public class NetCableBlock extends GenericCableBlock {
         }
     }
 
+    @Override
+    public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face) {
+        if (getConnectorType(state.getValue(COLOR), worldIn, pos, face) == ConnectorType.CABLE) {
+            return BlockFaceShape.CENTER_SMALL;
+        }
+        return BlockFaceShape.UNDEFINED;
+    }
 }
