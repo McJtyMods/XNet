@@ -4,6 +4,7 @@ import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.CableSetup;
 import mcjty.xnet.modules.cables.ConnectorType;
 import mcjty.xnet.modules.facade.IFacadeSupport;
+import mcjty.xnet.modules.facade.blocks.FacadeBlock;
 import mcjty.xnet.multiblock.ColorId;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
@@ -291,8 +292,9 @@ public abstract class GenericCableBlock extends Block {
 
     @Override
     public void onReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (newState.getBlock() != state.getBlock()) {
+        if (newState.getBlock() != state.getBlock() && !(newState.getBlock() instanceof FacadeBlock)) {
             unlinkBlock(world, pos);
+            System.out.println("We're unlinking " + state.toString());
         }
         super.onReplaced(state, world, pos, newState, isMoving);
     }
