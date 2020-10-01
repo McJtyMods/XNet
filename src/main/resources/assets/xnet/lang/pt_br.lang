@@ -1,0 +1,73 @@
+#PARSE_ESCAPES
+
+item.xnet.xnet_manual.name=Manual do XNet
+item.xnet.connector_upgrade.name=Kit de Upgrade de Conector
+
+
+tile.xnet.facade.name=Fachada
+tile.xnet.facade_blue.name=Fachada Azul
+tile.xnet.facade_red.name=Fachada Vermelha
+tile.xnet.facade_yellow.name=Fachada Amarela
+tile.xnet.facade_green.name=Fachada Verde
+tile.xnet.facade_routing.name=Fachada de Roteamento
+
+tile.xnet.connector.name=Conector
+tile.xnet.connector_blue.name=Conector Azul
+tile.xnet.connector_red.name=Conector Vermelha
+tile.xnet.connector_yellow.name=Conector Amarela
+tile.xnet.connector_green.name=Conector Verde
+tile.xnet.connector_routing.name=Conector de Roteamento
+
+tile.xnet.advanced_connector.name=Avançado Conector
+tile.xnet.advanced_connector_blue.name=Conector Azul Avançado
+tile.xnet.advanced_connector_red.name=Conector Vermelha Avançado
+tile.xnet.advanced_connector_yellow.name=Conector Amarela Avançado
+tile.xnet.advanced_connector_green.name=Conector Verde Avançado
+tile.xnet.advanced_connector_routing.name=Conector de Roteamento Avançado (NOT)
+
+tile.xnet.netcable.name=Cabo de Rede
+tile.xnet.netcable_blue.name=Cabo de Rede Azul
+tile.xnet.netcable_red.name=Cabo de Rede Vermelho
+tile.xnet.netcable_yellow.name=Cabo de Rede Amarelo
+tile.xnet.netcable_green.name=Cabo de Rede Verde
+tile.xnet.netcable_routing.name=Cabo de Rede de Roteamento
+
+tile.xnet.redstone_proxy.name=Proxy de Redstone
+tile.xnet.redstone_proxy_upd.name=Proxy de Redstone (atualização)
+
+tile.xnet.controller.name=Controlador
+tile.xnet.router.name=Roteador
+tile.xnet.wireless_router.name=Roteador Wireless
+tile.xnet.antenna.name=Antena
+tile.xnet.antenna_base.name=Base de Antena
+tile.xnet.antenna_dish.name=Prato de antena
+
+itemGroup.XNet=XNet
+
+message.xnet.shiftmessage=<Aperte Shift>
+
+message.xnet.router=\
+    @fCom esse bloco você pode conectar\n\
+    @fmúltiplos canais (controladores)
+message.xnet.wireless_router=\
+    @fCom esse bloco você pode conectar\n\
+    @fmúltiplos canais remotamente\n\
+    @fConecte-o a um roteador normal\n\
+    @futilizando um cabo de roteamento\n\
+    @fExige uma antena!
+message.xnet.controller=\
+    @fO bloco base para automação\n\
+    @fno XNet
+message.xnet.antenna=\
+    @fColoque uma ou duas antenas\n\
+    @fem cima de uma base de antena.\n\
+    @fUma: alcance %s (%s rf/t/canal)\n\
+    @fDuas: alcance %s (%s rf/t/canal)
+message.xnet.antenna_base=\
+    @fUma base de antena precisa ser colocada\n\
+    @fem cima de um roteador wireless
+message.xnet.antenna_dish=\
+    @fUm prato de antena precisa ser colocado\n\
+    @fem cima de uma base de antena e\n\
+    @fpermite um alcance wireless extremo\n\
+    @6(%s rf/t/canal)
