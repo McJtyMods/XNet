@@ -1,0 +1,12 @@
+{
+  "name": "Cabos",
+  "icon": "xnet:netcable_red",
+  "category": "xnet:category_xnet_simple",
+  "sortnum": 20,
+  "pages": [
+    {
+      "type": "text",
+      "text": "Existem quatro cabos coloridos que não interferem entre si"
+    }
+  ]
+}

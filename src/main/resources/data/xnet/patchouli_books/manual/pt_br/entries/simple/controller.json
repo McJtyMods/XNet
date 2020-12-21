@@ -1,0 +1,12 @@
+{
+  "name": "Controlador",
+  "icon": "xnet:controller",
+  "category": "xnet:category_xnet_simple",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "text",
+      "text": "O Controlador é o bloco mais importante deste mod. Nesta máquina, você controla a edição dos diferentes canais e define como os itens, líquidos ou energia se movem através desses canais"
+    }
+  ]
+}
