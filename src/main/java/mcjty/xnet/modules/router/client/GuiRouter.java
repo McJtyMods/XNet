@@ -5,12 +5,15 @@ import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
 import mcjty.lib.gui.widgets.ImageLabel;
+import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
 import mcjty.lib.gui.widgets.WidgetList;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
+import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
+import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.xnet.XNet;
 import mcjty.xnet.client.ControllerChannelClientInfo;
 import mcjty.xnet.modules.router.RouterModule;
@@ -145,10 +148,26 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
                         label("Pos").color(labelColor),
                         label(BlockPosTools.toString(controllerPos)));
 
+        // Represent channel number/type in the same way as
+        // in GuiController.drawGuiContainerBackgroundLayer().
+        Label numTypeLabel = label(num);
+        IChannelSettings settings = type.createChannel();
+        if (settings != null) {
+                IndicatorIcon icon = settings.getIndicatorIcon();
+                if (icon != null) {
+                        numTypeLabel.image(icon.getImage(), icon.getU(), icon.getV(), icon.getIw(), icon.getIh());
+                }
+                String indicator = settings.getIndicator();
+                if (indicator != null) {
+                        numTypeLabel.text(indicator + num);
+                }
+        }
+
         Panel panel3 = horizontal(0, 0).hint(0, 26, 160, 13)
                 .children(
                         label("Num").color(labelColor),
-                        label(num + " (" + type.getName() + ")"));
+                        numTypeLabel,
+                        label("(" + type.getName() + ")"));
 
         panel.children(panel1, panel2, panel3);
         return panel;
