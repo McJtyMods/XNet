@@ -24,6 +24,7 @@ import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextFormatting;
 
 import java.util.List;
 
@@ -128,29 +129,11 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
         if (channel.isRemote()) {
             labelColor = 0xffaa1133;
         }
-        panel1.children(
-                label("Ch").color(labelColor),
-                label(name),
-                label(">").color(labelColor));
-        if (channel.isRemote()) {
-            panel1.children(new ImageLabel().image(iconGuiElements, 48, 80).desiredWidth(16));
-        }
-        if (local) {
-            TextField pubName = new TextField().text(publishedName).desiredWidth(50).desiredHeight(13)
-                    .event((newText) -> updatePublish(controllerPos, index, newText));
-            panel1.children(pubName);
-        } else {
-            panel1.children(label(publishedName).color(0xff33ff00));
-        }
-
-        Panel panel2 = horizontal(0, 0).hint(0, 13, 160, 13)
-                .children(
-                        label("Pos").color(labelColor),
-                        label(BlockPosTools.toString(controllerPos)));
 
         // Represent channel number/type in the same way as
         // in GuiController.drawGuiContainerBackgroundLayer().
         Label numTypeLabel = label(num);
+        numTypeLabel.tooltips(TextFormatting.GREEN + "Channel type: " + TextFormatting.WHITE + type.getName());
         IChannelSettings settings = type.createChannel();
         if (settings != null) {
                 IndicatorIcon icon = settings.getIndicatorIcon();
@@ -163,11 +146,28 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
                 }
         }
 
+        panel1.children(
+                label("Ch").color(labelColor),
+                numTypeLabel,
+                label(name));
+
+        Panel panel2 = horizontal(0, 0).hint(0, 13, 160, 13)
+                .children(label("Pub").color(labelColor));
+        if (channel.isRemote()) {
+            panel2.children(new ImageLabel().image(iconGuiElements, 48, 80).desiredWidth(16));
+        }
+        if (local) {
+            TextField pubName = new TextField().text(publishedName).desiredWidth(50).desiredHeight(13)
+                    .event((newText) -> updatePublish(controllerPos, index, newText));
+            panel2.children(pubName);
+        } else {
+            panel2.children(label(publishedName).color(0xff33ff00));
+        }
+
         Panel panel3 = horizontal(0, 0).hint(0, 26, 160, 13)
                 .children(
-                        label("Num").color(labelColor),
-                        numTypeLabel,
-                        label("(" + type.getName() + ")"));
+                        label("Pos").color(labelColor),
+                        label(BlockPosTools.toString(controllerPos)));
 
         panel.children(panel1, panel2, panel3);
         return panel;
