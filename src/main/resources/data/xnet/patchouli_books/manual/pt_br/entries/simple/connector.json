@@ -1,0 +1,12 @@
+{
+  "name": "Conectores",
+  "icon": "xnet:connector_red",
+  "category": "xnet:category_xnet_simple",
+  "sortnum": 30,
+  "pages": [
+    {
+      "type": "text",
+      "text": "Para conectar o cabo em um bloco ou máquina, você precisa de um Conector"
+    }
+  ]
+}

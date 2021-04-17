@@ -1,0 +1,7 @@
+{
+  "name": "Rede Simples",
+  "description": "Uma rede simples",
+  "parent": "xnet:category_xnet",
+  "icon": "xnet:netcable_red",
+  "sortnum": 10
+}
