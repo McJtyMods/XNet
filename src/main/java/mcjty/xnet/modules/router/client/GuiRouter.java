@@ -1,18 +1,25 @@
 package mcjty.xnet.modules.router.client;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import mcjty.lib.client.GuiTools;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.gui.GenericGuiContainer;
 import mcjty.lib.gui.Window;
+import mcjty.lib.gui.widgets.BlockRender;
 import mcjty.lib.gui.widgets.ImageLabel;
+import mcjty.lib.gui.widgets.Label;
 import mcjty.lib.gui.widgets.Panel;
 import mcjty.lib.gui.widgets.TextField;
+import mcjty.lib.gui.widgets.Widget;
 import mcjty.lib.gui.widgets.WidgetList;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.BlockPosTools;
+import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
+import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.xnet.XNet;
 import mcjty.xnet.client.ControllerChannelClientInfo;
+import mcjty.xnet.modules.controller.ControllerModule;
 import mcjty.xnet.modules.router.RouterModule;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
 import mcjty.xnet.modules.router.network.PacketGetLocalChannelsRouter;
@@ -21,8 +28,11 @@ import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextFormatting;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static mcjty.lib.gui.widgets.Widgets.*;
 import static mcjty.xnet.modules.router.blocks.TileEntityRouter.*;
@@ -92,11 +102,13 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
         localChannelList.removeChildren();
         localChannelList.rowheight(40);
         int sel = localChannelList.getSelected();
+        Map<BlockPos, Integer> ctrlNums = new HashMap<BlockPos, Integer>();
 
         for (ControllerChannelClientInfo channel : fromServer_localChannels) {
-            localChannelList.children(makeChannelLine(channel, true));
+            localChannelList.children(makeChannelLine(channel, true, ctrlNums));
         }
 
+        ctrlNums.clear();
         localChannelList.selected(sel);
 
         remoteChannelList.removeChildren();
@@ -104,18 +116,33 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
         sel = remoteChannelList.getSelected();
 
         for (ControllerChannelClientInfo channel : fromServer_remoteChannels) {
-            remoteChannelList.children(makeChannelLine(channel, false));
+            remoteChannelList.children(makeChannelLine(channel, false, ctrlNums));
         }
 
+        ctrlNums.clear();
         remoteChannelList.selected(sel);
     }
 
-    private Panel makeChannelLine(ControllerChannelClientInfo channel, boolean local) {
+    private Panel makeChannelLine(ControllerChannelClientInfo channel, boolean local, Map<BlockPos, Integer> ctrlNums) {
         String name = channel.getChannelName();
         String publishedName = channel.getPublishedName();
         BlockPos controllerPos = channel.getPos();
+        // @todo, this could be derived from the connector number + sidedness if this info was available;
+        // the idea of counting the controllers is for the player to not need full block position
+        // in the GUI anymore to easily be able to identify whether two controllers are the same.
+        // (The info is still available via tooltips.)
+        int ctrlNum = 0;
+        if (ctrlNums.containsKey(controllerPos)) {
+                ctrlNum = ctrlNums.get(controllerPos);
+        }
+        else {
+                ctrlNum = ctrlNums.size() + 1;
+                ctrlNums.put(controllerPos, ctrlNum);
+        }
+        String ctrlShortName = (local ? "LC" : "RC") + String.valueOf(ctrlNum);
         IChannelType type = channel.getChannelType();
         int index = channel.getIndex();
+        String num = String.valueOf(index + 1);
 
         Panel panel = positional().desiredHeight(30);
         Panel panel1 = horizontal(0, 0).hint(0, 0, 160, 13);
@@ -124,32 +151,55 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
         if (channel.isRemote()) {
             labelColor = 0xffaa1133;
         }
+
+        // @todo, for non-local channels add something similar with router icon + number,
+        // with router position (+ name?) as tooltip
+        BlockRender ctrlBr = new BlockRender().renderItem(ControllerModule.CONTROLLER.get());
+        ctrlBr.userObject("block");  // (See drawStackTooltips() below.)
+        // @todo, have meta-data in even more tooltips
+        // (e.g., controller cable color, numbers + name from the connectors,
+        // and/or the same for the relevant router connector)
+        ctrlBr.tooltips(TextFormatting.GREEN + "Controller position: " +
+                TextFormatting.WHITE + BlockPosTools.toString(controllerPos));
+        panel1.children(
+                ctrlBr,
+                label(ctrlShortName));
+
+        // Represent channel number/type in the same way as
+        // in GuiController.drawGuiContainerBackgroundLayer().
+        Label numTypeLabel = label(num);
+        numTypeLabel.tooltips(TextFormatting.GREEN + "Channel type: " + TextFormatting.WHITE + type.getName());
+        IChannelSettings settings = type.createChannel();
+        if (settings != null) {
+                IndicatorIcon icon = settings.getIndicatorIcon();
+                if (icon != null) {
+                        numTypeLabel.image(icon.getImage(), icon.getU(), icon.getV(), icon.getIw(), icon.getIh());
+                }
+                String indicator = settings.getIndicator();
+                if (indicator != null) {
+                        numTypeLabel.text(indicator + num);
+                }
+        }
+
         panel1.children(
                 label("Ch").color(labelColor),
-                label(name),
-                label(">").color(labelColor));
+                numTypeLabel,
+                label(name));
+
+        Panel panel2 = horizontal(0, 0).hint(0, 13, 160, 13)
+                .children(label("Pub").color(labelColor));
         if (channel.isRemote()) {
-            panel1.children(new ImageLabel().image(iconGuiElements, 48, 80).desiredWidth(16));
+            panel2.children(new ImageLabel().image(iconGuiElements, 48, 80).desiredWidth(16));
         }
         if (local) {
             TextField pubName = new TextField().text(publishedName).desiredWidth(50).desiredHeight(13)
                     .event((newText) -> updatePublish(controllerPos, index, newText));
-            panel1.children(pubName);
+            panel2.children(pubName);
         } else {
-            panel1.children(label(publishedName).color(0xff33ff00));
+            panel2.children(label(publishedName).color(0xff33ff00));
         }
 
-        Panel panel2 = horizontal(0, 0).hint(0, 13, 160, 13)
-                .children(
-                        label("Pos").color(labelColor),
-                        label(BlockPosTools.toString(controllerPos)));
-
-        Panel panel3 = horizontal(0, 0).hint(0, 26, 160, 13)
-                .children(
-                        label("Index").color(labelColor),
-                        label(index + " (" + type.getName() + ")"));
-
-        panel.children(panel1, panel2, panel3);
+        panel.children(panel1, panel2);
         return panel;
     }
 
@@ -171,5 +221,19 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
         requestListsIfNeeded();
         populateList();
         drawWindow(matrixStack);
+    }
+
+    // Much the same as in GuiController.
+    @Override
+    protected void drawStackTooltips(MatrixStack matrixStack, int mouseX, int mouseY) {
+        int x = GuiTools.getRelativeX(this);
+        int y = GuiTools.getRelativeY(this);
+        Widget<?> widget = window.getToplevel().getWidgetAtPosition(x, y);
+        if (widget instanceof BlockRender) {
+            if ("block".equals(widget.getUserObject())) {
+                return;     // Don't do the normal tooltip rendering
+            }
+        }
+        super.drawStackTooltips(matrixStack, mouseX, mouseY);
     }
 }
