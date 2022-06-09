@@ -13,6 +13,7 @@ import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.setup.Config;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -27,10 +28,9 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class FluidChannelSettings extends DefaultChannelSettings implements IChannelSettings {
 
@@ -96,7 +96,6 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
         updateCache(channel, context);
         // @todo optimize
         World world = context.getControllerWorld();
-        extractorsLoop:
         for (Map.Entry<SidedConsumer, FluidConnectorSettings> entry : fluidExtractors.entrySet()) {
             FluidConnectorSettings settings = entry.getValue();
             if (d % settings.getSpeed() != 0) {
@@ -124,43 +123,62 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
                     }
 
                     FluidStack extractMatcher = settings.getMatcher();
-
-                    int toextract = settings.getRate();
-
+                    int bandwidth = settings.getRate();
                     Integer count = settings.getMinmax();
                     if (count != null) {
+                        // count amount of dedicated fluid if extractMatcher is null, and all fluids otherwise
                         int amount = countFluid(handler, extractMatcher);
                         int canextract = amount-count;
-                        if (canextract <= 0) {
-                            continue;
-                        }
-                        toextract = Math.min(toextract, canextract);
+                        bandwidth = Math.min(bandwidth, canextract);
+                    }
+                    if (bandwidth <= 0) {
+                        continue;
                     }
 
-                    List<Pair<SidedConsumer, FluidConnectorSettings>> inserted = new ArrayList<>();
-                    int remaining;
-                    do {
-                        // Imagine the pathological case where we're extracting from a container that works in 13mB
-                        // increments and inserting into a container that works in 17mB increments. We should end up
-                        // with toextract = 884 at the end of this loop, given that it started at 1000.
-                        FluidStack stack = fetchFluid(handler, true, extractMatcher, toextract);
-                        if (stack.isEmpty()) {
-                            continue extractorsLoop;
+                    Iterable<FluidStack> iter;
+                    if (extractMatcher != null) {
+                        iter = Collections.singleton(extractMatcher);
+                    } else {
+                        ArrayList<FluidStack> list = new ArrayList<>(handler.getTanks() + 1);
+                        // try default behavior first, then move onto iteration
+                        list.add(fetchFluid(handler, true, null, bandwidth));
+                        for (int i = 0; i < handler.getTanks(); i++) {
+                            list.add(handler.getFluidInTank(i));
                         }
-                        toextract = stack.getAmount();
-                        inserted.clear();
-                        remaining = insertFluidSimulate(inserted, context, stack);
-                        toextract -= remaining;
-                        if (inserted.isEmpty() || toextract <= 0) {
-                            continue extractorsLoop;
+                        iter = list;
+                    }
+
+                    fluidLoop:
+                    for (FluidStack fluid : iter) {
+                        if (fluid.isEmpty() || bandwidth <= 0) continue;
+                        List<Pair<SidedConsumer, FluidConnectorSettings>> inserted = new ArrayList<>();
+                        int toextract = bandwidth;
+                        int remaining;
+                        do {
+                            // Imagine the pathological case where we're extracting from a container that works in 13mB
+                            // increments and inserting into a container that works in 17mB increments. We should end up
+                            // with toextract = 884 at the end of this loop, given that it started at 1000.
+                            FluidStack stack = fetchFluid(handler, true, fluid, toextract);
+                            if (stack.isEmpty()) {
+                                continue fluidLoop;
+                            }
+                            toextract = stack.getAmount();
+                            inserted.clear();
+                            remaining = insertFluidSimulate(inserted, context, stack);
+                            toextract -= remaining;
+                            if (inserted.isEmpty() || toextract <= 0) {
+                                continue fluidLoop;
+                            }
+                        } while(remaining > 0);
+
+                        if (context.checkAndConsumeRF(Config.controllerOperationRFT.get())) {
+                            FluidStack stack = fetchFluid(handler, false, fluid, toextract);
+                            bandwidth -= stack.getAmount();
+                            if (stack.isEmpty()) {
+                                throw new NullPointerException(handler.getClass().getName() + " misbehaved! handler.drain(" + toextract + ", true) returned null, even though handler.drain(" + toextract + ", false) did not");
+                            }
+                            insertFluidReal(context, inserted, stack);
                         }
-                    } while(remaining > 0);
-                    if (context.checkAndConsumeRF(Config.controllerOperationRFT.get())) {
-                        FluidStack stack = fetchFluid(handler, false, extractMatcher, toextract);
-                        if (stack.isEmpty()) {
-                            throw new NullPointerException(handler.getClass().getName() + " misbehaved! handler.drain(" + toextract + ", true) returned null, even though handler.drain(" + toextract + ", false) did not");
-                        }
-                        insertFluidReal(context, inserted, stack);
                     }
                 }
             }
@@ -176,8 +194,15 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
     }
 
     @Nonnull
-    private FluidStack fetchFluid(IFluidHandler handler, boolean simulate, @Nullable FluidStack matcher, int rate) {
-        return handler.drain(rate, simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE);
+    private FluidStack fetchFluid(IFluidHandler handler, boolean simulate, @Nullable FluidStack fluid, int rate) {
+        IFluidHandler.FluidAction action = simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE;
+        if (fluid == null) {
+            return handler.drain(rate, action);
+        } else {
+            fluid = fluid.copy();
+            fluid.setAmount(rate);
+            return handler.drain(fluid, action);
+        }
     }
 
     // Returns what could not be filled
@@ -359,3 +384,5 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
         }
     }
 }
+
+
