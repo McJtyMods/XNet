@@ -1,0 +1,12 @@
+{
+  "name": "Roteador",
+  "icon": "xnet:router",
+  "category": "xnet:category_xnet_network",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "text",
+      "text": "O roteador permite a conexão de várias redes. Isso precisa de cabos de roteamento"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "Redes Sem Fio",
+  "description": "Conectando várias redes sem fio",
+  "parent": "xnet:category_xnet",
+  "icon": "xnet:antenna",
+  "sortnum": 30
+}

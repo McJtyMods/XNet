@@ -1,0 +1,80 @@
+{
+
+    "item.xnet.xnet_manual": "Manual do XNet",
+    "item.xnet.connector_upgrade": "Kit de Melhoria de Conector",
+
+    "block.xnet.facade": "Fachada",
+    "item.xnet.facade_blue": "Fachada Azul",
+    "item.xnet.facade_red": "Fachada Vermelha",
+    "item.xnet.facade_yellow": "Fachada Amarela",
+    "item.xnet.facade_green": "Fachada Verde",
+    "item.xnet.facade_routing": "Fachada de Roteamento",
+
+    "block.xnet.connector": "Conector",
+    "item.xnet.connector_blue": "Conector Azul",
+    "item.xnet.connector_red": "Conector Vermelho",
+    "item.xnet.connector_yellow": "Conector Amarelo",
+    "item.xnet.connector_green": "Conector Verde",
+    "item.xnet.connector_routing": "Conector de Roteamento",
+
+    "block.xnet.advanced_connector": "Conector Avançado ",
+    "item.xnet.advanced_connector_blue": "Conector Azul Avançado",
+    "item.xnet.advanced_connector_red": "Conector Vermelho Avançado",
+    "item.xnet.advanced_connector_yellow": "Conector Amarelo Avançado",
+    "item.xnet.advanced_connector_green": "Conector Verde Avançado",
+    "item.xnet.advanced_connector_routing": "Conector de Roteamento Avançado (NOT)",
+
+    "block.xnet.netcable": "Cabo de Rede",
+    "item.xnet.netcable_blue": "Cabo de Rede Azul",
+    "item.xnet.netcable_red": "Cabo de Rede Vermelho",
+    "item.xnet.netcable_yellow": "Cabo de Rede Amarelo",
+    "item.xnet.netcable_green": "Cabo de Rede Verde",
+    "item.xnet.netcable_routing": "Cabo de Rede de Roteamento",
+
+    "block.xnet.redstone_proxy": "Proxy de Redstone",
+    "block.xnet.redstone_proxy_upd": "Proxy de Redstone (melhoria)",
+
+    "block.xnet.controller": "Controlador",
+    "block.xnet.router": "Roteador",
+    "block.xnet.wireless_router": "Roteador Sem Fio",
+    "block.xnet.antenna": "Antena",
+    "block.xnet.antenna_base": "Base da Antenna",
+    "block.xnet.antenna_dish": "Antena Parabólica",
+
+    "itemGroup.xnet": "XNet",
+
+    "message.xnet.shiftmessage": "<Pressione Shift>",
+
+    "message.xnet.facade.header": "Este bloco pode imitar outros blocos e ser usado para cobrir cabos XNet",
+    "message.xnet.facade.gold": "Clique com o botão direito (ou segurando Shift) no bloco para imitar. Clique com o botão direito (ou segurando Shift) no cabo/conector para ocultar",
+    "message.xnet.facade.info": "Imitando: ",
+
+    "message.xnet.connector.header": "Coloque o conector próximo ao bloco ou máquina que deve ser conectada à rede",
+    "message.xnet.connector.info": "RF Máx.: ",
+
+    "message.xnet.advanced_connector.header": "Coloque o conector próximo ao bloco ou máquina que deve ser conectada à rede",
+    "message.xnet.advanced_connector.info": "RF Máx.: ",
+    "message.xnet.advanced_connector.gold": "Permita o acesso a diferentes lados. Suporta transferência de itens mais rápida",
+
+    "message.xnet.controller.header": "O bloco básico para automação no XNet",
+
+    "message.xnet.router.header": "Com este bloco você pode conectar vários canais (controladores)",
+
+    "message.xnet.wireless_router.header": "Com este bloco você pode conectar vários canais remotamente. Conecte isso a um roteador normal usando um cabo de roteador",
+    "message.xnet.wireless_router.gold": "Isso precisa de uma antena em cima para funcionar!",
+
+    "message.xnet.antenna.header": "Coloque uma ou duas antenas sobre uma base de antena",
+    "message.xnet.antenna.one": "Uma: ",
+    "message.xnet.antenna.two": "Duas: ",
+
+    "message.xnet.antenna_base.header": "Uma base de antena deve ser colocada em cima de um roteador sem fio",
+    "message.xnet.antenna_dish.header": "Uma antena parabólica deve ser colocada em cima de uma base de antena e permite um alcance sem fio considerável",
+    "message.xnet.antenna_dish.info": "Uso de energia: ",
+
+    "message.xnet.redstone_proxy.header": "Atua como um bloco proxy para redstone. XNet pode se conectar a isso",
+    "message.xnet.redstone_proxy.gold": "Esta versão não faz uma melhoria de bloco!",
+
+    "message.xnet.redstone_proxy_upd.header": "Atua como um bloco proxy para redstone. XNet pode se conectar a isso",
+    "message.xnet.redstone_proxy_upd.gold": "Esta versão faz uma melhoria de bloco!"
+
+}

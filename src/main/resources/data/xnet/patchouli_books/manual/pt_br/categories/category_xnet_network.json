@@ -1,0 +1,7 @@
+{
+  "name": "Múltiplas Redes",
+  "description": "Conectando várias redes com um Roteador",
+  "parent": "xnet:category_xnet",
+  "icon": "xnet:router",
+  "sortnum": 20
+}
