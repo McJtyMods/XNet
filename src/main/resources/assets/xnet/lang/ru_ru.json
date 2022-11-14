@@ -1,0 +1,80 @@
+{
+
+    "item.xnet.xnet_manual": "Описание XNet",
+    "item.xnet.connector_upgrade": "Комплект улучшения разъёма",
+
+    "block.xnet.facade": "Фасад",
+    "item.xnet.facade_blue": "Синий фасад",
+    "item.xnet.facade_red": "Красный фасад",
+    "item.xnet.facade_yellow": "Жёлтый фасад",
+    "item.xnet.facade_green": "Зелёный фасад",
+    "item.xnet.facade_routing": "Распределяющий фасад",
+
+    "block.xnet.connector": "Разъём",
+    "item.xnet.connector_blue": "Синий разъём",
+    "item.xnet.connector_red": "Красный разъём",
+    "item.xnet.connector_yellow": "Жёлтый разъём",
+    "item.xnet.connector_green": "Зелёный разъём",
+    "item.xnet.connector_routing": "Распределяющий разъём",
+
+    "block.xnet.advanced_connector": "Улучшенный разъём",
+    "item.xnet.advanced_connector_blue": "Улучшенный синий разъём",
+    "item.xnet.advanced_connector_red": "Улучшенный красный разъём",
+    "item.xnet.advanced_connector_yellow": "Улучшенный жёлтый разъём",
+    "item.xnet.advanced_connector_green": "Улучшенный зелёный разъём",
+    "item.xnet.advanced_connector_routing": "Улучшенный распределяющий разъём (НЕТ)",
+
+    "block.xnet.netcable": "Сетевой кабель",
+    "item.xnet.netcable_blue": "Синий сетевой кабель",
+    "item.xnet.netcable_red": "Красный сетевой кабель",
+    "item.xnet.netcable_yellow": "Жёлтый сетевой кабель",
+    "item.xnet.netcable_green": "Зелёный сетевой кабель",
+    "item.xnet.netcable_routing": "Распределяющий сетевой кабель",
+
+    "block.xnet.redstone_proxy": "Редстоуновый прокси",
+    "block.xnet.redstone_proxy_upd": "Редстоуновый прокси (обновленный)",
+
+    "block.xnet.controller": "Контроллер",
+    "block.xnet.router": "Распределитель",
+    "block.xnet.wireless_router": "Беспроводной распределитель",
+    "block.xnet.antenna": "Антенна",
+    "block.xnet.antenna_base": "Антенна (база)",
+    "block.xnet.antenna_dish": "Антенна (тарелка)",
+
+    "itemGroup.xnet": "XNet",
+
+    "message.xnet.shiftmessage": "<Зажмите Shift>",
+
+    "message.xnet.facade.header": "Этот блок может имитировать другие блоки и используетсяся для скрытия кабелей XNet.",
+    "message.xnet.facade.gold": "Кликните ПКМ или ПКМ в присяди по блоку, чтобы взять его внешний вид. Кликните ПКМ или ПКМ в присяди по кабелю/разъёму для его скрытия",
+    "message.xnet.facade.info": "Имитирует: ",
+
+    "message.xnet.connector.header": "Разместите разъем рядом с блоком или устройством, который должен быть подключён к сети",
+    "message.xnet.connector.info": "Макс. RF: ",
+
+    "message.xnet.advanced_connector.header": "Разместите разъем рядом с блоком или устройством, который должен быть подключён к сети",
+    "message.xnet.advanced_connector.info": "Макс. RF: ",
+    "message.xnet.advanced_connector.gold": "Позволяет доступ с разных сторон. Поддерживает более быструю передачу предметов",
+
+    "message.xnet.controller.header": "Базовый блок для автоматизации в XNet",
+
+    "message.xnet.router.header": "С помощью этого блока Вы можете подключить несколько каналов (контроллеров)",
+
+    "message.xnet.wireless_router.header": "С помощью этого блока Вы можете подключить несколько каналов удалённо. Подключите это к нормальному распределителю используя кабель распределителя",
+    "message.xnet.wireless_router.gold": "Необходима антенна!",
+
+    "message.xnet.antenna.header": "Установите одну или две антенны сверху  (базы) антенны",
+    "message.xnet.antenna.one": "Один: ",
+    "message.xnet.antenna.two": "Два: ",
+
+    "message.xnet.antenna_base.header": "База должна быть установлена на беспроводной распределитель",
+    "message.xnet.antenna_dish.header": "Тарелка должна быть установлена на базу, что даёт очень большой беспроводной диапазон",
+    "message.xnet.antenna_dish.info": "Энергопотребление: ",
+
+    "message.xnet.redstone_proxy.header": "Действует как прокси-блок для редстоуна. XNet можно подключить к этому",
+    "message.xnet.redstone_proxy.gold": "Эта версия не обновляет блок!",
+
+    "message.xnet.redstone_proxy_upd.header": "Действует как прокси-блок для редстоуна. XNet можно подключить к этому",
+    "message.xnet.redstone_proxy_upd.gold": "Эта версия обновляет блок!"
+
+}
