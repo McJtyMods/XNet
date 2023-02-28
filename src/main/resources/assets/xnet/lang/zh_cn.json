@@ -1,0 +1,80 @@
+{
+
+    "item.xnet.xnet_manual": "XNet 手册",
+    "item.xnet.connector_upgrade": "连接器升级套件",
+
+    "block.xnet.facade": "涂装",
+    "item.xnet.facade_blue": "蓝色涂装",
+    "item.xnet.facade_red": "红色涂装",
+    "item.xnet.facade_yellow": "黄色涂装",
+    "item.xnet.facade_green": "绿色涂装",
+    "item.xnet.facade_routing": "路由涂装",
+
+    "block.xnet.connector": "连接器",
+    "item.xnet.connector_blue": "蓝色连接器",
+    "item.xnet.connector_red": "红色连接器",
+    "item.xnet.connector_yellow": "黄色连接器",
+    "item.xnet.connector_green": "绿色连接器",
+    "item.xnet.connector_routing": "路由连接器",
+
+    "block.xnet.advanced_connector": "高级连接器",
+    "item.xnet.advanced_connector_blue": "高级蓝色连接器",
+    "item.xnet.advanced_connector_red": "高级红色连接器",
+    "item.xnet.advanced_connector_yellow": "高级黄色连接器",
+    "item.xnet.advanced_connector_green": "高级绿色连接器",
+    "item.xnet.advanced_connector_routing": "高级路由连接器 (NOT)",
+
+    "block.xnet.netcable": "网络线缆",
+    "item.xnet.netcable_blue": "蓝色网络线缆",
+    "item.xnet.netcable_red": "红色网络线缆",
+    "item.xnet.netcable_yellow": "黄色网络线缆",
+    "item.xnet.netcable_green": "绿色网络线缆",
+    "item.xnet.netcable_routing": "路由网络线缆",
+
+    "block.xnet.redstone_proxy": "红石关口",
+    "block.xnet.redstone_proxy_upd": "红石关口（更新）",
+
+    "block.xnet.controller": "控制器",
+    "block.xnet.router": "路由器",
+    "block.xnet.wireless_router": "无线路由器",
+    "block.xnet.antenna": "天线",
+    "block.xnet.antenna_base": "天线基座",
+    "block.xnet.antenna_dish": "天线锅",
+
+    "itemGroup.xnet": "XNet",
+
+    "message.xnet.shiftmessage": "<按 SHIFT>",
+
+    "message.xnet.facade.header": "这个方块可以用来把 XNet 线缆伪装成别的方块。",
+    "message.xnet.facade.gold": "右键或潜行右键来选择涂装，然后在线缆、连接器上右键或潜行右键来安装涂装。",
+    "message.xnet.facade.info": "伪装成：",
+
+    "message.xnet.connector.header": "在要联网的方块旁边放置连接器。",
+    "message.xnet.connector.info": "最高 RF 能量：",
+
+    "message.xnet.advanced_connector.header": "在要联网的方块旁边放置高级连接器。",
+    "message.xnet.advanced_connector.info": "最高 RF 能量：",
+    "message.xnet.advanced_connector.gold": "允许多方向访问。可以更快传输物品。",
+
+    "message.xnet.controller.header": "在 XNet 里进行自动化的基本方块。",
+
+    "message.xnet.router.header": "可以通过这个方块连接到多个频道（控制器）。",
+
+    "message.xnet.wireless_router.header": "可以通过这个方块远程连接到多个频道。把它用路由网络线缆连接到一个普通路由器。",
+    "message.xnet.wireless_router.gold": "它需要一个天线在上方才能工作！",
+
+    "message.xnet.antenna.header": "在一个天线基座顶上放置一到两个天线。",
+    "message.xnet.antenna.one": "一：",
+    "message.xnet.antenna.two": "二：",
+
+    "message.xnet.antenna_base.header": "要在无线路由器顶上放天线基座。",
+    "message.xnet.antenna_dish.header": "在天线基座顶上放天线锅可以提供很远的传输距离。",
+    "message.xnet.antenna_dish.info": "能量用途：",
+
+    "message.xnet.redstone_proxy.header": "扮演红石关口的角色。XNet 可以连接到它。",
+    "message.xnet.redstone_proxy.gold": "此版本无方块更新！",
+
+    "message.xnet.redstone_proxy_upd.header": "扮演红石关口的角色。XNet 可以连接到它。",
+    "message.xnet.redstone_proxy_upd.gold": "此版本有方块更新！"
+
+}
