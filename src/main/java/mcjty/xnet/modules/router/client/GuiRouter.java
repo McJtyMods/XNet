@@ -33,6 +33,8 @@ import static mcjty.xnet.modules.router.blocks.TileEntityRouter.CMD_GETREMOTECHA
 import static mcjty.xnet.modules.router.blocks.TileEntityRouter.PARAM_CHANNEL;
 import static mcjty.xnet.modules.router.blocks.TileEntityRouter.PARAM_NAME;
 import static mcjty.xnet.modules.router.blocks.TileEntityRouter.PARAM_POS;
+import static mcjty.xnet.utils.I18nConstants.INDEX_LABEL;
+import static mcjty.xnet.utils.I18nConstants.POS_LABEL;
 
 public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericContainer> {
 
@@ -146,12 +148,12 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
 
         Panel panel2 = horizontal(0, 0).hint(0, 13, 160, 13)
                 .children(
-                        label("Pos").color(labelColor),
+                        label(POS_LABEL.i18n()).color(labelColor),
                         label(BlockPosTools.toString(controllerPos)));
 
         Panel panel3 = horizontal(0, 0).hint(0, 26, 160, 13)
                 .children(
-                        label("Index").color(labelColor),
+                        label(INDEX_LABEL.i18n()).color(labelColor),
                         label(index + " (" + type.getName() + ")"));
 
         panel.children(panel1, panel2, panel3);

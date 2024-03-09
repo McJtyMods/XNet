@@ -11,12 +11,15 @@ import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
 import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.Constants;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
+import mcjty.xnet.apiimpl.enums.InsExtMode;
+import mcjty.xnet.modules.controller.client.AbstractEditorPanel;
 import mcjty.xnet.setup.Config;
+import mcjty.xnet.utils.CastTools;
 import mcjty.xnet.utils.TagUtils;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
@@ -27,22 +30,30 @@ import java.util.Set;
 import static mcjty.xnet.apiimpl.Constants.TAG_ADVANCED_NEEDED;
 import static mcjty.xnet.apiimpl.Constants.TAG_FLT;
 import static mcjty.xnet.apiimpl.Constants.TAG_FLUID_MODE;
+import static mcjty.xnet.apiimpl.Constants.TAG_MINMAX;
 import static mcjty.xnet.apiimpl.Constants.TAG_MODE;
 import static mcjty.xnet.apiimpl.Constants.TAG_PRIORITY;
-import static mcjty.xnet.apiimpl.Constants.TAG_SPEED;
 import static mcjty.xnet.apiimpl.Constants.TAG_RATE;
-import static mcjty.xnet.apiimpl.Constants.TAG_MINMAX;
+import static mcjty.xnet.apiimpl.Constants.TAG_SPEED;
+import static mcjty.xnet.utils.I18nConstants.EXT_ENDING;
+import static mcjty.xnet.utils.I18nConstants.FILTER_LABEL;
+import static mcjty.xnet.utils.I18nConstants.FLUID_MINMAX_TOOLTIP_FORMATTED;
+import static mcjty.xnet.utils.I18nConstants.FLUID_RATE_TOOLTIP_FORMATTED;
+import static mcjty.xnet.utils.I18nConstants.HIGH_FORMAT;
+import static mcjty.xnet.utils.I18nConstants.INS_ENDING;
+import static mcjty.xnet.utils.I18nConstants.LOW_FORMAT;
+import static mcjty.xnet.utils.I18nConstants.MAX;
+import static mcjty.xnet.utils.I18nConstants.MIN;
+import static mcjty.xnet.utils.I18nConstants.PRIORITY_LABEL;
+import static mcjty.xnet.utils.I18nConstants.PRIORITY_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.RATE_LABEL;
+import static mcjty.xnet.utils.I18nConstants.SPEED_TOOLTIP;
 
 public class FluidConnectorSettings extends AbstractConnectorSettings {
 
     public static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
 
-    public enum FluidMode {
-        INS,
-        EXT
-    }
-
-    private FluidMode fluidMode = FluidMode.INS;
+    private InsExtMode fluidMode = InsExtMode.INS;
 
     @Nullable private Integer priority = 0;
     @Nullable private Integer rate = null;
@@ -53,6 +64,10 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
 
     public FluidConnectorSettings(@Nonnull Direction side) {
         super(side);
+    }
+
+    public InsExtMode getFluidMode() {
+        return fluidMode;
     }
 
     public int getSpeed() {
@@ -89,38 +104,40 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
         return null;
     }
 
-    public FluidMode getFluidMode() {
-        return fluidMode;
+    private String getRateTooltip() {
+        return FLUID_RATE_TOOLTIP_FORMATTED.i18n(
+                (fluidMode == InsExtMode.EXT ? EXT_ENDING : INS_ENDING).i18n(),
+                Config.getMaxFluidRate(advanced)
+        );
+    }
+
+    private String getMinMaxTooltip() {
+        return FLUID_MINMAX_TOOLTIP_FORMATTED.i18n(
+                (fluidMode == InsExtMode.EXT ? EXT_ENDING : INS_ENDING).i18n(),
+                (fluidMode == InsExtMode.EXT ? LOW_FORMAT : HIGH_FORMAT).i18n());
     }
 
     @Override
     public void createGui(IEditorGui gui) {
         advanced = gui.isAdvanced();
         String[] speeds = advanced ? Constants.ADVANCED_SPEEDS : Constants.SPEEDS;
-        int maxrate;
-        if (advanced) {
-            maxrate = Config.maxFluidRateAdvanced.get();
-        } else {
-            maxrate = Config.maxFluidRateNormal.get();
-        }
+        int maxrate = Config.getMaxFluidRate(advanced);
 
         sideGui(gui);
         colorsGui(gui);
         redstoneGui(gui);
-        gui.nl()
-                .choices(TAG_MODE, "Insert or extract mode", fluidMode, FluidMode.values())
-                .choices(TAG_SPEED, "Number of ticks for each operation", Integer.toString(speed * 10), speeds)
+        gui.nl();
+        ((AbstractEditorPanel)gui).translatableChoices(TAG_MODE, fluidMode, InsExtMode.values())// TODO: 09.03.2024 remove AbstractEditorPanel cast after rftoolbase update
+                .choices(TAG_SPEED, SPEED_TOOLTIP.i18n(), Integer.toString(speed * 10), speeds)
                 .nl()
 
-                .label("Pri").integer(TAG_PRIORITY, "Insertion priority", priority, 36).nl()
+                .label(PRIORITY_LABEL.i18n()).integer(TAG_PRIORITY, PRIORITY_TOOLTIP.i18n(), priority, 36).nl()
 
-                .label("Rate")
-                .integer(TAG_RATE, fluidMode == FluidMode.EXT ? "Fluid extraction rate|(max " + maxrate + "mb)" : "Fluid insertion rate|(max " + maxrate + "mb)", rate, 36, maxrate)
+                .label(RATE_LABEL.i18n()).integer(TAG_RATE, getRateTooltip(), rate, 36, maxrate)
                 .shift(10)
-                .label(fluidMode == FluidMode.EXT ? "Min" : "Max")
-                .integer(TAG_MINMAX, fluidMode == FluidMode.EXT ? "Keep this amount of|fluid in tank" : "Disable insertion if|fluid level is too high", minmax, 36)
+                .label((fluidMode == InsExtMode.EXT ? MIN : MAX).i18n()).integer(TAG_MINMAX, getMinMaxTooltip(), minmax, 36)
                 .nl()
-                .label("Filter")
+                .label(FILTER_LABEL.i18n())
                 .ghostSlot(TAG_FLT, filter);
     }
 
@@ -129,7 +146,7 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
 
     @Override
     public boolean isEnabled(String tag) {
-        if (fluidMode == FluidMode.INS) {
+        if (fluidMode == InsExtMode.INS) {
             if (tag.equals(TAG_FACING)) {
                 return advanced;
             }
@@ -160,15 +177,12 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void update(Map<String, Object> data) {
         super.update(data);
-        fluidMode = FluidMode.valueOf(((String)data.get(TAG_MODE)).toUpperCase());
+        fluidMode = CastTools.safeInsExtMode(data.get(TAG_MODE));
         rate = (Integer) data.get(TAG_RATE);
         minmax = (Integer) data.get(TAG_MINMAX);
         priority = (Integer) data.get(TAG_PRIORITY);
         setSpeed(Integer.parseInt((String) data.get(TAG_SPEED)) / 10);
-        filter = (ItemStack) data.get(TAG_FLT);
-        if (filter == null) {
-            filter = ItemStack.EMPTY;
-        }
+        filter = CastTools.safeItemStack(data.get(TAG_FLT));
     }
 
     @Override
@@ -183,10 +197,7 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
         if (!filter.isEmpty()) {
             object.add(TAG_FLT, JSonTools.itemStackToJson(filter));
         }
-        if (rate != null && rate > Config.maxFluidRateNormal.get()) {
-            object.add(TAG_ADVANCED_NEEDED, new JsonPrimitive(true));
-        }
-        if (speed == 1) {
+        if ((rate != null && rate > Config.maxFluidRateNormal.get()) || speed == 1) {
             object.add(TAG_ADVANCED_NEEDED, new JsonPrimitive(true));
         }
         return object;
@@ -211,7 +222,7 @@ public class FluidConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void readFromNBT(CompoundTag tag) {
         super.readFromNBT(tag);
-        fluidMode = FluidMode.values()[tag.getByte(TAG_FLUID_MODE)];
+        fluidMode = InsExtMode.values()[tag.getByte(TAG_FLUID_MODE)];
         priority = TagUtils.getIntOrNull(tag, TAG_PRIORITY);
         rate = TagUtils.getIntOrNull(tag, TAG_RATE);
         minmax = TagUtils.getIntOrNull(tag, TAG_MINMAX);

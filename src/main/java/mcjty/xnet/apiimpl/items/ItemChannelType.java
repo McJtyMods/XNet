@@ -13,6 +13,8 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import static mcjty.xnet.utils.I18nConstants.CHANNEL_ITEM;
+
 public class ItemChannelType implements IChannelType {
 
     @Override
@@ -22,7 +24,7 @@ public class ItemChannelType implements IChannelType {
 
     @Override
     public String getName() {
-        return "Item";
+        return CHANNEL_ITEM.i18n();
     }
 
     @Override

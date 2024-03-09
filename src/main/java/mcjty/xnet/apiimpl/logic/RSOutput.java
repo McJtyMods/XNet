@@ -2,22 +2,27 @@ package mcjty.xnet.apiimpl.logic;
 
 import mcjty.rftoolsbase.api.xnet.channels.Color;
 import mcjty.xnet.apiimpl.logic.enums.LogicFilter;
-import mcjty.xnet.logic.LogicTools;
 import mcjty.xnet.modules.controller.client.ConnectorEditorPanel;
+import mcjty.xnet.utils.CastTools;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.Map;
 
 import static mcjty.rftoolsbase.api.xnet.channels.Color.COLORS;
 import static mcjty.rftoolsbase.api.xnet.channels.Color.OFF;
-import static mcjty.xnet.apiimpl.Constants.TAG_RS_COUNTER;
 import static mcjty.xnet.apiimpl.Constants.TAG_REDSTONE_OUT;
 import static mcjty.xnet.apiimpl.Constants.TAG_RS_CHANNEL_1;
 import static mcjty.xnet.apiimpl.Constants.TAG_RS_CHANNEL_2;
+import static mcjty.xnet.apiimpl.Constants.TAG_RS_COUNTER;
 import static mcjty.xnet.apiimpl.Constants.TAG_RS_COUNTING_HOLDER;
 import static mcjty.xnet.apiimpl.Constants.TAG_RS_FILTER;
 import static mcjty.xnet.apiimpl.Constants.TAG_RS_TICKS_HOLDER;
 import static mcjty.xnet.apiimpl.Constants.TAG_RS_TIMER;
+import static mcjty.xnet.utils.I18nConstants.LOGIC_COUNTER_FILTER_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.LOGIC_INPUT_CHANNEL_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.LOGIC_RS_LABEL;
+import static mcjty.xnet.utils.I18nConstants.LOGIC_RS_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.LOGIC_TIMER_FILTER_TOOLTIP;
 
 public class RSOutput {
     
@@ -130,41 +135,40 @@ public class RSOutput {
         this.redstoneOut = redstoneOut;
     }
 
-    public void createGui(ConnectorEditorPanel gui) {
+    public void createGui(ConnectorEditorPanel gui) {// TODO: 09.03.2024 remove ConnectorEditorPanel cast after rftoolbase update 
         if (gui.isAdvanced()) {
-            gui.choices(TAG_RS_FILTER, "Apply logic filter", logicFilter, LogicFilter.values());
+            gui.translatableChoices(TAG_RS_FILTER, logicFilter, LogicFilter.values());
             switch (logicFilter) {
                 case OFF -> {}
                 case COUNTER -> {
-                    gui.colors(TAG_RS_CHANNEL_1, "Input RS channel", inputChannel1.getColor(), COLORS);
-                    gui.integer(TAG_RS_COUNTER, "Count inputs before output impulse", countingHolder, 50, Integer.MAX_VALUE, 0);
+                    gui.colors(TAG_RS_CHANNEL_1, LOGIC_INPUT_CHANNEL_TOOLTIP.i18n(), inputChannel1.getColor(), COLORS);
+                    gui.integer(TAG_RS_COUNTER, LOGIC_COUNTER_FILTER_TOOLTIP.i18n(), countingHolder, 50, Integer.MAX_VALUE, 0);
                 }
                 case LATCH, NOT -> {
-                    gui.colors(TAG_RS_CHANNEL_1, "Input RS channel", inputChannel1.getColor(), COLORS);
+                    gui.colors(TAG_RS_CHANNEL_1, LOGIC_INPUT_CHANNEL_TOOLTIP.i18n(), inputChannel1.getColor(), COLORS);
                 }
                 case TIMER -> {
-                    gui.integer(TAG_RS_TIMER, "Count ticks before output impulse", ticksHolder, 50, Integer.MAX_VALUE, 5);
+                    gui.integer(TAG_RS_TIMER, LOGIC_TIMER_FILTER_TOOLTIP.i18n(), ticksHolder, 50, Integer.MAX_VALUE, 5);
                 }
                 case OR, NOR, NAND, XOR, XNOR, AND -> {
-                    gui.colors(TAG_RS_CHANNEL_1, "Input RS channel 1", inputChannel1.getColor(), COLORS);
-                    gui.colors(TAG_RS_CHANNEL_2, "Input RS channel 2", inputChannel2.getColor(), COLORS);
+                    gui.colors(TAG_RS_CHANNEL_1, LOGIC_INPUT_CHANNEL_TOOLTIP.i18n() + " 1", inputChannel1.getColor(), COLORS);
+                    gui.colors(TAG_RS_CHANNEL_2, LOGIC_INPUT_CHANNEL_TOOLTIP.i18n() + " 2", inputChannel2.getColor(), COLORS);
                 }
             }
         } else {
-            gui.label("Redstone:");
+            gui.label(LOGIC_RS_LABEL.i18n());
         }
 
-        gui.integer(TAG_REDSTONE_OUT, "Redstone output value", redstoneOut, 30, 15, 0)
-                .nl();
+        gui.integer(TAG_REDSTONE_OUT, LOGIC_RS_TOOLTIP.i18n(), redstoneOut, 30, 15, 0).nl();
     }
 
     public void update(Map<String, Object> data) {
-        logicFilter = LogicTools.safeLogicFilter(data.get(TAG_RS_FILTER));
-        inputChannel1 = LogicTools.safeColor(data.get(TAG_RS_CHANNEL_1));
-        inputChannel2 = LogicTools.safeColor(data.get(TAG_RS_CHANNEL_2));
-        countingHolder = LogicTools.safeIntOrValue(data.get(TAG_RS_COUNTER), countingHolder);
-        ticksHolder = LogicTools.safeIntOrValue(data.get(TAG_RS_TIMER), ticksHolder);
-        redstoneOut = LogicTools.safeIntOrValue(data.get(TAG_REDSTONE_OUT), redstoneOut);
+        logicFilter = CastTools.safeLogicFilter(data.get(TAG_RS_FILTER));
+        inputChannel1 = CastTools.safeColor(data.get(TAG_RS_CHANNEL_1));
+        inputChannel2 = CastTools.safeColor(data.get(TAG_RS_CHANNEL_2));
+        countingHolder = CastTools.safeIntOrValue(data.get(TAG_RS_COUNTER), countingHolder);
+        ticksHolder = CastTools.safeIntOrValue(data.get(TAG_RS_TIMER), ticksHolder);
+        redstoneOut = CastTools.safeIntOrValue(data.get(TAG_REDSTONE_OUT), redstoneOut);
     }
 
     public boolean isEnabled(String tag) {

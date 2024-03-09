@@ -11,15 +11,16 @@ import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.rftoolsbase.api.xnet.helper.DefaultChannelSettings;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
+import mcjty.xnet.apiimpl.enums.InsExtMode;
 import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.setup.Config;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.energy.IEnergyStorage;
 import org.apache.commons.lang3.tuple.Pair;
@@ -241,7 +242,7 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
             Map<SidedConsumer, IConnectorSettings> connectors = context.getConnectors(channel);
             for (var entry : connectors.entrySet()) {
                 EnergyConnectorSettings con = (EnergyConnectorSettings) entry.getValue();
-                if (con.getEnergyMode() == EnergyConnectorSettings.EnergyMode.EXT) {
+                if (con.getEnergyMode() == InsExtMode.EXT) {
                     energyExtractors.add(Pair.of(entry.getKey(), con));
                 } else {
                     energyConsumers.add(Pair.of(entry.getKey(), con));
@@ -251,7 +252,7 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
             connectors = context.getRoutedConnectors(channel);
             for (var entry : connectors.entrySet()) {
                 EnergyConnectorSettings con = (EnergyConnectorSettings) entry.getValue();
-                if (con.getEnergyMode() == EnergyConnectorSettings.EnergyMode.INS) {
+                if (con.getEnergyMode() == InsExtMode.INS) {
                     energyConsumers.add(Pair.of(entry.getKey(), con));
                 }
             }

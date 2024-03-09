@@ -12,6 +12,8 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import static mcjty.xnet.utils.I18nConstants.CHANNEL_ENERGY;
+
 public class EnergyChannelType implements IChannelType {
 
     @Override
@@ -21,7 +23,7 @@ public class EnergyChannelType implements IChannelType {
 
     @Override
     public String getName() {
-        return "Energy";
+        return CHANNEL_ENERGY.i18n();
     }
 
     @Override

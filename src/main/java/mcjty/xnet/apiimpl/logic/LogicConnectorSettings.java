@@ -13,11 +13,13 @@ import mcjty.rftoolsbase.api.xnet.helper.BaseStringTranslators;
 import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.apiimpl.logic.enums.LogicFilter;
+import mcjty.xnet.apiimpl.logic.enums.LogicMode;
 import mcjty.xnet.modules.controller.client.ConnectorEditorPanel;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import mcjty.xnet.utils.CastTools;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -47,11 +49,6 @@ import static mcjty.xnet.apiimpl.Constants.TAG_SENSOR_MODE;
 public class LogicConnectorSettings extends AbstractConnectorSettings {
 
     public static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
-
-    public enum LogicMode {
-        SENSOR,
-        OUTPUT
-    }
 
     public static final int SENSORS = 4;
 
@@ -134,9 +131,9 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
         sideGui(gui);
         colorsGui(gui);
         redstoneGui(gui);
-        gui.nl()
-                .choices(TAG_MODE, "Sensor or Output mode", logicMode, LogicMode.values())
-                .nl();
+        gui.nl();
+        ((ConnectorEditorPanel)gui).translatableChoices(TAG_MODE, logicMode, LogicMode.values());// TODO: 09.03.2024 remove ConnectorEditorPanel cast after rftoolbase update
+        gui.nl();
         if (logicMode == LogicMode.SENSOR) {
             for (RSSensor sensor : sensors) {
                 sensor.createGui(gui);
@@ -149,8 +146,7 @@ public class LogicConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void update(Map<String, Object> data) {
         super.update(data);
-        logicMode = LogicMode.valueOf(((String)data.get(TAG_MODE)).toUpperCase());
-
+        logicMode = CastTools.safeLogicMode(data.get(TAG_MODE));
         if (logicMode == LogicMode.SENSOR) {
             for (RSSensor sensor : sensors) {
                 sensor.update(data);

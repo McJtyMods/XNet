@@ -11,6 +11,9 @@ import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
+import static mcjty.xnet.apiimpl.Constants.TAG_DIMTYPE;
+import static mcjty.xnet.apiimpl.Constants.TAG_WORLDS;
+
 public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
 
     private static final String NAME = "XNetBlobData";
@@ -21,11 +24,11 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
     }
 
     public XNetBlobData(CompoundTag tag) {
-        if (tag.contains("worlds")) {
-            ListTag worlds = (ListTag) tag.get("worlds");
+        if (tag.contains(TAG_WORLDS)) {
+            ListTag worlds = (ListTag) tag.get(TAG_WORLDS);
             for (net.minecraft.nbt.Tag world : worlds) {
                 CompoundTag tc = (CompoundTag) world;
-                ResourceKey<Level> dim = LevelTools.getId(tc.getString("dimtype"));
+                ResourceKey<Level> dim = LevelTools.getId(tc.getString(TAG_DIMTYPE));
                 WorldBlob blob = new WorldBlob(dim);
                 blob.readFromNBT(tc);
                 worldBlobMap.put(dim, blob);
@@ -57,11 +60,11 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
         for (var entry : worldBlobMap.entrySet()) {
             WorldBlob blob = entry.getValue();
             CompoundTag tc = new CompoundTag();
-            tc.putString("dimtype", blob.getDimensionType().location().toString());
+            tc.putString(TAG_DIMTYPE, blob.getDimensionType().location().toString());
             blob.writeToNBT(tc);
             list.add(tc);
         }
-        compound.put("worlds", list);
+        compound.put(TAG_WORLDS, list);
 
         return compound;
     }

@@ -10,6 +10,7 @@ import mcjty.rftoolsbase.api.xnet.gui.IndicatorIcon;
 import mcjty.rftoolsbase.api.xnet.helper.DefaultChannelSettings;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
+import mcjty.xnet.apiimpl.logic.enums.LogicMode;
 import mcjty.xnet.logic.LogicOperations;
 import mcjty.xnet.logic.LogicTools;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
@@ -131,7 +132,7 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
             Map<SidedConsumer, IConnectorSettings> connectors = context.getConnectors(channel);
             for (Map.Entry<SidedConsumer, IConnectorSettings> entry : connectors.entrySet()) {
                 LogicConnectorSettings con = (LogicConnectorSettings) entry.getValue();
-                if (con.getLogicMode() == LogicConnectorSettings.LogicMode.SENSOR) {
+                if (con.getLogicMode() == LogicMode.SENSOR) {
                     sensors.add(Pair.of(entry.getKey(), con));
                 } else {
                     outputs.add(Pair.of(entry.getKey(), con));
@@ -141,7 +142,7 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
             connectors = context.getRoutedConnectors(channel);
             for (Map.Entry<SidedConsumer, IConnectorSettings> entry : connectors.entrySet()) {
                 LogicConnectorSettings con = (LogicConnectorSettings) entry.getValue();
-                if (con.getLogicMode() == LogicConnectorSettings.LogicMode.OUTPUT) {
+                if (con.getLogicMode() == LogicMode.OUTPUT) {
                     outputs.add(Pair.of(entry.getKey(), con));
                 }
             }

@@ -39,8 +39,10 @@ import javax.annotation.Nullable;
 import static mcjty.lib.api.container.DefaultContainerProvider.empty;
 import static mcjty.xnet.apiimpl.Constants.TAG_ENABLED;
 import static mcjty.xnet.apiimpl.Constants.TAG_FACING;
+import static mcjty.xnet.apiimpl.Constants.TAG_INFO;
 import static mcjty.xnet.apiimpl.Constants.TAG_NAME;
 import static mcjty.xnet.modules.cables.CableModule.TYPE_CONNECTOR;
+import static mcjty.xnet.utils.I18nConstants.BLOCK_CONNECTOR;
 
 public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSupport, IConnectorTile {
 
@@ -71,7 +73,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     @Cap(type = CapType.CONTAINER)
-    private LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Connector")
+    private LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>(BLOCK_CONNECTOR.i18n())
             .containerSupplier(empty(CableModule.CONTAINER_CONNECTOR, this)));
 
     public ConnectorTileEntity(BlockPos pos, BlockState state) {
@@ -186,7 +188,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     @Override
     public void loadInfo(CompoundTag tagCompound) {
         super.loadInfo(tagCompound);
-        CompoundTag info = tagCompound.getCompound("Info");
+        CompoundTag info = tagCompound.getCompound(TAG_INFO);
         name = info.getString(TAG_NAME);
         if (info.contains(TAG_ENABLED)) {
             enabled = info.getByte(TAG_ENABLED);

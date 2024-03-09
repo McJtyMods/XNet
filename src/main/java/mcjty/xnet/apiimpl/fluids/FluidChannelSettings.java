@@ -12,7 +12,11 @@ import mcjty.rftoolsbase.api.xnet.helper.DefaultChannelSettings;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
+import mcjty.xnet.apiimpl.enums.ChannelMode;
+import mcjty.xnet.apiimpl.enums.InsExtMode;
+import mcjty.xnet.modules.controller.client.AbstractEditorPanel;
 import mcjty.xnet.setup.Config;
+import mcjty.xnet.utils.CastTools;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -39,19 +43,17 @@ import static mcjty.xnet.apiimpl.Constants.TAG_OFFSET;
 public class FluidChannelSettings extends DefaultChannelSettings implements IChannelSettings {
 
     public static final ResourceLocation iconGuiElements = new ResourceLocation(XNet.MODID, "textures/gui/guielements.png");
-
-    public enum ChannelMode {
-        PRIORITY,
-        DISTRIBUTE
-    }
-
-    private ChannelMode channelMode = ChannelMode.DISTRIBUTE;
+    private ChannelMode channelMode = ChannelMode.ROUNDROBIN;
     private int delay = 0;
     private int roundRobinOffset = 0;
 
     // Cache data
     private Map<SidedConsumer, FluidConnectorSettings> fluidExtractors = null;
     private List<Pair<SidedConsumer, FluidConnectorSettings>> fluidConsumers = null;
+
+    public ChannelMode getChannelMode() {
+        return channelMode;
+    }
 
     @Override
     public JsonObject writeToJson() {
@@ -304,7 +306,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             Map<SidedConsumer, IConnectorSettings> connectors = context.getConnectors(channel);
             for (var entry : connectors.entrySet()) {
                 FluidConnectorSettings con = (FluidConnectorSettings) entry.getValue();
-                if (con.getFluidMode() == FluidConnectorSettings.FluidMode.EXT) {
+                if (con.getFluidMode() == InsExtMode.EXT) {
                     fluidExtractors.put(entry.getKey(), con);
                 } else {
                     fluidConsumers.add(Pair.of(entry.getKey(), con));
@@ -314,7 +316,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             connectors = context.getRoutedConnectors(channel);
             for (var entry : connectors.entrySet()) {
                 FluidConnectorSettings con = (FluidConnectorSettings) entry.getValue();
-                if (con.getFluidMode() == FluidConnectorSettings.FluidMode.INS) {
+                if (con.getFluidMode() == InsExtMode.INS) {
                     fluidConsumers.add(Pair.of(entry.getKey(), con));
                 }
             }
@@ -342,12 +344,13 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
 
     @Override
     public void createGui(IEditorGui gui) {
-        gui.nl().choices(TAG_MODE, "Fluid distribution mode", channelMode, ChannelMode.values());
+        gui.nl();
+        ((AbstractEditorPanel)gui).translatableChoices(TAG_MODE, channelMode, ChannelMode.values());// TODO: 09.03.2024 remove AbstractEditorPanel cast after rftoolbase update
     }
 
     @Override
     public void update(Map<String, Object> data) {
-        channelMode = ChannelMode.valueOf(((String)data.get(TAG_MODE)).toUpperCase());
+        channelMode = CastTools.safeChannelMode(data.get(TAG_MODE));
     }
 
     @Override

@@ -8,8 +8,8 @@ import mcjty.xnet.XNet;
 import mcjty.xnet.modules.wireless.WirelessRouterModule;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
 import mcjty.xnet.setup.XNetMessages;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
 
 import javax.annotation.Nonnull;
 

@@ -63,6 +63,7 @@ import static mcjty.lib.builder.TooltipBuilder.key;
 import static mcjty.xnet.apiimpl.Constants.TAG_CHANCNT;
 import static mcjty.xnet.apiimpl.Constants.TAG_CHANNEL;
 import static mcjty.xnet.apiimpl.Constants.TAG_INDEX;
+import static mcjty.xnet.apiimpl.Constants.TAG_INFO;
 import static mcjty.xnet.apiimpl.Constants.TAG_NAME;
 import static mcjty.xnet.apiimpl.Constants.TAG_POS;
 import static mcjty.xnet.apiimpl.Constants.TAG_PUBLISHED;
@@ -160,7 +161,7 @@ public final class TileEntityRouter extends GenericTileEntity {
     @Override
     public void loadInfo(CompoundTag tagCompound) {
         super.loadInfo(tagCompound);
-        CompoundTag info = tagCompound.getCompound("Info");
+        CompoundTag info = tagCompound.getCompound(TAG_INFO);
         channelCount = info.getInt(TAG_CHANCNT);
         ListTag published = info.getList(TAG_PUBLISHED, Tag.TAG_COMPOUND);
         for (int i = 0; i < published.size(); i++) {

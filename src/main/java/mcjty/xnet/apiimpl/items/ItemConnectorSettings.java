@@ -12,11 +12,16 @@ import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
 import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.Constants;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
+import mcjty.xnet.apiimpl.enums.InsExtMode;
+import mcjty.xnet.apiimpl.items.enums.ExtractMode;
+import mcjty.xnet.apiimpl.items.enums.StackMode;
+import mcjty.xnet.modules.controller.client.AbstractEditorPanel;
+import mcjty.xnet.utils.CastTools;
 import mcjty.xnet.utils.TagUtils;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,9 +35,9 @@ import static mcjty.xnet.apiimpl.Constants.TAG_COUNT;
 import static mcjty.xnet.apiimpl.Constants.TAG_EXTRACT;
 import static mcjty.xnet.apiimpl.Constants.TAG_EXTRACT_AMOUNT;
 import static mcjty.xnet.apiimpl.Constants.TAG_EXTRACT_MODE;
+import static mcjty.xnet.apiimpl.Constants.TAG_FILTER_IDX;
 import static mcjty.xnet.apiimpl.Constants.TAG_FILTER_INDEX;
 import static mcjty.xnet.apiimpl.Constants.TAG_FLT;
-import static mcjty.xnet.apiimpl.Constants.TAG_FILTER_IDX;
 import static mcjty.xnet.apiimpl.Constants.TAG_ITEM_MODE;
 import static mcjty.xnet.apiimpl.Constants.TAG_META;
 import static mcjty.xnet.apiimpl.Constants.TAG_META_MODE;
@@ -45,6 +50,25 @@ import static mcjty.xnet.apiimpl.Constants.TAG_STACK;
 import static mcjty.xnet.apiimpl.Constants.TAG_STACK_MODE;
 import static mcjty.xnet.apiimpl.Constants.TAG_TAGS;
 import static mcjty.xnet.apiimpl.Constants.TAG_TAGS_MODE;
+import static mcjty.xnet.utils.I18nConstants.EXT_ENDING;
+import static mcjty.xnet.utils.I18nConstants.HIGH_FORMAT;
+import static mcjty.xnet.utils.I18nConstants.INS_ENDING;
+import static mcjty.xnet.utils.I18nConstants.ITEM_BLACKLIST_LABEL;
+import static mcjty.xnet.utils.I18nConstants.ITEM_BLACKLIST_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.ITEM_COUNT_TOOLTIP_FORMATTED;
+import static mcjty.xnet.utils.I18nConstants.ITEM_EXT_COUNT_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.ITEM_FILTER_INDEX_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.ITEM_FILTER_OFF;
+import static mcjty.xnet.utils.I18nConstants.ITEM_META_LABEL;
+import static mcjty.xnet.utils.I18nConstants.ITEM_META_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.ITEM_NBT_LABEL;
+import static mcjty.xnet.utils.I18nConstants.ITEM_NBT_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.ITEM_TAGS_LABEL;
+import static mcjty.xnet.utils.I18nConstants.ITEM_TAGS_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.LOW_FORMAT;
+import static mcjty.xnet.utils.I18nConstants.PRIORITY_LABEL;
+import static mcjty.xnet.utils.I18nConstants.PRIORITY_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.SPEED_TOOLTIP;
 
 public class ItemConnectorSettings extends AbstractConnectorSettings {
 
@@ -52,24 +76,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
 
     public static final int FILTER_SIZE = 18;
 
-    public enum ItemMode {
-        INS,
-        EXT
-    }
-
-    public enum StackMode {
-        SINGLE,
-        STACK,
-        COUNT
-    }
-
-    public enum ExtractMode {
-        FIRST,
-        RND,
-        ORDER
-    }
-
-    private ItemMode itemMode = ItemMode.INS;
+    private InsExtMode itemMode = InsExtMode.INS;
     private ExtractMode extractMode = ExtractMode.FIRST;
     private int speed = 2;
     private StackMode stackMode = StackMode.SINGLE;
@@ -87,7 +94,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     // Cached matcher for items
     private Predicate<ItemStack> matcher = null;
 
-    public ItemMode getItemMode() {
+    public InsExtMode getItemMode() {
         return itemMode;
     }
 
@@ -110,6 +117,13 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         return null;
     }
 
+    private String getMinMaxTooltip() {
+        return ITEM_COUNT_TOOLTIP_FORMATTED.i18n(
+                (itemMode == InsExtMode.EXT ? EXT_ENDING : INS_ENDING).i18n(),
+                (itemMode == InsExtMode.EXT ? LOW_FORMAT : HIGH_FORMAT).i18n()
+        );
+    }
+
     @Override
     public void createGui(IEditorGui gui) {
         advanced = gui.isAdvanced();
@@ -118,40 +132,37 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         sideGui(gui);
         colorsGui(gui);
         redstoneGui(gui);
-        gui.nl()
-                .choices(TAG_MODE, "Insert or extract mode", itemMode, ItemMode.values())
-                .shift(5)
-                .choices(TAG_STACK, "Single item, stack, or count", stackMode, StackMode.values());
+        gui.nl();
+        ((AbstractEditorPanel)gui).translatableChoices(TAG_MODE, itemMode, InsExtMode.values())// TODO: 09.03.2024 remove AbstractEditorPanel cast after rftoolbase update
+                .shift(5);
+        ((AbstractEditorPanel)gui).translatableChoices(TAG_STACK, stackMode, StackMode.values());// TODO: 09.03.2024 remove AbstractEditorPanel cast after rftoolbase update
 
-        if (stackMode == StackMode.COUNT && itemMode == ItemMode.EXT) {
-            gui
-                    .integer(TAG_EXTRACT_AMOUNT, "Amount of items to extract|per operation", extractAmount, 30, 64);
+        if (stackMode == StackMode.COUNT && itemMode == InsExtMode.EXT) {
+            gui.integer(TAG_EXTRACT_AMOUNT, ITEM_EXT_COUNT_TOOLTIP.i18n(), extractAmount, 30, 64);
         }
 
         gui
                 .shift(10)
-                .choices(TAG_SPEED, "Number of ticks for each operation", Integer.toString(speed * 5), speeds)
-                .nl();
-
+                .choices(TAG_SPEED, SPEED_TOOLTIP.i18n(), Integer.toString(speed * 5), speeds);
+        gui.nl();
         gui
-                .label("Pri").integer(TAG_PRIORITY, "Insertion priority", priority, 36).shift(5)
+                .label(PRIORITY_LABEL.i18n()).integer(TAG_PRIORITY, PRIORITY_TOOLTIP.i18n(), priority, 36).shift(5)
                 .label("#")
-                .integer(TAG_COUNT, itemMode == ItemMode.EXT ? "Amount in destination inventory|to keep" : "Max amount in destination|inventory", count, 30);
+                .integer(TAG_COUNT, getMinMaxTooltip(), count, 30);
 
-        if (itemMode == ItemMode.EXT) {
-            gui
-                    .shift(5)
-                    .choices(TAG_EXTRACT, "Extract mode (first available,|random slot or round robin)", extractMode, ExtractMode.values());
+        if (itemMode == InsExtMode.EXT) {
+            gui.shift(5);
+            ((AbstractEditorPanel)gui).translatableChoices(TAG_EXTRACT, extractMode, ExtractMode.values());// TODO: 09.03.2024 remove AbstractEditorPanel cast after rftoolbase update
         }
 
+        gui.nl();
         gui
-                .nl()
-
-                .toggleText(TAG_BLACKLIST, "Enable blacklist mode", "BL", blacklist).shift(0)
-                .toggleText(TAG_TAGS, "Tag matching", "Tags", tagsMode).shift(0)
-                .toggleText(TAG_META, "Metadata matching", "Meta", metaMode).shift(0)
-                .toggleText(TAG_NBT, "NBT matching", "NBT", nbtMode).shift(0)
-                .choices(TAG_FILTER_IDX, "Filter Index", getFilterIndexString(), "<Off>", "1", "2", "3", "4")
+                .toggleText(TAG_BLACKLIST, ITEM_BLACKLIST_TOOLTIP.i18n(), ITEM_BLACKLIST_LABEL.i18n(), blacklist).shift(0)
+                .toggleText(TAG_TAGS, ITEM_TAGS_TOOLTIP.i18n(), ITEM_TAGS_LABEL.i18n(), tagsMode).shift(0)
+                .toggleText(TAG_META, ITEM_META_TOOLTIP.i18n(), ITEM_META_LABEL.i18n(), metaMode).shift(0)
+                .toggleText(TAG_NBT, ITEM_NBT_TOOLTIP.i18n(), ITEM_NBT_LABEL.i18n(), nbtMode).shift(0)
+                .choices(TAG_FILTER_IDX, ITEM_FILTER_INDEX_TOOLTIP.i18n(), getFilterIndexString(),
+                        ITEM_FILTER_OFF.i18n(), "1", "2", "3", "4")
                 .nl();
         for (int i = 0 ; i < FILTER_SIZE ; i++) {
             gui.ghostSlot(TAG_FLT + i, filters.get(i));
@@ -160,7 +171,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
 
     private String getFilterIndexString() {
         if (filterIndex == -1) {
-            return "<Off>";
+            return ITEM_FILTER_OFF.i18n();
         } else {
             return Integer.toString(filterIndex);
         }
@@ -243,7 +254,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         if (tag.equals(TAG_FACING)) {
             return advanced;
         }
-        if (itemMode == ItemMode.INS) {
+        if (itemMode == InsExtMode.INS) {
             return INSERT_TAGS.contains(tag);
         } else {
             return EXTRACT_TAGS.contains(tag);
@@ -257,18 +268,13 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void update(Map<String, Object> data) {
         super.update(data);
-        itemMode = ItemMode.valueOf(((String)data.get(TAG_MODE)).toUpperCase());
-        Object emode = data.get(TAG_EXTRACT);
-        if (emode == null) {
-            extractMode = ExtractMode.FIRST;
-        } else {
-            extractMode = ExtractMode.valueOf(((String) emode).toUpperCase());
-        }
-        stackMode = StackMode.valueOf(((String)data.get(TAG_STACK)).toUpperCase());
+        itemMode = CastTools.safeInsExtMode(data.get(TAG_MODE));
+        extractMode = CastTools.safeExtractMode(data.get(TAG_EXTRACT));
+        stackMode = CastTools.safeStackMode(data.get(TAG_STACK));
         setSpeed(Integer.parseInt((String) data.get(TAG_SPEED)) / 5);
 
         String idx = (String) data.get(TAG_FILTER_IDX);
-        this.filterIndex = "<Off>".equalsIgnoreCase(idx) ? -1 : Integer.parseInt(idx);
+        this.filterIndex = ITEM_FILTER_OFF.i18n().equalsIgnoreCase(idx) ? -1 : Integer.parseInt(idx);
         tagsMode = Boolean.TRUE.equals(data.get(TAG_TAGS));
         metaMode = Boolean.TRUE.equals(data.get(TAG_META));
         nbtMode = Boolean.TRUE.equals(data.get(TAG_NBT));
@@ -293,7 +299,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         object.add(TAG_TAGS_MODE, new JsonPrimitive(tagsMode));
         object.add(TAG_META_MODE, new JsonPrimitive(metaMode));
         object.add(TAG_NBT_MODE, new JsonPrimitive(nbtMode));
-        object.add(TAG_PRIORITY, new JsonPrimitive(blacklist));
+        object.add(TAG_BLACKLIST, new JsonPrimitive(blacklist));
         setIntegerSafe(object, TAG_PRIORITY, priority);
         setIntegerSafe(object, TAG_EXTRACT_AMOUNT, extractAmount);
         setIntegerSafe(object, TAG_COUNT, count);
@@ -320,7 +326,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         tagsMode = getBoolSafe(object, TAG_TAGS_MODE);
         metaMode = getBoolSafe(object, TAG_META_MODE);
         nbtMode = getBoolSafe(object, TAG_NBT_MODE);
-        blacklist = getBoolSafe(object, TAG_PRIORITY);
+        blacklist = getBoolSafe(object, TAG_BLACKLIST);
         priority = getIntegerSafe(object, TAG_PRIORITY);
         extractAmount = getIntegerSafe(object, TAG_EXTRACT_AMOUNT);
         count = getIntegerSafe(object, TAG_COUNT);
@@ -342,7 +348,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
     @Override
     public void readFromNBT(CompoundTag tag) {
         super.readFromNBT(tag);
-        itemMode = ItemMode.values()[tag.getByte(TAG_ITEM_MODE)];
+        itemMode = InsExtMode.values()[tag.getByte(TAG_ITEM_MODE)];
         extractMode = ExtractMode.values()[tag.getByte(TAG_EXTRACT_MODE)];
         stackMode = StackMode.values()[tag.getByte(TAG_STACK_MODE)];
         if (tag.contains(TAG_SPEED)) { // Reverse old|new speed tag. Now actual tag is "speed" to unification between types
@@ -358,7 +364,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         tagsMode = tag.getBoolean(TAG_TAGS_MODE);
         metaMode = tag.getBoolean(TAG_META_MODE);
         nbtMode = tag.getBoolean(TAG_NBT_MODE);
-        blacklist = tag.getBoolean(TAG_PRIORITY);
+        blacklist = tag.getBoolean(TAG_BLACKLIST);
         priority = TagUtils.getIntOrNull(tag, TAG_PRIORITY);
         extractAmount = TagUtils.getIntOrNull(tag, TAG_EXTRACT_AMOUNT);
         count = TagUtils.getIntOrNull(tag, TAG_COUNT);
@@ -384,7 +390,7 @@ public class ItemConnectorSettings extends AbstractConnectorSettings {
         tag.putBoolean(TAG_TAGS_MODE, tagsMode);
         tag.putBoolean(TAG_META_MODE, metaMode);
         tag.putBoolean(TAG_NBT_MODE, nbtMode);
-        tag.putBoolean(TAG_PRIORITY, blacklist);
+        tag.putBoolean(TAG_BLACKLIST, blacklist);
         TagUtils.putIntIfNotNull(tag, TAG_PRIORITY, priority);
         TagUtils.putIntIfNotNull(tag, TAG_EXTRACT_AMOUNT, extractAmount);
         TagUtils.putIntIfNotNull(tag, TAG_COUNT, count);

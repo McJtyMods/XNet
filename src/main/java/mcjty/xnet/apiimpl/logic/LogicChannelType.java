@@ -3,12 +3,14 @@ package mcjty.xnet.apiimpl.logic;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.rftoolsbase.api.xnet.channels.IConnectorSettings;
-import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import static mcjty.xnet.utils.I18nConstants.CHANNEL_LOGIC;
 
 public class LogicChannelType implements IChannelType {
 
@@ -19,7 +21,7 @@ public class LogicChannelType implements IChannelType {
 
     @Override
     public String getName() {
-        return "Logic";
+        return CHANNEL_LOGIC.i18n();
     }
 
     @Override

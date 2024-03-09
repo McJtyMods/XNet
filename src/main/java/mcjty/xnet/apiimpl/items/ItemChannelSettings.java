@@ -13,8 +13,13 @@ import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
+import mcjty.xnet.apiimpl.enums.ChannelMode;
+import mcjty.xnet.apiimpl.enums.InsExtMode;
+import mcjty.xnet.apiimpl.items.enums.StackMode;
 import mcjty.xnet.compat.RFToolsSupport;
+import mcjty.xnet.modules.controller.client.AbstractEditorPanel;
 import mcjty.xnet.setup.Config;
+import mcjty.xnet.utils.CastTools;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -50,12 +55,6 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     // Cache data
     private Map<SidedConsumer, ItemConnectorSettings> itemExtractors = null;
     private List<Pair<SidedConsumer, ItemConnectorSettings>> itemConsumers = null;
-
-
-    public enum ChannelMode {
-        PRIORITY,
-        ROUNDROBIN
-    }
 
     private ChannelMode channelMode = ChannelMode.PRIORITY;
     private int delay = 0;
@@ -467,7 +466,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     }
 
 
-    private ItemStack fetchItem(IItemHandler handler, boolean simulate, Predicate<ItemStack> matcher, ItemConnectorSettings.StackMode stackMode, int extractAmount, int maxamount, MInteger index, int startIdx) {
+    private ItemStack fetchItem(IItemHandler handler, boolean simulate, Predicate<ItemStack> matcher, StackMode stackMode, int extractAmount, int maxamount, MInteger index, int startIdx) {
         if (handler.getSlots() <= 0) {
             return ItemStack.EMPTY;
         }
@@ -499,7 +498,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             Map<SidedConsumer, IConnectorSettings> connectors = context.getConnectors(channel);
             for (Map.Entry<SidedConsumer, IConnectorSettings> entry : connectors.entrySet()) {
                 ItemConnectorSettings con = (ItemConnectorSettings) entry.getValue();
-                if (con.getItemMode() == ItemConnectorSettings.ItemMode.EXT) {
+                if (con.getItemMode() == InsExtMode.EXT) {
                     itemExtractors.put(entry.getKey(), con);
                 } else {
                     itemConsumers.add(Pair.of(entry.getKey(), con));
@@ -508,7 +507,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             connectors = context.getRoutedConnectors(channel);
             for (Map.Entry<SidedConsumer, IConnectorSettings> entry : connectors.entrySet()) {
                 ItemConnectorSettings con = (ItemConnectorSettings) entry.getValue();
-                if (con.getItemMode() == ItemConnectorSettings.ItemMode.INS) {
+                if (con.getItemMode() == InsExtMode.INS) {
                     itemConsumers.add(Pair.of(entry.getKey(), con));
                 }
             }
@@ -542,12 +541,13 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
     @Override
     public void createGui(IEditorGui gui) {
-        gui.nl().choices(TAG_MODE, "Item distribution mode", channelMode, ChannelMode.values());
+        gui.nl();
+        ((AbstractEditorPanel)gui).translatableChoices(TAG_MODE, channelMode, ChannelMode.values());// TODO: 09.03.2024 remove AbstractEditorPanel cast after rftoolbase update
     }
 
     @Override
     public void update(Map<String, Object> data) {
-        channelMode = ChannelMode.valueOf(((String) data.get(TAG_MODE)).toUpperCase());
+        channelMode = CastTools.safeChannelMode(data.get(TAG_MODE));
         roundRobinOffset = 0;
     }
 

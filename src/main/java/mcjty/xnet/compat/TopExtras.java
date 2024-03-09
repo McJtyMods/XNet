@@ -5,8 +5,8 @@ import mcjty.theoneprobe.api.ITheOneProbe;
 import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.facade.FacadeModule;
 import mcjty.xnet.modules.facade.blocks.FacadeTileEntity;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.fml.InterModComms;
 

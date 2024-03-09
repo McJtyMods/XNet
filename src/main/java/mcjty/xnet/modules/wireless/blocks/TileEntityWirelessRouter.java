@@ -48,8 +48,10 @@ import java.util.Map;
 import java.util.UUID;
 
 import static mcjty.lib.api.container.DefaultContainerProvider.empty;
+import static mcjty.xnet.apiimpl.Constants.TAG_INFO;
 import static mcjty.xnet.modules.controller.blocks.TileEntityController.ERROR;
 import static mcjty.xnet.modules.wireless.WirelessRouterModule.TYPE_WIRELESS_ROUTER;
+import static mcjty.xnet.utils.I18nConstants.BLOCK_WIRELESS_ROUTER;
 
 public final class TileEntityWirelessRouter extends TickingTileEntity {
 
@@ -70,7 +72,7 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
     private final LazyOptional<GenericEnergyStorage> energyHandler = LazyOptional.of(() -> new GenericEnergyStorage(this, true, Config.wirelessRouterMaxRF.get(), Config.wirelessRouterRfPerTick.get()));
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Wireless Router")
+    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>(BLOCK_WIRELESS_ROUTER.i18n())
             .containerSupplier(empty(WirelessRouterModule.CONTAINER_WIRELESS_ROUTER, this))
             .setupSync(this));
 
@@ -332,7 +334,7 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
     @Override
     public void loadInfo(CompoundTag tagCompound) {
         super.loadInfo(tagCompound);
-        CompoundTag info = tagCompound.getCompound("Info");
+        CompoundTag info = tagCompound.getCompound(TAG_INFO);
         publicAccess = info.getBoolean("publicAcc");
     }
 

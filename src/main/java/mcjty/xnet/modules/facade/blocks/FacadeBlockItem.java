@@ -47,6 +47,7 @@ import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.NORTH;
 import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.SOUTH;
 import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.UP;
 import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.WEST;
+import static mcjty.xnet.utils.I18nConstants.FACADE_CURRENT_MIMIC_FORMATTED;
 
 public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
 
@@ -84,7 +85,10 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
         Player player = context.getPlayer();
         setMimicBlock(item, mimicBlock);
         if (world.isClientSide) {
-            player.displayClientMessage(ComponentFactory.literal("Facade is now mimicking " + mimicBlock.getBlock().getDescriptionId()), false);
+            player.displayClientMessage(ComponentFactory.literal(
+                    String.format(FACADE_CURRENT_MIMIC_FORMATTED.i18n(), mimicBlock.getBlock().getDescriptionId())),
+                    false
+            );
         }
     }
 

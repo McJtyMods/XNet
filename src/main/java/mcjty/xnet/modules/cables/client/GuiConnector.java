@@ -24,6 +24,9 @@ import static mcjty.xnet.apiimpl.Constants.TAG_NAME;
 import static mcjty.xnet.modules.cables.blocks.ConnectorTileEntity.CMD_ENABLE;
 import static mcjty.xnet.modules.cables.blocks.ConnectorTileEntity.PARAM_ENABLED;
 import static mcjty.xnet.modules.cables.blocks.ConnectorTileEntity.PARAM_FACING;
+import static mcjty.xnet.utils.I18nConstants.CONNECTOR_NAME_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.DIRECTIONS_LABEL;
+import static mcjty.xnet.utils.I18nConstants.NAME_LABEL;
 
 public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, GenericContainer> {
 
@@ -53,13 +56,13 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
 
         Panel toplevel = vertical().filledRectThickness(2);
 
-        TextField nameField = new TextField().name(TAG_NAME).tooltips("Set the name of this connector");
+        TextField nameField = new TextField().name(TAG_NAME).tooltips(CONNECTOR_NAME_TOOLTIP.i18n());
 
-        Panel namePanel = horizontal().children(label("Name:"), nameField);
+        Panel namePanel = horizontal().children(label(NAME_LABEL.i18n()), nameField);
         toplevel.children(namePanel);
 
         Panel togglePanel = horizontal().
-                children(label("Directions:"));
+                children(label(DIRECTIONS_LABEL.i18n()));
         for (Direction facing : OrientationTools.DIRECTION_VALUES) {
             toggleButtons[facing.ordinal()] = new ToggleButton().text(facing.getSerializedName().substring(0, 1).toUpperCase())
                 .event(() -> {

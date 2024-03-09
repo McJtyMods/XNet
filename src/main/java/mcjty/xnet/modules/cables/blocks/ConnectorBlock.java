@@ -66,6 +66,7 @@ import static mcjty.lib.builder.TooltipBuilder.header;
 import static mcjty.lib.builder.TooltipBuilder.key;
 import static mcjty.lib.builder.TooltipBuilder.parameter;
 import static mcjty.xnet.apiimpl.Constants.TAG_CONSUMER_ID;
+import static mcjty.xnet.utils.I18nConstants.BLOCK_CONNECTOR;
 
 public class ConnectorBlock extends GenericCableBlock implements ITooltipSettings, EntityBlock {
 
@@ -101,7 +102,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
                     @Override
                     @Nonnull
                     public Component getDisplayName() {
-                        return ComponentFactory.literal("Connector");
+                        return ComponentFactory.literal(BLOCK_CONNECTOR.i18n());
                     }
 
                     @Nonnull

@@ -93,6 +93,11 @@ public class Constants {
     public static final String TAG_RS_COUNTING_HOLDER = "RSCountingHolder";
     public static final String TAG_RS_TICKS_HOLDER = "RSTicksHolder";
 
+    public static final String TAG_TOOLTIP = "tooltip";
+    public static final String TAG_WORLDS = "worlds";
+    public static final String TAG_DIMTYPE = "dimtype";
+    public static final String TAG_INFO = "Info";
+
 
     public static final String WIDGET_SEARCH_BAR = "searchbar";
     public static final String WIDGET_CHANNEL_EDIT_PANEL = "channeleditpanel";

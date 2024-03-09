@@ -19,6 +19,8 @@ import mcjty.rftoolsbase.api.xnet.channels.RSMode;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.xnet.XNet;
 import mcjty.xnet.setup.XNetMessages;
+import mcjty.xnet.utils.EnumChoiceLabel;
+import mcjty.xnet.utils.ITranslatableEnum;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -28,6 +30,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static mcjty.lib.gui.widgets.Widgets.textfield;
+import static mcjty.xnet.utils.I18nConstants.RS_MODE_IGNORED_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.RS_MODE_OFF_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.RS_MODE_ON_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.RS_MODE_PULSE_TOOLTIP;
 
 public abstract class AbstractEditorPanel implements IEditorGui {
 
@@ -282,15 +288,32 @@ public abstract class AbstractEditorPanel implements IEditorGui {
         return choices(tag, tooltip, StringUtils.capitalize(current.toString().toLowerCase()), strings);
     }
 
+    public IEditorGui translatableChoices(String tag, ITranslatableEnum<?> current, ITranslatableEnum<?>... values) {// TODO: 09.03.2024 move to rftoolsbase
+        int w = 10;
+        for (ITranslatableEnum<?> s : values) {
+            w = Math.max(w, mc.font.width(s.getI18n()) + 14);
+        }
+
+        fitWidth(w);
+        EnumChoiceLabel choice = new EnumChoiceLabel().choices(values).choice(current)
+                                     .hint(x, y, w, 14);
+        data.put(tag, current.ordinal());
+        choice.event((newChoice) -> update(tag, newChoice.ordinal()));
+        panel.children(choice);
+        components.put(tag, choice);
+        x += w;
+        return this;
+    }
+
     @Override
     public IEditorGui redstoneMode(String tag, RSMode current) {
         int w = 14;
         fitWidth(w);
         ImageChoiceLabel redstoneMode = new ImageChoiceLabel()
-                .choice("Ignored", "Redstone mode:\nIgnored", iconGuiElements, 1, 1)
-                .choice("Off", "Redstone mode:\nOff to activate", iconGuiElements, 17, 1)
-                .choice("On", "Redstone mode:\nOn to activate", iconGuiElements, 33, 1)
-                .choice("Pulse", "Do one operation\non a pulse", iconGuiElements, 49, 1);
+                .choice("Ignored", RS_MODE_IGNORED_TOOLTIP.i18n(), iconGuiElements, 1, 1)
+                .choice("Off", RS_MODE_OFF_TOOLTIP.i18n(), iconGuiElements, 17, 1)
+                .choice("On", RS_MODE_ON_TOOLTIP.i18n(), iconGuiElements, 33, 1)
+                .choice("Pulse", RS_MODE_PULSE_TOOLTIP.i18n(), iconGuiElements, 49, 1);
         switch (current) {
             case IGNORED -> redstoneMode.setCurrentChoice("Ignored");
             case OFF -> redstoneMode.setCurrentChoice("Off");

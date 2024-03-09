@@ -104,12 +104,14 @@ import static mcjty.xnet.apiimpl.Constants.TAG_CHANNEL;
 import static mcjty.xnet.apiimpl.Constants.TAG_COLORS;
 import static mcjty.xnet.apiimpl.Constants.TAG_ENABLED;
 import static mcjty.xnet.apiimpl.Constants.TAG_INDEX;
+import static mcjty.xnet.apiimpl.Constants.TAG_INFO;
 import static mcjty.xnet.apiimpl.Constants.TAG_NAME;
 import static mcjty.xnet.apiimpl.Constants.TAG_POS;
 import static mcjty.xnet.apiimpl.Constants.TAG_SIDE;
 import static mcjty.xnet.apiimpl.Constants.TAG_TYPE;
 import static mcjty.xnet.modules.controller.ChannelInfo.MAX_CHANNELS;
 import static mcjty.xnet.modules.controller.ControllerModule.TYPE_CONTROLLER;
+import static mcjty.xnet.utils.I18nConstants.BLOCK_CONTROLLER;
 
 public final class TileEntityController extends TickingTileEntity implements IControllerContext {
 
@@ -162,7 +164,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, Config.controllerMaxRF.get(), Config.controllerRfPerTick.get());
 
     @Cap(type = CapType.CONTAINER)
-    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>("Controller")
+    private final LazyOptional<MenuProvider> screenHandler = LazyOptional.of(() -> new DefaultContainerProvider<GenericContainer>(BLOCK_CONTROLLER.i18n())
             .containerSupplier(container(ControllerModule.CONTAINER_CONTROLLER, CONTAINER_FACTORY,this))
             .itemHandler(() -> items)
             .energyHandler(() -> energyStorage)
@@ -432,7 +434,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     @Override
     public void loadInfo(CompoundTag tagCompound) {
         super.loadInfo(tagCompound);
-        CompoundTag info = tagCompound.getCompound("Info");
+        CompoundTag info = tagCompound.getCompound(TAG_INFO);
         colors = info.getInt(TAG_COLORS);
         for (int i = 0; i < MAX_CHANNELS; i++) {
             if (info.contains(TAG_CHANNEL + i)) {

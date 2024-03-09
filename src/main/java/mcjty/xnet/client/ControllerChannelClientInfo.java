@@ -4,8 +4,8 @@ import mcjty.lib.blockcommands.ISerializer;
 import mcjty.lib.network.NetworkTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
 import mcjty.xnet.XNet;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
 
 import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;

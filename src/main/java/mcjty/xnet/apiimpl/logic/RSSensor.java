@@ -6,22 +6,23 @@ import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.xnet.apiimpl.energy.EnergyChannelSettings;
 import mcjty.xnet.apiimpl.fluids.FluidChannelSettings;
 import mcjty.xnet.apiimpl.items.ItemChannelSettings;
+import mcjty.xnet.apiimpl.logic.enums.Operator;
+import mcjty.xnet.apiimpl.logic.enums.SensorMode;
 import mcjty.xnet.compat.RFToolsSupport;
-import mcjty.xnet.logic.LogicTools;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import mcjty.xnet.modules.controller.client.AbstractEditorPanel;
+import mcjty.xnet.utils.CastTools;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiPredicate;
 
 import static mcjty.rftoolsbase.api.xnet.channels.Color.COLORS;
 import static mcjty.rftoolsbase.api.xnet.channels.Color.OFF;
@@ -33,61 +34,11 @@ import static mcjty.xnet.apiimpl.Constants.TAG_OP;
 import static mcjty.xnet.apiimpl.Constants.TAG_OPERATOR;
 import static mcjty.xnet.apiimpl.Constants.TAG_SENSOR_MODE;
 import static mcjty.xnet.apiimpl.Constants.TAG_STACK;
+import static mcjty.xnet.utils.I18nConstants.LOGIC_SENSOR_AMOUNT_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.LOGIC_SENSOR_OPERATOR_TOOLTIP;
+import static mcjty.xnet.utils.I18nConstants.LOGIC_SENSOR_OUT_COLOR_TOOLTIP;
 
 public class RSSensor {
-
-
-
-
-    public enum SensorMode {
-        OFF,
-        ITEM,
-        FLUID,
-        ENERGY,
-        RS
-    }
-
-    public enum Operator {
-        EQUAL("=", Integer::equals),
-        NOTEQUAL("!=", (i1, i2) -> !i1.equals(i2)),
-        LESS("<", (i1, i2) -> i1 < i2),
-        GREATER(">", (i1, i2) -> i1 > i2),
-        LESSOREQUAL("<=", (i1, i2) -> i1 <= i2),
-        GREATOROREQUAL(">=", (i1, i2) -> i1 >= i2);
-
-        private final String code;
-        private final BiPredicate<Integer, Integer> matcher;
-
-        private static final Map<String, Operator> OPERATOR_MAP = new HashMap<>();
-
-        static {
-            for (Operator operator : values()) {
-                OPERATOR_MAP.put(operator.code, operator);
-            }
-        }
-
-        Operator(String code, BiPredicate<Integer, Integer> matcher) {
-            this.code = code;
-            this.matcher = matcher;
-        }
-
-        public String getCode() {
-            return code;
-        }
-
-        public boolean match(int i1, int i2) {
-            return matcher.test(i1, i2);
-        }
-
-        @Override
-        public String toString() {
-            return code;
-        }
-
-        public static Operator valueOfCode(String code) {
-            return OPERATOR_MAP.get(code);
-        }
-    }
 
     private final int index;
 
@@ -161,11 +112,11 @@ public class RSSensor {
     }
 
     public void createGui(IEditorGui gui) {
+        ((AbstractEditorPanel)gui).translatableChoices(TAG_MODE + index, sensorMode, SensorMode.values());
         gui
-                .choices(TAG_MODE + index, "Sensor mode", sensorMode, SensorMode.values())
-                .choices(TAG_OP + index, "Operator", operator, Operator.values())
-                .integer(TAG_AMOUNT + index, "Amount to compare with", amount, 46)
-                .colors(TAG_COLOR + index, "Output color", outputColor.getColor(), COLORS)
+                .choices(TAG_OP + index, LOGIC_SENSOR_OPERATOR_TOOLTIP.i18n(), operator, Operator.values())
+                .integer(TAG_AMOUNT + index, LOGIC_SENSOR_AMOUNT_TOOLTIP.i18n(), amount, 46)
+                .colors(TAG_COLOR + index, LOGIC_SENSOR_OUT_COLOR_TOOLTIP.i18n(), outputColor.getColor(), COLORS)
                 .ghostSlot(TAG_STACK + index, filter)
                 .nl();
     }
@@ -207,29 +158,11 @@ public class RSSensor {
     }
 
     public void update(Map<String, Object> data) {
-        Object sm = data.get(TAG_MODE + index);
-        if (sm != null) {
-            sensorMode = SensorMode.valueOf(((String) sm).toUpperCase());
-        } else {
-            sensorMode = SensorMode.OFF;
-        }
-        Object op = data.get(TAG_OP + index);
-        if (op != null) {
-            operator = Operator.valueOfCode(((String) op).toUpperCase());
-        } else {
-            operator = Operator.EQUAL;
-        }
-        amount = LogicTools.safeInt(data.get(TAG_AMOUNT + index));
-        Object co = data.get(TAG_COLOR + index);
-        if (co != null) {
-            outputColor = Color.colorByValue((Integer) co);
-        } else {
-            outputColor = OFF;
-        }
-        filter = (ItemStack) data.get(TAG_STACK + index);
-        if (filter == null) {
-            filter = ItemStack.EMPTY;
-        }
+        sensorMode = CastTools.safeSensorMode(data.get(TAG_MODE + index));
+        operator = CastTools.safeOperator(data.get(TAG_OP + index));
+        amount = CastTools.safeInt(data.get(TAG_AMOUNT + index));
+        outputColor = CastTools.safeColor(data.get(TAG_COLOR + index));
+        filter = CastTools.safeItemStack(data.get(TAG_STACK + index));
     }
 
     public void readFromNBT(CompoundTag tag) {
