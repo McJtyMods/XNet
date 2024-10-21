@@ -17,8 +17,12 @@ import static mcjty.xnet.apiimpl.Constants.TAG_REDSTONE_OUT;
 import static mcjty.xnet.apiimpl.Constants.TAG_RS_CHANNEL_1;
 import static mcjty.xnet.apiimpl.Constants.TAG_RS_CHANNEL_2;
 import static mcjty.xnet.apiimpl.Constants.TAG_RS_COUNTER;
+import static mcjty.xnet.apiimpl.Constants.TAG_RS_COUNTING_CURRENT;
 import static mcjty.xnet.apiimpl.Constants.TAG_RS_COUNTING_HOLDER;
 import static mcjty.xnet.apiimpl.Constants.TAG_RS_FILTER;
+import static mcjty.xnet.apiimpl.Constants.TAG_RS_FLIP_FLAP;
+import static mcjty.xnet.apiimpl.Constants.TAG_RS_LAST_INPUT;
+import static mcjty.xnet.apiimpl.Constants.TAG_RS_TICKS_CURRENT;
 import static mcjty.xnet.apiimpl.Constants.TAG_RS_TICKS_HOLDER;
 import static mcjty.xnet.apiimpl.Constants.TAG_RS_TIMER;
 import static mcjty.xnet.utils.I18nConstants.LOGIC_INPUT_CHANNEL_TOOLTIP;
@@ -199,6 +203,7 @@ public class RSOutput {
         impulse = CastTools.safeBoolean(data.get(TAG_IMPULSE));
         impulseDuration = CastTools.safeIntOrValue(data.get(TAG_IMPULSE_DUR), 1);
         impulseRemaining = CastTools.safeInt(data.get(TAG_IMPULSE_REM));
+
     }
 
     public boolean isEnabled(String tag) {
@@ -218,11 +223,16 @@ public class RSOutput {
         inputChannel1 = Color.values()[tag.getByte(TAG_RS_CHANNEL_1)];
         inputChannel2 = Color.values()[tag.getByte(TAG_RS_CHANNEL_2)];
         setCountingHolder(tag.getInt(TAG_RS_COUNTING_HOLDER));
+        setCountingCurrent(tag.getInt(TAG_RS_COUNTING_CURRENT));
         setTicksHolder(tag.getInt(TAG_RS_TICKS_HOLDER));
+        setTicksCurrent(tag.getInt(TAG_RS_TICKS_CURRENT));
         redstoneOut = tag.getInt(TAG_REDSTONE_OUT);
         impulse = tag.getBoolean(TAG_IMPULSE);
         impulseDuration = tag.getInt(TAG_IMPULSE_DUR);
         impulseRemaining = tag.getInt(TAG_IMPULSE_REM);
+        flipFlapState = tag.getBoolean(TAG_RS_FLIP_FLAP);
+        lastInputTrue = tag.getBoolean(TAG_RS_LAST_INPUT);
+
     }
 
     public void writeToNBT(CompoundTag tag) {
@@ -230,10 +240,14 @@ public class RSOutput {
         tag.putByte(TAG_RS_CHANNEL_1, (byte) inputChannel1.ordinal());
         tag.putByte(TAG_RS_CHANNEL_2, (byte) inputChannel2.ordinal());
         tag.putInt(TAG_RS_COUNTING_HOLDER, countingHolder);
+        tag.putInt(TAG_RS_COUNTING_CURRENT, countingCurrent);
         tag.putInt(TAG_RS_TICKS_HOLDER, ticksHolder);
+        tag.putInt(TAG_RS_TICKS_CURRENT, ticksCurrent);
         tag.putInt(TAG_REDSTONE_OUT, redstoneOut);
         tag.putBoolean(TAG_IMPULSE, impulse);
         tag.putInt(TAG_IMPULSE_DUR, impulseDuration);
         tag.putInt(TAG_IMPULSE_REM, impulseRemaining);
+        tag.putBoolean(TAG_RS_FLIP_FLAP, flipFlapState);
+        tag.putBoolean(TAG_RS_LAST_INPUT, lastInputTrue);
     }
 }
