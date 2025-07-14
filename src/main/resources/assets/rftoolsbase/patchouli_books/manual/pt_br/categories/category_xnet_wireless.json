@@ -1,0 +1,7 @@
+{
+  "name": "Redes Sem Fio",
+  "description": "Conectando múltiplas redes sem fio",
+  "parent": "rftoolsbase:category_xnet",
+  "icon": "xnet:antenna",
+  "sortnum": 30
+}
