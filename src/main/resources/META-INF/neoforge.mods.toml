@@ -27,7 +27,7 @@ Powerful item/fluid/energy transfer
 [[dependencies.xnet]]
     modId="mcjtylib"
     mandatory=true
-    versionRange="[1.21-9.0.10,)"
+    versionRange="[1.21-9.0.15,)"
     ordering="AFTER"
     side="BOTH"
 [[dependencies.xnet]]
