@@ -528,16 +528,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     private void sendSplit(PacketServerCommandTyped packet, boolean doSplit) {
-        // @todo 1.21 split
-//        if (doSplit) {
-//            Packet<?> vanillaPacket = Networking.getChannel().toVanillaPacket(packet, NetworkDirection.PLAY_TO_SERVER);
-//            List<Packet<?>> packets = new ArrayList<>();
-//            VanillaPacketSplitter.appendPackets(ConnectionProtocol.PLAY, PacketFlow.SERVERBOUND, vanillaPacket, packets);
-//            Connection connection = Minecraft.getInstance().getConnection().getConnection();
-//            packets.forEach(connection::send);
-//        } else {
-            Networking.sendToServer(packet);
-//        }
+        Networking.sendToServer(packet);
     }
 
     private ConnectorClientInfo findClientInfo(ChannelClientInfo info, SidedPos p) {
