@@ -2,6 +2,13 @@
   "name": "Cables",
   "icon": "xnet:netcable_red",
   "category": "rftoolsbase:category_xnet_simple",
+  "extra_recipe_mappings": {
+    "xnet:netcable_red": 0,
+    "xnet:netcable_green": 0,
+    "xnet:netcable_blue": 0,
+    "xnet:netcable_yellow": 0,
+    "xnet:netcable_routing": 0
+  },
   "sortnum": 20,
   "pages": [
     {

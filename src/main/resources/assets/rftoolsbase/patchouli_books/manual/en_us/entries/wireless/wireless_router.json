@@ -2,6 +2,9 @@
   "name": "Wireless Router",
   "icon": "xnet:wireless_router",
   "category": "rftoolsbase:category_xnet_wireless",
+  "extra_recipe_mappings": {
+    "xnet:wireless_router": 0
+  },
   "sortnum": 10,
   "pages": [
     {

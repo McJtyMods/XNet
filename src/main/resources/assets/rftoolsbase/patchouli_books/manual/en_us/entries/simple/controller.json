@@ -2,6 +2,9 @@
   "name": "Controller",
   "icon": "xnet:controller",
   "category": "rftoolsbase:category_xnet_simple",
+  "extra_recipe_mappings": {
+    "xnet:controller": 0
+  },
   "sortnum": 10,
   "pages": [
     {
