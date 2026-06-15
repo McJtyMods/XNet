@@ -13,7 +13,19 @@
   "pages": [
     {
       "type": "text",
-      "text": "There are four colored cables that don't interphere with each other"
+      "text": "Colored cables form local networks. Red, green, blue, and yellow cables do not connect to each other, even when placed next to each other."
+    },
+    {
+      "type": "text",
+      "text": "Routing cables are different: they are used by Routers and Wireless Routers to link multiple controller networks together."
+    },
+    {
+      "type": "crafting",
+      "recipe": "xnet:netcable_red"
+    },
+    {
+      "type": "crafting",
+      "recipe": "xnet:netcable_routing"
     }
   ]
 }

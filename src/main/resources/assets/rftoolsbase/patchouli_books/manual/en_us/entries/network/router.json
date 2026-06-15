@@ -9,7 +9,15 @@
   "pages": [
     {
       "type": "text",
-      "text": "The router allows connection of multiple networks. This needs routing cables"
+      "text": "The Router connects multiple XNet controller networks. Attach it to a routing cable network, then publish or consume channels from the linked controllers."
+    },
+    {
+      "type": "text",
+      "text": "Use routing cables and routing connectors for the router network. Normal colored cables stay local to one controller network."
+    },
+    {
+      "type": "crafting",
+      "recipe": "xnet:router"
     }
   ]
 }

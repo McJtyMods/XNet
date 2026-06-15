@@ -1,8 +1,10 @@
 package mcjty.xnet.modules.various.blocks;
 
+import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.lib.varia.ComponentFactory;
 import mcjty.lib.varia.SafeClientTools;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -17,11 +19,18 @@ import java.util.List;
 
 public class RedstoneProxyBlock extends Block implements ITooltipSettings {
 
+    public static final ManualEntry MANUAL = ManualHelper.create("xnet:simple/redstone_proxy");
+
     public RedstoneProxyBlock() {
         super(Properties.of()
                 .strength(2.0f)
                 .sound(SoundType.METAL)
         );
+    }
+
+    @Override
+    public ManualEntry getManualEntry() {
+        return MANUAL;
     }
 
     @Override

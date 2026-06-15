@@ -1,5 +1,8 @@
 package mcjty.xnet.modules.cables.blocks;
 
+import mcjty.lib.gui.ManualEntry;
+import mcjty.lib.tooltips.ITooltipSettings;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.ConnectorType;
 import net.minecraft.core.BlockPos;
@@ -10,10 +13,17 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nonnull;
 
-public class NetCableBlock extends GenericCableBlock {
+public class NetCableBlock extends GenericCableBlock implements ITooltipSettings {
+
+    public static final ManualEntry MANUAL = ManualHelper.create("xnet:simple/cables");
 
     public NetCableBlock(CableBlockType type) {
         super(type);
+    }
+
+    @Override
+    public ManualEntry getManualEntry() {
+        return MANUAL;
     }
 
 //    @Nullable

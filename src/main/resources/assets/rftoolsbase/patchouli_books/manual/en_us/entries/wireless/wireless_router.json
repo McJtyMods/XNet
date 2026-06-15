@@ -9,7 +9,15 @@
   "pages": [
     {
       "type": "text",
-      "text": "Wireless connection of networks. @todo"
+      "text": "The Wireless Router can connect two separate Controller networks together.$(br2)Place an antenna on top of the router. The tier of that antenna determines the wireless range."
+    },
+    {
+      "type": "text",
+      "text": "Wireless routers work with routing networks. Use routing cables and connectors on the local side, then publish or consume channels through the router GUI."
+    },
+    {
+      "type": "crafting",
+      "recipe": "xnet:wireless_router"
     }
   ]
 }

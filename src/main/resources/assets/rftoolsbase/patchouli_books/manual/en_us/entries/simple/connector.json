@@ -19,7 +19,27 @@
   "pages": [
     {
       "type": "text",
-      "text": "To actually connect your cable to a block or machine you need a Connector"
+      "text": "Use a Connector to attach a cable network to a block or machine. Open the Connector to name it and control whether it is enabled."
+    },
+    {
+      "type": "text",
+      "text": "Advanced Connectors support higher internal energy capacity and more demanding setups. They are configured in the same way as normal connectors."
+    },
+    {
+      "type": "text",
+      "text": "Routing Connectors are for routing networks. Use them with routing cables when linking networks through Routers or Wireless Routers."
+    },
+    {
+      "type": "crafting",
+      "recipe": "xnet:connector_red"
+    },
+    {
+      "type": "crafting",
+      "recipe": "xnet:advanced_connector_red"
+    },
+    {
+      "type": "crafting",
+      "recipe": "xnet:connector_upgrade"
     }
   ]
 }

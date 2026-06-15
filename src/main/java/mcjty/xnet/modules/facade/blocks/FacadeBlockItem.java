@@ -1,10 +1,12 @@
 package mcjty.xnet.modules.facade.blocks;
 
 import mcjty.lib.builder.TooltipBuilder;
+import mcjty.lib.gui.ManualEntry;
 import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.lib.varia.ComponentFactory;
 import mcjty.lib.varia.NBTTools;
 import mcjty.lib.varia.Tools;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
@@ -50,6 +52,8 @@ import static mcjty.xnet.utils.I18nConstants.FACADE_CURRENT_MIMIC_FORMATTED;
 
 public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
 
+    public static final ManualEntry MANUAL = ManualHelper.create("xnet:simple/facade");
+
     private Lazy<TooltipBuilder> tooltipBuilder = () -> new TooltipBuilder()
             .info(header(),
                     gold(stack -> !isMimicking(stack)),
@@ -77,6 +81,11 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
 
     public FacadeBlockItem(FacadeBlock block) {
         super(block, XNet.setup.defaultProperties());
+    }
+
+    @Override
+    public ManualEntry getManualEntry() {
+        return MANUAL;
     }
 
     private static void userSetMimicBlock(@Nonnull ItemStack item, BlockState mimicBlock, UseOnContext context) {
