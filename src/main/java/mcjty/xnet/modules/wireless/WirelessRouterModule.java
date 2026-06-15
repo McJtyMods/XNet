@@ -17,6 +17,7 @@ import mcjty.xnet.modules.wireless.client.GuiWirelessRouter;
 import mcjty.xnet.modules.wireless.data.WirelessRouterData;
 import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.Registration;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -84,6 +85,7 @@ public class WirelessRouterModule implements IModule {
 
     private static BaseBlock createAntennaDishBlock() {
         return new BaseBlock(new BlockBuilder()
+                .manualEntry(ManualHelper.create("xnet:wireless/antennas"))
                 .info(TooltipBuilder.key("message.xnet.shiftmessage"))
                 .infoShift(TooltipBuilder.header(),
                         TooltipBuilder.parameter("info", stack -> Integer.toString(Config.wirelessRouterRfPerChannel[TileEntityWirelessRouter.TIER_INF].get()) + " rf/t/channel"))
@@ -103,6 +105,7 @@ public class WirelessRouterModule implements IModule {
 
     private static BaseBlock createAntennaBaseBlock() {
         return new BaseBlock(new BlockBuilder()
+                .manualEntry(ManualHelper.create("xnet:wireless/antennas"))
                 .info(TooltipBuilder.key("message.xnet.shiftmessage"))
                 .infoShift(TooltipBuilder.header())
         ) {
@@ -121,6 +124,7 @@ public class WirelessRouterModule implements IModule {
 
     private static BaseBlock createAntennaBlock() {
         return new BaseBlock(new BlockBuilder()
+                .manualEntry(ManualHelper.create("xnet:wireless/antennas"))
                 .info(TooltipBuilder.key("message.xnet.shiftmessage"))
                 .infoShift(TooltipBuilder.header(),
                         TooltipBuilder.parameter("one", stack -> "range " + Integer.toString(Config.antennaTier1Range.get()) + " (" + Integer.toString(Config.wirelessRouterRfPerChannel[TileEntityWirelessRouter.TIER_1].get()) + " rf/t/channel)"),

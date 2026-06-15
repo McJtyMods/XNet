@@ -1,0 +1,23 @@
+{
+  "name": "Facade",
+  "icon": "xnet:facade",
+  "category": "rftoolsbase:category_xnet_simple",
+  "extra_recipe_mappings": {
+    "xnet:facade": 0
+  },
+  "sortnum": 40,
+  "pages": [
+    {
+      "type": "text",
+      "text": "Facades hide XNet cables by mimicking another block. Use the facade item on a block to copy it, then place it over an XNet cable."
+    },
+    {
+      "type": "text",
+      "text": "Connectors can also be hidden with facades. Breaking the facade reveals or restores the cable setup behind it."
+    },
+    {
+      "type": "crafting",
+      "recipe": "xnet:facade"
+    }
+  ]
+}

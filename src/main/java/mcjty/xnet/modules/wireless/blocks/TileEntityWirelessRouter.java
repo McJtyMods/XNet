@@ -80,7 +80,7 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
         return new BaseBlock(new BlockBuilder()
                 .topDriver(XNetTOPDriver.DRIVER)
                 .tileEntitySupplier(TileEntityWirelessRouter::new)
-                .manualEntry(ManualHelper.create("rftoolsbase:simple/wireless/wireless_router"))
+                .manualEntry(ManualHelper.create("xnet:wireless/wireless_router"))
                 .info(TooltipBuilder.key("message.xnet.shiftmessage"))
                 .infoShift(TooltipBuilder.header(), TooltipBuilder.gold())
         ) {

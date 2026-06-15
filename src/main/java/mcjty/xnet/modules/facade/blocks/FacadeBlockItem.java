@@ -10,6 +10,8 @@ import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.modules.facade.FacadeModule;
 import mcjty.xnet.modules.facade.IFacadeSupport;
 import mcjty.xnet.modules.facade.data.MimicData;
+import mcjty.lib.gui.ManualEntry;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
@@ -44,6 +46,8 @@ import static mcjty.xnet.modules.cables.blocks.GenericCableBlock.WEST;
 import static mcjty.xnet.utils.I18nConstants.FACADE_CURRENT_MIMIC_FORMATTED;
 
 public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
+
+    public static final ManualEntry MANUAL = ManualHelper.create("xnet:simple/facade");
 
     private Lazy<TooltipBuilder> tooltipBuilder = Lazy.of(() -> new TooltipBuilder()
             .info(header(),
@@ -170,4 +174,10 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
         super.appendHoverText(stack, context, tooltip, flag);
         tooltipBuilder.get().makeTooltip(Tools.getId(this), stack, tooltip, flag);
     }
+
+    @Override
+    public ManualEntry getManualEntry() {
+        return MANUAL;
+    }
+
 }

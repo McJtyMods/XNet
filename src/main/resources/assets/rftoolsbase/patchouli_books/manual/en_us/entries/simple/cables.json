@@ -2,11 +2,30 @@
   "name": "Cables",
   "icon": "xnet:netcable_red",
   "category": "rftoolsbase:category_xnet_simple",
+  "extra_recipe_mappings": {
+    "xnet:netcable_red": 0,
+    "xnet:netcable_green": 0,
+    "xnet:netcable_blue": 0,
+    "xnet:netcable_yellow": 0,
+    "xnet:netcable_routing": 0
+  },
   "sortnum": 20,
   "pages": [
     {
       "type": "text",
-      "text": "There are four colored cables that don't interphere with each other"
+      "text": "Colored cables form local networks. Red, green, blue, and yellow cables do not connect to each other, even when placed next to each other."
+    },
+    {
+      "type": "text",
+      "text": "Routing cables are different: they are used by Routers and Wireless Routers to link multiple controller networks together."
+    },
+    {
+      "type": "crafting",
+      "recipe": "xnet:netcable_red"
+    },
+    {
+      "type": "crafting",
+      "recipe": "xnet:netcable_routing"
     }
   ]
 }

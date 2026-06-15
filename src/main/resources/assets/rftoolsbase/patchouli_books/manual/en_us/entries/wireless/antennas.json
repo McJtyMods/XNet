@@ -1,0 +1,33 @@
+{
+  "name": "Antennas",
+  "icon": "xnet:antenna",
+  "category": "rftoolsbase:category_xnet_wireless",
+  "extra_recipe_mappings": {
+    "xnet:antenna": 0,
+    "xnet:antenna_base": 0,
+    "xnet:antenna_dish": 0
+  },
+  "sortnum": 20,
+  "pages": [
+    {
+      "type": "text",
+      "text": "A Wireless Router needs an antenna on top. A normal antenna gives short range, an antenna base improves it, and an antenna dish allows unlimited range."
+    },
+    {
+      "type": "text",
+      "text": "Higher antenna tiers cost more RF per channel. Check the item tooltip for the configured range and RF/t cost."
+    },
+    {
+      "type": "crafting",
+      "recipe": "xnet:antenna"
+    },
+    {
+      "type": "crafting",
+      "recipe": "xnet:antenna_base"
+    },
+    {
+      "type": "crafting",
+      "recipe": "xnet:antenna_dish"
+    }
+  ]
+}

@@ -3,6 +3,8 @@ package mcjty.xnet.modules.various.blocks;
 import mcjty.lib.tooltips.ITooltipSettings;
 import mcjty.lib.varia.ComponentFactory;
 import mcjty.lib.varia.SafeClientTools;
+import mcjty.lib.gui.ManualEntry;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
@@ -17,6 +19,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class RedstoneProxyBlock extends Block implements ITooltipSettings {
+
+    public static final ManualEntry MANUAL = ManualHelper.create("xnet:simple/redstone_proxy");
 
     public RedstoneProxyBlock() {
         super(Properties.of()
@@ -33,6 +37,12 @@ public class RedstoneProxyBlock extends Block implements ITooltipSettings {
         } else {
             tooltip.add(ComponentFactory.translatable("message.xnet.shiftmessage"));
         }
+    }
+
+
+    @Override
+    public ManualEntry getManualEntry() {
+        return MANUAL;
     }
 
 }
