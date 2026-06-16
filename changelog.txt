@@ -1,3 +1,6 @@
+1.21-7.0.7:
+- Updated and expanded the Patchouli manual documentation
+
 1.21-7.0.6:
 - Fixed a bug in the fluid insert node with the filter. It wasn't working
 
