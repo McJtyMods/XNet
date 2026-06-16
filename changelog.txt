@@ -1,3 +1,6 @@
+1.20-6.1.7:
+- Various Patchouli documentation updates and fixes
+
 1.20-6.1.6:
 - Dertiende fixed a bug in the copy of the fluid connector
 
