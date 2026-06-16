@@ -30,6 +30,6 @@ Powerful item/fluid/energy transfer
 [[dependencies.xnet]]
     modId="rftoolsbase"
     mandatory=true
-    versionRange="[1.20-5.0.4,)"
+    versionRange="[1.20-5.0.7,)"
     ordering="AFTER"
     side="BOTH"
