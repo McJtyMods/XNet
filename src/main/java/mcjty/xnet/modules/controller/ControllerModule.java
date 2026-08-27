@@ -1,5 +1,7 @@
 package mcjty.xnet.modules.controller;
 
+import mcjty.lib.McJtyLib;
+import mcjty.lib.blockcommands.ISerializer;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.blocks.RBlock;
 import mcjty.lib.container.GenericContainer;
@@ -8,6 +10,8 @@ import mcjty.lib.datagen.Dob;
 import mcjty.lib.modules.IModule;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.modules.various.VariousModule;
+import mcjty.xnet.client.ChannelClientInfo;
+import mcjty.xnet.client.ConnectedBlockClientInfo;
 import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.modules.controller.client.GuiController;
 import mcjty.xnet.modules.controller.data.ControllerData;
@@ -75,6 +79,14 @@ public class ControllerModule implements IModule {
 
     @Override
     public void initClient(FMLClientSetupEvent event) {
+        // Ensure the list result codecs are available before client payloads are decoded
+        registerListCommandInfo(TileEntityController.CMD_GETCHANNELS.name(), ChannelClientInfo.class, new ChannelClientInfo.Serializer());
+        registerListCommandInfo(TileEntityController.CMD_GETCONNECTEDBLOCKS.name(), ConnectedBlockClientInfo.class, new ConnectedBlockClientInfo.Serializer());
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static void registerListCommandInfo(String command, Class type, ISerializer serializer) {
+        McJtyLib.registerListCommandInfo(command, type, serializer.getDeserializer(), serializer.getSerializer());
     }
 
     public void registerScreens(RegisterMenuScreensEvent event) {
