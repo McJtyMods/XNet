@@ -1,7 +1,7 @@
 package mcjty.xnet.modules.facade;
 
 import mcjty.lib.varia.Tools;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -14,7 +14,7 @@ public class FacadeBlockId {
     }
 
     public BlockState getBlockState() {
-        return Tools.getBlock(ResourceLocation.parse(registryName)).defaultBlockState();
+        return Tools.getBlock(Identifier.parse(registryName)).defaultBlockState();
     }
 
     @Override

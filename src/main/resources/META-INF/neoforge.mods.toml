@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[2,)"
+loaderVersion="[4,)"
 license="MIT License https://github.com/McJtyMods/XNet/blob/1.21_neo/LICENCE"
 issueTrackerURL="http://github.com/McJtyMods/XNet/issues"
 displayURL="http://github.com/McJtyMods/XNet/"
@@ -20,19 +20,26 @@ Powerful item/fluid/energy transfer
 '''
 [[dependencies.xnet]]
     modId="neoforge"
-    mandatory=true
-    versionRange="[21.0,)"
+    type="required"
+    versionRange="[26.1.2.99,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.xnet]]
     modId="mcjtylib"
-    mandatory=true
-    versionRange="[1.21-9.0.21,)"
+    type="required"
+    versionRange="[26.1.2-10.0.0,)"
     ordering="AFTER"
     side="BOTH"
 [[dependencies.xnet]]
     modId="rftoolsbase"
-    mandatory=true
-    versionRange="[1.21-6.0.11,)"
+    type="required"
+    versionRange="[26.1.2-7.0.0,)"
     ordering="AFTER"
     side="BOTH"
+
+[[dependencies.xnet]]
+modId="minecraft"
+type="required"
+versionRange="[26.1.2]"
+ordering="NONE"
+side="BOTH"

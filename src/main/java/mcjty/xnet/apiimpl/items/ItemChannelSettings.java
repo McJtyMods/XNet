@@ -31,7 +31,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -49,7 +49,7 @@ import static mcjty.xnet.compat.RFToolsSupport.isStorageScanner;
 
 public class ItemChannelSettings extends DefaultChannelSettings implements IChannelSettings {
 
-    public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
+    public static final Identifier iconGuiElements = Identifier.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
 
     // Cache data
     private List<ConnectedEntity<ItemConnectorSettings>> itemExtractors = null;
@@ -137,8 +137,8 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
     @Override
     public void readFromNBT(CompoundTag tag) {
-        delay = tag.getInt("delay");
-        roundRobinOffset = tag.getInt("offset");
+        delay = tag.getIntOr("delay", 0);
+        roundRobinOffset = tag.getIntOr("offset", 0);
     }
 
     @Override
@@ -540,7 +540,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     @Nullable
     public static IItemHandler getItemHandlerAt(@Nullable BlockEntity te, Direction intSide) {
         if (te != null) {
-            return te.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, te.getBlockPos(), intSide);
+            return mcjty.lib.varia.CapabilityTools.itemHandler(te.getLevel().getCapability(Capabilities.Item.BLOCK, te.getBlockPos(), intSide));
         }
         return null;
     }

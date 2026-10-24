@@ -76,8 +76,8 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
         super(WIRELESS_ROUTER.be().get(), pos, state);
     }
 
-    public static BaseBlock createBlock() {
-        return new BaseBlock(new BlockBuilder()
+    public static BaseBlock createBlock(net.minecraft.world.level.block.state.BlockBehaviour.Properties properties) {
+        return new BaseBlock(new BlockBuilder().properties(mcjty.rftoolsbase.tools.RegistryProperties.block(properties))
                 .topDriver(XNetTOPDriver.DRIVER)
                 .tileEntitySupplier(TileEntityWirelessRouter::new)
                 .manualEntry(ManualHelper.create("xnet:wireless/wireless_router"))
@@ -310,19 +310,25 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
 
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
-        super.saveAdditional(tagCompound, provider);
+    public void saveAdditional(net.minecraft.world.level.storage.ValueOutput output) {
+        super.saveAdditional(output);
+        CompoundTag tagCompound = new CompoundTag();
+        HolderLookup.Provider provider = (level != null ? level.registryAccess() : net.minecraft.core.RegistryAccess.EMPTY);
         tagCompound.putBoolean("error", error);
+
+        output.store(com.mojang.serialization.MapCodec.assumeMapUnsafe(CompoundTag.CODEC), tagCompound);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        super.loadAdditional(tagCompound, provider);
-        error = tagCompound.getBoolean("error");
+    public void loadAdditional(net.minecraft.world.level.storage.ValueInput input) {
+        super.loadAdditional(input);
+        CompoundTag tagCompound = input.read(com.mojang.serialization.MapCodec.assumeMapUnsafe(CompoundTag.CODEC)).orElseGet(CompoundTag::new);
+        HolderLookup.Provider provider = input.lookup();
+        error = tagCompound.getBooleanOr("error", false);
     }
 
     @Override
-    protected void applyImplicitComponents(DataComponentInput input) {
+    protected void applyImplicitComponents(net.minecraft.core.component.DataComponentGetter input) {
         super.applyImplicitComponents(input);
         var data = input.get(WirelessRouterModule.ITEM_WIRELESS_ROUTER_DATA);
         if (data != null) {
@@ -342,7 +348,7 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
         if (state.getBlock() == newstate.getBlock()) {
             return;
         }
-        if (!this.level.isClientSide) {
+        if (!this.level.isClientSide()) {
             XNetBlobData blobData = XNetBlobData.get(this.level);
             WorldBlob worldBlob = blobData.getWorldBlob(this.level);
             worldBlob.removeCableSegment(pos);
@@ -353,7 +359,7 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
     @Override
     public void onBlockPlacedBy(Level world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         super.onBlockPlacedBy(world, pos, state, placer, stack);
-        if (!world.isClientSide) {
+        if (!world.isClientSide()) {
             XNetBlobData blobData = XNetBlobData.get(world);
             WorldBlob worldBlob = blobData.getWorldBlob(world);
             NetworkId networkId = worldBlob.newNetwork();

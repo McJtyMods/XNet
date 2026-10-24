@@ -21,7 +21,7 @@ import mcjty.rftoolsbase.api.xnet.channels.RSMode;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
 import mcjty.xnet.XNet;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import org.apache.commons.lang3.StringUtils;
 
@@ -36,7 +36,7 @@ import static mcjty.xnet.utils.I18nConstants.RS_MODE_PULSE_TOOLTIP;
 
 public abstract class AbstractEditorPanel implements IEditorGui {
 
-    public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
+    public static final Identifier iconGuiElements = Identifier.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
 
     public static final int LEFTMARGIN = 3;
     public static final int TOPMARGIN = 3;

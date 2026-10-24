@@ -69,8 +69,8 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
     }
 
 
-    public FacadeBlockItem(FacadeBlock block) {
-        super(block, XNet.setup.defaultProperties());
+    public FacadeBlockItem(FacadeBlock block, net.minecraft.world.item.Item.Properties properties) {
+        super(block, properties);
     }
 
     private static void userSetMimicBlock(@Nonnull ItemStack item, BlockState mimicBlock, UseOnContext context) {
@@ -80,10 +80,9 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
         Level world = context.getLevel();
         Player player = context.getPlayer();
         setMimicBlock(item, mimicBlock);
-        if (world.isClientSide) {
-            player.displayClientMessage(ComponentFactory.literal(
-                    FACADE_CURRENT_MIMIC_FORMATTED.i18n(mimicBlock.getBlock().getDescriptionId())),
-                    false
+        if (world.isClientSide()) {
+            player.sendSystemMessage(ComponentFactory.literal(
+                    FACADE_CURRENT_MIMIC_FORMATTED.i18n(mimicBlock.getBlock().getDescriptionId()))
             );
         }
     }
@@ -170,9 +169,12 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
     }
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flag) {
-        super.appendHoverText(stack, context, tooltip, flag);
+    public void appendHoverText(@Nonnull ItemStack stack, TooltipContext context, @Nonnull net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> consumer, @Nonnull TooltipFlag flag) {
+        List<Component> tooltip = new java.util.ArrayList<>();
+        super.appendHoverText(stack, context, display, consumer, flag);
         tooltipBuilder.get().makeTooltip(Tools.getId(this), stack, tooltip, flag);
+
+        tooltip.forEach(consumer);
     }
 
     @Override

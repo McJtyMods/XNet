@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "F": {
-      "item": "rftoolsbase:machine_frame"
-    },
-    "r": {
-      "item": "minecraft:redstone"
-    }
+    "F": "rftoolsbase:machine_frame",
+    "r": "minecraft:redstone"
   },
   "pattern": [
     "rrr",
@@ -15,7 +11,6 @@
     "rrr"
   ],
   "result": {
-    "count": 1,
     "id": "xnet:redstone_proxy"
   }
 }

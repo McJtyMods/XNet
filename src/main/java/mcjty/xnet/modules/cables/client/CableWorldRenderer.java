@@ -12,7 +12,7 @@ import mcjty.xnet.modules.facade.IFacadeSupport;
 import mcjty.xnet.modules.facade.blocks.FacadeBlock;
 import mcjty.xnet.setup.Config;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -23,7 +23,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +34,9 @@ import static mcjty.xnet.modules.cables.ConnectorType.CABLE;
 public class CableWorldRenderer {
 
     // @todo 1.20 is this correct?
-    public static void tick(RenderLevelStageEvent evt) {
+    public static void tick(SubmitCustomGeometryEvent evt) {
         Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) return;
 
         ItemStack heldItem = mc.player.getItemInHand(InteractionHand.MAIN_HAND);
         if (!heldItem.isEmpty()) {
@@ -47,22 +48,15 @@ public class CableWorldRenderer {
         }
     }
 
-    private static void renderCables(RenderLevelStageEvent evt, Minecraft mc) {
-        if (evt.getStage() != RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) {
-            return;
-        }
-
+    private static void renderCables(SubmitCustomGeometryEvent evt, Minecraft mc) {
         Player p = mc.player;
 
         PoseStack matrixStack = evt.getPoseStack();
-        MultiBufferSource.BufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
-        VertexConsumer builder = buffer.getBuffer(CustomRenderTypes.OVERLAY_LINES);
-
         Level world = mc.level;
 
         matrixStack.pushPose();
 
-        Vec3 projectedView = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        Vec3 projectedView = Minecraft.getInstance().gameRenderer.getMainCamera().position();
         matrixStack.translate(-projectedView.x, -projectedView.y, -projectedView.z);
 
         for (int dx = -20 ; dx <= 20 ; dx++) {
@@ -113,9 +107,12 @@ public class CableWorldRenderer {
                             }
                         }
                         List<RenderHelper.Rect> quads = getQuads(state);
-                        for (RenderHelper.Rect quad : quads) {
-                            RenderHelper.renderRect(matrixStack, builder, quad, c, r, g, b, 0.5f);
-                        }
+                        float red = r, green = g, blue = b;
+                        evt.getSubmitNodeCollector().submitCustomGeometry(matrixStack, CustomRenderTypes.OVERLAY_LINES, (captured, builder) -> {
+                            PoseStack pose = new PoseStack();
+                            pose.last().pose().set(captured.pose());
+                            for (var quad : quads) RenderHelper.renderRect(pose, builder, quad, c, red, green, blue, .5f);
+                        });
                     }
                 }
             }
@@ -123,8 +120,7 @@ public class CableWorldRenderer {
 
         matrixStack.popPose();
 
-        RenderSystem.disableDepthTest();
-        buffer.endBatch(CustomRenderTypes.OVERLAY_LINES);
+
     }
 
 

@@ -109,6 +109,6 @@ public class ConnectedBlockClientInfo {
 
     private static String getStackUnlocalizedName(ItemStack stack) {
         // @todo 1.21 support for custom names
-        return stack.getItem().getDescriptionId(stack);
+        return stack.getItem().getDescriptionId();
     }
 }

@@ -74,14 +74,20 @@ public class XNet {
         }
     }
 
+    public static <T extends Item> java.util.function.Function<Item.Properties, T> tab(java.util.function.Function<Item.Properties, T> factory) {
+        return properties -> instance.setup.tab(() -> factory.apply(properties)).get();
+    }
+
     public static <T extends Item> Supplier<T> tab(Supplier<T> supplier) {
         return instance.setup.tab(supplier);
     }
 
-    private void onDataGen(GatherDataEvent event) {
+    private void onDataGen(GatherDataEvent.Client event) {
         DataGen datagen = new DataGen(MODID, event);
         modules.datagen(datagen, event.getLookupProvider());
         datagen.generate();
+        event.getGenerator().addProvider(true,
+                new mcjty.rftoolsbase.tools.ClientItemDefinitions(event.getGenerator().getPackOutput(), MODID, java.util.Map.of()));
     }
 
     private void setupModules(IEventBus bus, Dist dist) {
@@ -96,8 +102,10 @@ public class XNet {
     private void processIMC(final InterModProcessEvent event) {
         event.getIMCStream().forEach(message -> {
             if ("getXNet".equalsIgnoreCase(message.method())) {
-                Supplier<Function<IXNet, Void>> supplier = message.getMessageSupplier();
-                supplier.get().apply(xNetApi);
+                Supplier<?> supplier = message.messageSupplier();
+                if (supplier.get() instanceof Function<?, ?> function) {
+                    ((Function<IXNet, ?>) function).apply(xNetApi);
+                }
             }
         });
     }
@@ -112,11 +120,11 @@ public class XNet {
                 return null;
             }
         }, CableModule.CONNECTOR.get(), CableModule.ADVANCED_CONNECTOR.get());
-        event.registerBlock(Capabilities.EnergyStorage.BLOCK, new IBlockCapabilityProvider<IEnergyStorage, Direction>() {
+        event.registerBlock(Capabilities.Energy.BLOCK, new IBlockCapabilityProvider<net.neoforged.neoforge.transfer.energy.EnergyHandler, Direction>() {
             @Override
-            public @Nullable IEnergyStorage getCapability(Level level, BlockPos blockPos, BlockState blockState, @Nullable BlockEntity blockEntity, Direction direction) {
+            public @Nullable net.neoforged.neoforge.transfer.energy.EnergyHandler getCapability(Level level, BlockPos blockPos, BlockState blockState, @Nullable BlockEntity blockEntity, Direction direction) {
                 if (blockEntity instanceof ConnectorTileEntity connector) {
-                    return connector.getEnergyStorage(direction);
+                    return connector.getEnergyHandler(direction);
                 }
                 return null;
             }

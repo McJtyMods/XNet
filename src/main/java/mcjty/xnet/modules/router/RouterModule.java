@@ -25,8 +25,8 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder;
+import mcjty.lib.datagen.model.ModelFile;
+import mcjty.lib.datagen.model.VariantBlockStateBuilder;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.ArrayList;
@@ -43,14 +43,13 @@ public class RouterModule implements IModule {
     public static final RBlock<BaseBlock, BlockItem, TileEntityRouter> ROUTER = RBLOCKS.registerBlock("router",
             TileEntityRouter.class,
             TileEntityRouter::createBlock,
-            block -> new BlockItem(block.get(), createStandardProperties()),
-            TileEntityRouter::new
-    );
+            (block, itemProperties) -> new BlockItem(block.get(), itemProperties),
+            TileEntityRouter::new);
     public static final Supplier<MenuType<GenericContainer>> CONTAINER_ROUTER = CONTAINERS.register("router", GenericContainer::createContainerType);
 
     public static final Supplier<AttachmentType<RouterData>> ROUTER_DATA = ATTACHMENT_TYPES.register(
             "router_data", () -> AttachmentType.builder(() -> RouterData.EMPTY)
-                    .serialize(RouterData.CODEC)
+                    .serialize(com.mojang.serialization.MapCodec.assumeMapUnsafe(RouterData.CODEC))
                     .build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<RouterData>> ITEM_ROUTER_DATA = COMPONENTS.registerComponentType(
             "router_data",
@@ -91,12 +90,8 @@ public class RouterModule implements IModule {
                             ModelFile modelOk = p.frontBasedModel(ITEM_ROUTER, p.modLoc("block/machine_router"));
                             ModelFile modelError = p.frontBasedModel("router_error", p.modLoc("block/machine_router_error"));
                             VariantBlockStateBuilder builder = p.getVariantBuilder(ROUTER.block().get());
-                            for (Direction direction : OrientationTools.DIRECTION_VALUES) {
-                                p.applyRotation(builder.partialState().with(BlockStateProperties.FACING, direction).with(TileEntityController.ERROR, false)
-                                        .modelForState().modelFile(modelOk), direction);
-                                p.applyRotation(builder.partialState().with(BlockStateProperties.FACING, direction).with(TileEntityController.ERROR, true)
-                                        .modelForState().modelFile(modelError), direction);
-                            }
+                            builder.forAllStates(state -> mcjty.rftoolsbase.tools.ModelDataGen.rotated(
+                                    state.getValue(TileEntityController.ERROR) ? modelError : modelOk, state.getValue(BlockStateProperties.FACING)));
                         })
                         .shaped(builder -> builder
                                         .define('F', VariousModule.MACHINE_FRAME.get())

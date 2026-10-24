@@ -22,14 +22,13 @@ public class RedstoneProxyBlock extends Block implements ITooltipSettings {
 
     public static final ManualEntry MANUAL = ManualHelper.create("xnet:simple/redstone_proxy");
 
-    public RedstoneProxyBlock() {
-        super(Properties.of()
+    public RedstoneProxyBlock(net.minecraft.world.level.block.state.BlockBehaviour.Properties properties) {
+        super(properties
                 .strength(2.0f)
                 .sound(SoundType.METAL)
         );
     }
 
-    @Override
     public void appendHoverText(@Nonnull ItemStack stack, Item.TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn) {
         if (SafeClientTools.isSneaking()) {
             tooltip.add(ComponentFactory.translatable("message.xnet.redstone_proxy.header").withStyle(ChatFormatting.GREEN));

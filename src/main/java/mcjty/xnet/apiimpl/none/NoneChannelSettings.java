@@ -12,14 +12,14 @@ import mcjty.xnet.XNet;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import javax.annotation.Nullable;
 import java.util.Map;
 
 public class NoneChannelSettings extends DefaultChannelSettings implements IChannelSettings {
 
-    public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
+    public static final Identifier iconGuiElements = Identifier.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
 
     public static final NoneChannelSettings EMPTY = new NoneChannelSettings();
     public static final StreamCodec<RegistryFriendlyByteBuf, NoneChannelSettings> STREAM_CODEC = StreamCodec.unit(EMPTY);

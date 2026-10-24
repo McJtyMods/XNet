@@ -13,7 +13,7 @@ import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.SafeClientTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -83,7 +83,7 @@ public class ChannelChoiceLabel extends AbstractLabel<ChannelChoiceLabel> {
     }
 
     @Override
-    public void draw(Screen gui, GuiGraphics graphics, int x, int y) {
+    public void draw(Screen gui, GuiGraphicsExtractor graphics, int x, int y) {
         if (!visible) {
             return;
         }

@@ -1,3 +1,9 @@
+26.1.2-8.0.0:
+- Ported to Minecraft 26.1.2 with NeoForge
+- Updated rendering, registration, persistence, networking, and generated resources
+- Migrates legacy network saved data to namespaced IDs
+- Uses the published 26.1.2 McJtyLib and shared MultiWorkspace build script
+
 1.21-7.0.7:
 - Updated and expanded the Patchouli manual documentation
 

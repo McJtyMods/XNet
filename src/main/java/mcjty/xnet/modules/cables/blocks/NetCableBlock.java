@@ -15,8 +15,8 @@ import javax.annotation.Nonnull;
 
 public class NetCableBlock extends GenericCableBlock implements ITooltipSettings {
 
-    public NetCableBlock(CableBlockType type) {
-        super(type);
+    public NetCableBlock(CableBlockType type, net.minecraft.world.level.block.state.BlockBehaviour.Properties properties) {
+        super(type, properties);
     }
 
 //    @Nullable

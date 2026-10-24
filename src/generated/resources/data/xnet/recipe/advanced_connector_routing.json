@@ -2,25 +2,16 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "C": {
-      "item": "xnet:connector_routing"
-    },
-    "d": {
-      "item": "minecraft:diamond"
-    },
-    "o": {
-      "tag": "c:ender_pearls"
-    },
-    "r": {
-      "item": "minecraft:redstone"
-    }
+    "C": "xnet:connector_routing",
+    "d": "minecraft:diamond",
+    "o": "#c:ender_pearls",
+    "r": "minecraft:redstone"
   },
   "pattern": [
     "Co",
     "dr"
   ],
   "result": {
-    "count": 1,
     "id": "xnet:advanced_connector_routing"
   }
 }

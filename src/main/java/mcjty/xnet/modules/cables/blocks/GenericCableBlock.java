@@ -36,7 +36,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.ticks.ScheduledTick;
-import net.neoforged.neoforge.client.model.data.ModelProperty;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -56,7 +55,6 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
 
     public static final EnumProperty<CableColor> COLOR = EnumProperty.create("color", CableColor.class);
 
-    public static final ModelProperty<BlockState> FACADEID = new ModelProperty<>();
 
     private static VoxelShape[] shapeCache = null;
 
@@ -83,8 +81,8 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
         FACADE
     }
 
-    public GenericCableBlock(CableBlockType type) {
-        super(Properties.of()
+    public GenericCableBlock(CableBlockType type, net.minecraft.world.level.block.state.BlockBehaviour.Properties properties) {
+        super(properties
                 .strength(1.0f)
                 .sound(SoundType.METAL)
                 .noOcclusion()
@@ -171,7 +169,7 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
     }
 
     @Override
-    public ItemStack getCloneItemStack(LevelReader worldIn, BlockPos pos, BlockState state) {
+    public ItemStack getCloneItemStack(LevelReader worldIn, BlockPos pos, BlockState state, boolean includeData) {
         return new ItemStack(getItem(state.getValue(COLOR)));
     }
 
@@ -225,7 +223,7 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
     @Override
     public void setPlacedBy(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity placer, @Nonnull ItemStack stack) {
         originalOnBlockPlacedBy(world, pos, state, placer, stack);
-        if (!world.isClientSide) {
+        if (!world.isClientSide()) {
             createCableSegment(world, pos, stack);
         }
         BlockState blockState = calculateState(world, pos, state);
@@ -247,15 +245,16 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
     }
 
     @Override
-    public void onRemove(BlockState state, @Nonnull Level world, @Nonnull BlockPos pos, BlockState newState, boolean isMoving) {
+    public void affectNeighborsAfterRemoval(BlockState state, net.minecraft.server.level.ServerLevel world, BlockPos pos, boolean isMoving) {
+        BlockState newState = world.getBlockState(pos);
         if (newState.getBlock() != state.getBlock() && !(newState.getBlock() instanceof GenericCableBlock)) {
             unlinkBlock(world, pos);
         }
-        super.onRemove(state, world, pos, newState, isMoving);
+        super.affectNeighborsAfterRemoval(state, world, pos, isMoving);
     }
 
     public void unlinkBlock(Level world, BlockPos pos) {
-        if (!world.isClientSide) {
+        if (!world.isClientSide()) {
             XNetBlobData blobData = XNetBlobData.get(world);
             WorldBlob worldBlob = blobData.getWorldBlob(world);
             worldBlob.removeCableSegment(pos);
@@ -299,9 +298,9 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
 
     @Nonnull
     @Override
-    public BlockState updateShape(BlockState state, @Nonnull Direction direction, @Nonnull BlockState neighbourState, @Nonnull LevelAccessor world, @Nonnull BlockPos current, @Nonnull BlockPos offset) {
+    public BlockState updateShape(BlockState state, LevelReader world, net.minecraft.world.level.ScheduledTickAccess ticks, BlockPos current, Direction direction, BlockPos offset, BlockState neighbourState, net.minecraft.util.RandomSource random) {
         if (state.getValue(WATERLOGGED)) {
-            world.getFluidTicks().schedule(new ScheduledTick<>(Fluids.WATER, current, Fluids.WATER.getTickDelay(world), 0L));   // @todo 1.18 what is this last parameter exactly?
+            ticks.scheduleTick(current, Fluids.WATER, Fluids.WATER.getTickDelay(world));   // @todo 1.18 what is this last parameter exactly?
         }
         return calculateState(world, current, state);
     }
@@ -316,7 +315,7 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
     }
 
     @Nonnull
-    public BlockState calculateState(LevelAccessor world, BlockPos pos, BlockState state) {
+    public BlockState calculateState(LevelReader world, BlockPos pos, BlockState state) {
         CableColor color = state.getValue(COLOR);
         ConnectorType north = getConnectorType(color, world, pos, Direction.NORTH);
         ConnectorType south = getConnectorType(color, world, pos, Direction.SOUTH);
@@ -339,7 +338,6 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
     public FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
-
 
 
     protected abstract ConnectorType getConnectorType(@Nonnull CableColor thisColor, BlockGetter world, BlockPos pos, Direction facing);

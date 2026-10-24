@@ -15,7 +15,6 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.data.ModelData;
 
 import javax.annotation.Nonnull;
 
@@ -26,12 +25,12 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider provider) {
-        super.onDataPacket(net, pkt, provider);
+    public void onDataPacket(Connection net, net.minecraft.world.level.storage.ValueInput input) {
+        super.onDataPacket(net, input);
 
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
-            requestModelDataUpdate();
+            // Dynamic models read the synchronized block entity when rebuilding the section.
         }
     }
 
@@ -43,14 +42,6 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
             return null;
         }
         return state;
-    }
-
-    @Nonnull
-    @Override
-    public ModelData getModelData() {
-        return ModelData.builder()
-                .with(GenericCableBlock.FACADEID, getMimicBlock())
-                .build();
     }
 
 

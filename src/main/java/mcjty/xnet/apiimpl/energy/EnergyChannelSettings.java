@@ -22,7 +22,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -38,7 +38,7 @@ import java.util.Map;
 
 public class EnergyChannelSettings extends DefaultChannelSettings implements IChannelSettings {
 
-    public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
+    public static final Identifier iconGuiElements = Identifier.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
 
     public static final MapCodec<EnergyChannelSettings> CODEC = MapCodec.unit(EnergyChannelSettings::new);
     public static final StreamCodec<RegistryFriendlyByteBuf, EnergyChannelSettings> STREAM_CODEC = StreamCodec.of(
@@ -205,12 +205,12 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
         if (be == null) {
             return false;
         }
-        return be.getLevel().getCapability(Capabilities.EnergyStorage.BLOCK, be.getBlockPos(), side) != null;
+        return mcjty.lib.varia.CapabilityTools.energyHandler(be.getLevel().getCapability(Capabilities.Energy.BLOCK, be.getBlockPos(), side)) != null;
     }
 
     public static int getEnergyLevel(BlockEntity be, @Nonnull Direction side) {
         if (be != null) {
-            IEnergyStorage capability = be.getLevel().getCapability(Capabilities.EnergyStorage.BLOCK, be.getBlockPos(), side);
+            IEnergyStorage capability = mcjty.lib.varia.CapabilityTools.energyHandler(be.getLevel().getCapability(Capabilities.Energy.BLOCK, be.getBlockPos(), side));
             if (capability != null) {
                 return capability.getEnergyStored();
             }

@@ -31,7 +31,7 @@ public class CommandGen  {
 //        PlayerEntity player = (PlayerEntity) sender;
 //
 //        Direction facing = player.getHorizontalFacing();
-//        BlockPos pos = player.getPosition();
+//        BlockPos pos = player.position();
 //        System.out.println("facing = " + facing);
 //        System.out.println("pos = " + pos);
 //        World world = player.getEntityWorld();

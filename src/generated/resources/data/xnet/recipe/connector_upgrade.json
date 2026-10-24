@@ -2,25 +2,16 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "d": {
-      "item": "minecraft:diamond"
-    },
-    "o": {
-      "tag": "c:ender_pearls"
-    },
-    "p": {
-      "item": "minecraft:paper"
-    },
-    "r": {
-      "item": "minecraft:redstone"
-    }
+    "d": "minecraft:diamond",
+    "o": "#c:ender_pearls",
+    "p": "minecraft:paper",
+    "r": "minecraft:redstone"
   },
   "pattern": [
     "po",
     "dr"
   ],
   "result": {
-    "count": 1,
     "id": "xnet:connector_upgrade"
   }
 }

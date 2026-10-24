@@ -228,8 +228,8 @@ public class WorldBlob implements IWorldBlob {
 
     @Nonnull
     private ChunkBlob getOrCreateBlob(BlockPos pos) {
-        ChunkPos cpos = new ChunkPos(pos);
-        long chunkId = ChunkPos.asLong(cpos.x, cpos.z);
+        ChunkPos cpos = ChunkPos.containing(pos);
+        long chunkId = ChunkPos.pack(cpos.x(), cpos.z());
         if (!chunkBlobMap.containsKey(chunkId)) {
             chunkBlobMap.put(chunkId, new ChunkBlob(cpos));
         }
@@ -238,8 +238,8 @@ public class WorldBlob implements IWorldBlob {
 
     @Nullable
     private ChunkBlob getBlob(BlockPos pos) {
-        ChunkPos cpos = new ChunkPos(pos);
-        long chunkId = ChunkPos.asLong(cpos.x, cpos.z);
+        ChunkPos cpos = ChunkPos.containing(pos);
+        long chunkId = ChunkPos.pack(cpos.x(), cpos.z());
         return chunkBlobMap.get(chunkId);
     }
 
@@ -312,9 +312,9 @@ public class WorldBlob implements IWorldBlob {
 
                 for (Direction facing : OrientationTools.HORIZONTAL_DIRECTION_VALUES) {
                     if (pos.isBorder(facing)) {
-                        Vec3i vec = facing.getNormal();
+                        Vec3i vec = facing.getUnitVec3i();
                         ChunkBlob adjacent = chunkBlobMap.get(
-                                ChunkPos.asLong(chunkPos.x+vec.getX(), chunkPos.z+vec.getZ()));
+                                ChunkPos.pack(chunkPos.x()+vec.getX(), chunkPos.z()+vec.getZ()));
                         if (adjacent != null) {
                             IntPos connectedPos = pos.otherSide(facing);
                             if (adjacent.getBorderPositions().contains(connectedPos) && adjacent.getColorIdForPosition(connectedPos).equals(color)) {
@@ -359,14 +359,14 @@ public class WorldBlob implements IWorldBlob {
 
     public void readFromNBT(CompoundTag compound) {
         chunkBlobMap.clear();
-        lastNetworkId = compound.getInt(TAG_LAST_NETWORK);
-        lastConsumerId = compound.getInt(TAG_LAST_CONSUMER);
+        lastNetworkId = compound.getIntOr(TAG_LAST_NETWORK, 0);
+        lastConsumerId = compound.getIntOr(TAG_LAST_CONSUMER, 0);
         if (compound.contains(TAG_CHUNKS)) {
             ListTag chunks = (ListTag) compound.get(TAG_CHUNKS);
             for (net.minecraft.nbt.Tag chunk : chunks) {
                 CompoundTag tc = (CompoundTag) chunk;
-                int chunkX = tc.getInt(TAG_CHUNK_X);
-                int chunkZ = tc.getInt(TAG_CHUNK_Z);
+                int chunkX = tc.getIntOr(TAG_CHUNK_X, 0);
+                int chunkZ = tc.getIntOr(TAG_CHUNK_Z, 0);
                 ChunkBlob blob = new ChunkBlob(new ChunkPos(chunkX, chunkZ));
                 blob.readFromNBT(tc);
                 chunkBlobMap.put(blob.getChunkNum(), blob);
@@ -381,8 +381,8 @@ public class WorldBlob implements IWorldBlob {
         for (Map.Entry<Long, ChunkBlob> entry : chunkBlobMap.entrySet()) {
             ChunkBlob blob = entry.getValue();
             CompoundTag tc = new CompoundTag();
-            tc.putInt(TAG_CHUNK_X, blob.getChunkPos().x);
-            tc.putInt(TAG_CHUNK_Z, blob.getChunkPos().z);
+            tc.putInt(TAG_CHUNK_X, blob.getChunkPos().x());
+            tc.putInt(TAG_CHUNK_Z, blob.getChunkPos().z());
             blob.writeToNBT(tc);
             list.add(tc);
         }

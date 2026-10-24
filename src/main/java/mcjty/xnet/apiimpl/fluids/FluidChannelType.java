@@ -55,7 +55,7 @@ public class FluidChannelType implements IChannelType {
         if (te == null) {
             return false;
         }
-        if (world.getCapability(Capabilities.FluidHandler.BLOCK, pos, side) != null) {
+        if (mcjty.lib.varia.CapabilityTools.fluidHandler(world.getCapability(Capabilities.Fluid.BLOCK, pos, side)) != null) {
             return true;
         }
         return false;

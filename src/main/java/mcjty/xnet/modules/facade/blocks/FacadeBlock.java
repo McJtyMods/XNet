@@ -21,8 +21,8 @@ import javax.annotation.Nullable;
 
 public class FacadeBlock extends NetCableBlock implements EntityBlock {
 
-    public FacadeBlock(CableBlockType type) {
-        super(type);
+    public FacadeBlock(CableBlockType type, net.minecraft.world.level.block.state.BlockBehaviour.Properties properties) {
+        super(type, properties);
         // @todo 1.14
 //        setHardness(0.8f);
     }
@@ -94,7 +94,7 @@ public class FacadeBlock extends NetCableBlock implements EntityBlock {
 
 
     @Override
-    public boolean onDestroyedByPlayer(BlockState state, Level world, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
+    public boolean onDestroyedByPlayer(BlockState state, Level world, BlockPos pos, Player player, ItemStack tool, boolean willHarvest, FluidState fluid) {
         return replaceWithCable(world, pos, state);
     }
 
@@ -112,9 +112,9 @@ public class FacadeBlock extends NetCableBlock implements EntityBlock {
 
 
     @Override
-    public void onRemove(BlockState state, @Nonnull Level world, @Nonnull BlockPos pos, BlockState newState, boolean isMoving) {
+    public void affectNeighborsAfterRemoval(BlockState state, net.minecraft.server.level.ServerLevel world, BlockPos pos, boolean isMoving) {
         // Breaking a facade has no effect on blob network
-        super.onRemove(state, world, pos, newState, isMoving);
+        super.affectNeighborsAfterRemoval(state, world, pos, isMoving);
     }
 
 

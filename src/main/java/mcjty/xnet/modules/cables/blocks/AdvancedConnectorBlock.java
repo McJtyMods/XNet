@@ -8,8 +8,8 @@ import javax.annotation.Nullable;
 
 public class AdvancedConnectorBlock extends ConnectorBlock {
 
-    public AdvancedConnectorBlock(CableBlockType type) {
-        super(type);
+    public AdvancedConnectorBlock(CableBlockType type, net.minecraft.world.level.block.state.BlockBehaviour.Properties properties) {
+        super(type, properties);
     }
 
     @Nullable

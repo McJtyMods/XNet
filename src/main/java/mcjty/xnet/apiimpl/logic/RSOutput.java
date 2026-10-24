@@ -20,7 +20,7 @@ import static mcjty.xnet.apiimpl.Constants.*;
 import static mcjty.xnet.utils.I18nConstants.*;
 
 public class RSOutput {
-    
+
     private boolean isAdvanced;
     private LogicFilter logicFilter = LogicFilter.DIRECT;
     private Color inputChannel1 = OFF;    // First input channel for logic filter
@@ -242,11 +242,11 @@ public class RSOutput {
     }
 
     public void readFromNBT(CompoundTag tag) {
-        impulseRemaining = tag.getInt(TAG_IMPULSE_REM);
-        flipFlapState = tag.getBoolean(TAG_RS_FLIP_FLAP);
-        lastInputTrue = tag.getBoolean(TAG_RS_LAST_INPUT);
-        countingCurrent = tag.getInt(TAG_RS_COUNTING_CURRENT);
-        ticksCurrent = tag.getInt(TAG_RS_TICKS_CURRENT);
+        impulseRemaining = tag.getIntOr(TAG_IMPULSE_REM, 0);
+        flipFlapState = tag.getBooleanOr(TAG_RS_FLIP_FLAP, false);
+        lastInputTrue = tag.getBooleanOr(TAG_RS_LAST_INPUT, false);
+        countingCurrent = tag.getIntOr(TAG_RS_COUNTING_CURRENT, 0);
+        ticksCurrent = tag.getIntOr(TAG_RS_TICKS_CURRENT, 0);
     }
 
     public void writeToNBT(CompoundTag tag) {

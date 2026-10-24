@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "1": {
-      "tag": "c:dyes/black"
-    },
-    "g": {
-      "tag": "c:nuggets/gold"
-    },
-    "r": {
-      "item": "minecraft:redstone"
-    },
-    "s": {
-      "item": "minecraft:string"
-    }
+    "1": "#c:dyes/black",
+    "g": "#c:nuggets/gold",
+    "r": "minecraft:redstone",
+    "s": "minecraft:string"
   },
   "pattern": [
     "s1s",

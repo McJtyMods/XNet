@@ -2,24 +2,12 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "C": {
-      "item": "minecraft:comparator"
-    },
-    "F": {
-      "item": "rftoolsbase:machine_frame"
-    },
-    "I": {
-      "item": "minecraft:repeater"
-    },
-    "g": {
-      "tag": "c:ingots/gold"
-    },
-    "i": {
-      "tag": "c:ingots/iron"
-    },
-    "r": {
-      "item": "minecraft:redstone"
-    }
+    "C": "minecraft:comparator",
+    "F": "rftoolsbase:machine_frame",
+    "I": "minecraft:repeater",
+    "g": "#c:ingots/gold",
+    "i": "#c:ingots/iron",
+    "r": "minecraft:redstone"
   },
   "pattern": [
     "ICI",
@@ -27,7 +15,6 @@
     "igi"
   ],
   "result": {
-    "count": 1,
     "id": "xnet:controller"
   }
 }

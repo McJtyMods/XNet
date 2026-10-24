@@ -17,7 +17,7 @@
     },
     "error=false,facing=up": {
       "model": "xnet:block/controller",
-      "x": -90
+      "x": 270
     },
     "error=false,facing=west": {
       "model": "xnet:block/controller",
@@ -40,7 +40,7 @@
     },
     "error=true,facing=up": {
       "model": "xnet:block/controller_error",
-      "x": -90
+      "x": 270
     },
     "error=true,facing=west": {
       "model": "xnet:block/controller_error",

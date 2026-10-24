@@ -12,12 +12,12 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
-public class ColorBlockItem extends BaseBlockItem {
+public class ColorBlockItem extends TooltipBlockItem {
 
     private final CableColor color;
 
     public ColorBlockItem(Block blockIn, Properties builder, CableColor color) {
-        super(blockIn, builder);
+        super(blockIn, builder.useItemDescriptionPrefix());
         this.color = color;
     }
 
@@ -31,13 +31,6 @@ public class ColorBlockItem extends BaseBlockItem {
         } else {
             return null;
         }
-    }
-
-    @Override
-    @Nonnull
-    public String getDescriptionId() {
-        // We don't want the translation key of the block
-        return super.getOrCreateDescriptionId();
     }
 
     @Override

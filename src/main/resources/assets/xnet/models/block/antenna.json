@@ -3,5 +3,9 @@
   "render_type": "minecraft:cutout",
   "loader": "neoforge:obj",
   "model": "xnet:models/block/antenna.obj",
-  "flip_v": true
+  "flip_v": true,
+  "textures": {
+    "particle": "xnet:block/antenna",
+    "xnet:block/antenna": "xnet:block/antenna"
+  }
 }

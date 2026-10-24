@@ -23,8 +23,8 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder;
+import mcjty.lib.datagen.model.ModelFile;
+import mcjty.lib.datagen.model.VariantBlockStateBuilder;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
@@ -43,9 +43,8 @@ public class ControllerModule implements IModule {
     public static final RBlock<BaseBlock, BlockItem, TileEntityController> CONTROLLER = RBLOCKS.registerBlock("controller",
             TileEntityController.class,
             TileEntityController::createBlock,
-            block -> new BlockItem(block.get(), createStandardProperties()),
-            TileEntityController::new
-    );
+            (block, itemProperties) -> new BlockItem(block.get(), itemProperties),
+            TileEntityController::new);
     public static final Supplier<MenuType<GenericContainer>> CONTAINER_CONTROLLER = CONTAINERS.register("controller", GenericContainer::createContainerType);
 
     public static final Supplier<AttachmentType<ControllerData>> CONTROLLER_DATA = ATTACHMENT_TYPES.register(
@@ -56,7 +55,7 @@ public class ControllerModule implements IModule {
                         }
                         return data;
                     })
-                    .serialize(ControllerData.CODEC)
+                    .serialize(com.mojang.serialization.MapCodec.assumeMapUnsafe(ControllerData.CODEC))
                     .build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ControllerData>> ITEM_CONTROLLER_DATA = COMPONENTS.registerComponentType(
             "controller_data",
@@ -97,12 +96,8 @@ public class ControllerModule implements IModule {
                             ModelFile modelOk = p.frontBasedModel(ITEM_CONTROLLER, p.modLoc("block/machine_controller"));
                             ModelFile modelError = p.frontBasedModel("controller_error", p.modLoc("block/machine_controller_error"));
                             VariantBlockStateBuilder builder = p.getVariantBuilder(ControllerModule.CONTROLLER.block().get());
-                            for (Direction direction : OrientationTools.DIRECTION_VALUES) {
-                                p.applyRotation(builder.partialState().with(BlockStateProperties.FACING, direction).with(TileEntityController.ERROR, false)
-                                        .modelForState().modelFile(modelOk), direction);
-                                p.applyRotation(builder.partialState().with(BlockStateProperties.FACING, direction).with(TileEntityController.ERROR, true)
-                                        .modelForState().modelFile(modelError), direction);
-                            }
+                            builder.forAllStates(state -> mcjty.rftoolsbase.tools.ModelDataGen.rotated(
+                                    state.getValue(TileEntityController.ERROR) ? modelError : modelOk, state.getValue(BlockStateProperties.FACING)));
                         })
                         .shaped(builder -> builder
                                         .define('F', mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())

@@ -16,11 +16,11 @@ import mcjty.xnet.XNet;
 import mcjty.xnet.client.ControllerChannelClientInfo;
 import mcjty.xnet.modules.router.RouterModule;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import mcjty.xnet.setup.XNetMessages;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 
@@ -46,7 +46,7 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
     private boolean needsRefresh = true;
     private int listDirty;
 
-    private static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
+    private static final Identifier iconGuiElements = Identifier.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
 
     public GuiRouter(GenericContainer container, Inventory inventory, Component title) {
         super(container, inventory, title, RouterModule.ROUTER.block().get().getManualEntry());
@@ -58,7 +58,7 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
 
     @Override
     public void init() {
-        window = new Window(this, getBE(), ResourceLocation.fromNamespaceAndPath(XNet.MODID, "gui/router.gui"));
+        window = new Window(this, getBE(), Identifier.fromNamespaceAndPath(XNet.MODID, "gui/router.gui"));
         super.init();
 
         localChannelList = window.findChild(WIDGET_LOCAL_CHANNELS);
@@ -182,7 +182,7 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
 
 
     @Override
-    protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@Nonnull GuiGraphicsExtractor graphics, float partialTicks, int mouseX, int mouseY) {
         requestListsIfNeeded();
         populateList();
         drawWindow(graphics, partialTicks, mouseX, mouseY);

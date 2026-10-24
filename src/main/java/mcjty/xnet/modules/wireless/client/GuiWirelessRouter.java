@@ -6,9 +6,9 @@ import mcjty.lib.gui.Window;
 import mcjty.xnet.XNet;
 import mcjty.xnet.modules.wireless.WirelessRouterModule;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 
@@ -26,13 +26,13 @@ public class GuiWirelessRouter extends GenericGuiContainer<TileEntityWirelessRou
 
     @Override
     public void init() {
-        window = new Window(this, getBE(), ResourceLocation.fromNamespaceAndPath(XNet.MODID, "gui/wireless_router.gui"));
+        window = new Window(this, getBE(), Identifier.fromNamespaceAndPath(XNet.MODID, "gui/wireless_router.gui"));
         super.init();
     }
 
 
     @Override
-    protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@Nonnull GuiGraphicsExtractor graphics, float partialTicks, int mouseX, int mouseY) {
         drawWindow(graphics, partialTicks, mouseX, mouseY);
     }
 }

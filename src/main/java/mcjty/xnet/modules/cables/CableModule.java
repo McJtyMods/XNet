@@ -20,7 +20,7 @@ import mcjty.xnet.modules.cables.data.ConnectorData;
 import mcjty.xnet.setup.Registration;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
@@ -48,39 +48,39 @@ import static mcjty.xnet.setup.Registration.*;
 
 public class CableModule implements IModule {
 
-    public static final DeferredBlock<NetCableBlock> NETCABLE = BLOCKS.register("netcable", () -> new NetCableBlock(CableBlockType.CABLE));
-    public static final DeferredItem<Item> NETCABLE_RED = ITEMS.register("netcable_red", tab(() -> new ColorBlockItem(NETCABLE.get(), Registration.createStandardProperties(), CableColor.RED)));
-    public static final DeferredItem<Item> NETCABLE_GREEN = ITEMS.register("netcable_green", tab(() -> new ColorBlockItem(NETCABLE.get(), Registration.createStandardProperties(), CableColor.GREEN)));
-    public static final DeferredItem<Item> NETCABLE_BLUE = ITEMS.register("netcable_blue", tab(() -> new ColorBlockItem(NETCABLE.get(), Registration.createStandardProperties(), CableColor.BLUE)));
-    public static final DeferredItem<Item> NETCABLE_YELLOW = ITEMS.register("netcable_yellow", tab(() -> new ColorBlockItem(NETCABLE.get(), Registration.createStandardProperties(), CableColor.YELLOW)));
-    public static final DeferredItem<Item> NETCABLE_ROUTING = ITEMS.register("netcable_routing", tab(() -> new ColorBlockItem(NETCABLE.get(), Registration.createStandardProperties(), CableColor.ROUTING)));
+    public static final DeferredBlock<NetCableBlock> NETCABLE = BLOCKS.register("netcable", properties -> new NetCableBlock(CableBlockType.CABLE, properties));
+    public static final DeferredItem<Item> NETCABLE_RED = ITEMS.register("netcable_red", tab(properties -> new ColorBlockItem(NETCABLE.get(), properties, CableColor.RED)));
+    public static final DeferredItem<Item> NETCABLE_GREEN = ITEMS.register("netcable_green", tab(properties -> new ColorBlockItem(NETCABLE.get(), properties, CableColor.GREEN)));
+    public static final DeferredItem<Item> NETCABLE_BLUE = ITEMS.register("netcable_blue", tab(properties -> new ColorBlockItem(NETCABLE.get(), properties, CableColor.BLUE)));
+    public static final DeferredItem<Item> NETCABLE_YELLOW = ITEMS.register("netcable_yellow", tab(properties -> new ColorBlockItem(NETCABLE.get(), properties, CableColor.YELLOW)));
+    public static final DeferredItem<Item> NETCABLE_ROUTING = ITEMS.register("netcable_routing", tab(properties -> new ColorBlockItem(NETCABLE.get(), properties, CableColor.ROUTING)));
 
-    public static final DeferredBlock<ConnectorBlock> CONNECTOR = BLOCKS.register("connector", () -> new ConnectorBlock(CableBlockType.CONNECTOR));
-    public static final DeferredItem<Item> CONNECTOR_RED = ITEMS.register("connector_red", tab(() -> new ColorBlockItem(CONNECTOR.get(), Registration.createStandardProperties(), CableColor.RED)));
-    public static final DeferredItem<Item> CONNECTOR_GREEN = ITEMS.register("connector_green", tab(() -> new ColorBlockItem(CONNECTOR.get(), Registration.createStandardProperties(), CableColor.GREEN)));
-    public static final DeferredItem<Item> CONNECTOR_BLUE = ITEMS.register("connector_blue", tab(() -> new ColorBlockItem(CONNECTOR.get(), Registration.createStandardProperties(), CableColor.BLUE)));
-    public static final DeferredItem<Item> CONNECTOR_YELLOW = ITEMS.register("connector_yellow", tab(() -> new ColorBlockItem(CONNECTOR.get(), Registration.createStandardProperties(), CableColor.YELLOW)));
-    public static final DeferredItem<Item> CONNECTOR_ROUTING = ITEMS.register("connector_routing", tab(() -> new ColorBlockItem(CONNECTOR.get(), Registration.createStandardProperties(), CableColor.ROUTING)));
+    public static final DeferredBlock<ConnectorBlock> CONNECTOR = BLOCKS.register("connector", properties -> new ConnectorBlock(CableBlockType.CONNECTOR, properties));
+    public static final DeferredItem<Item> CONNECTOR_RED = ITEMS.register("connector_red", tab(properties -> new ColorBlockItem(CONNECTOR.get(), properties, CableColor.RED)));
+    public static final DeferredItem<Item> CONNECTOR_GREEN = ITEMS.register("connector_green", tab(properties -> new ColorBlockItem(CONNECTOR.get(), properties, CableColor.GREEN)));
+    public static final DeferredItem<Item> CONNECTOR_BLUE = ITEMS.register("connector_blue", tab(properties -> new ColorBlockItem(CONNECTOR.get(), properties, CableColor.BLUE)));
+    public static final DeferredItem<Item> CONNECTOR_YELLOW = ITEMS.register("connector_yellow", tab(properties -> new ColorBlockItem(CONNECTOR.get(), properties, CableColor.YELLOW)));
+    public static final DeferredItem<Item> CONNECTOR_ROUTING = ITEMS.register("connector_routing", tab(properties -> new ColorBlockItem(CONNECTOR.get(), properties, CableColor.ROUTING)));
 
-    public static final DeferredBlock<AdvancedConnectorBlock> ADVANCED_CONNECTOR = BLOCKS.register("advanced_connector", () -> new AdvancedConnectorBlock(CableBlockType.ADVANCED_CONNECTOR));
-    public static final DeferredItem<Item> ADVANCED_CONNECTOR_RED = ITEMS.register("advanced_connector_red", tab(() -> new ColorBlockItem(ADVANCED_CONNECTOR.get(), Registration.createStandardProperties(), CableColor.RED)));
-    public static final DeferredItem<Item> ADVANCED_CONNECTOR_GREEN = ITEMS.register("advanced_connector_green", tab(() -> new ColorBlockItem(ADVANCED_CONNECTOR.get(), Registration.createStandardProperties(), CableColor.GREEN)));
-    public static final DeferredItem<Item> ADVANCED_CONNECTOR_BLUE = ITEMS.register("advanced_connector_blue", tab(() -> new ColorBlockItem(ADVANCED_CONNECTOR.get(), Registration.createStandardProperties(), CableColor.BLUE)));
-    public static final DeferredItem<Item> ADVANCED_CONNECTOR_YELLOW = ITEMS.register("advanced_connector_yellow", tab(() -> new ColorBlockItem(ADVANCED_CONNECTOR.get(), Registration.createStandardProperties(), CableColor.YELLOW)));
-    public static final DeferredItem<Item> ADVANCED_CONNECTOR_ROUTING = ITEMS.register("advanced_connector_routing", tab(() -> new ColorBlockItem(ADVANCED_CONNECTOR.get(), Registration.createStandardProperties(), CableColor.ROUTING)));
+    public static final DeferredBlock<AdvancedConnectorBlock> ADVANCED_CONNECTOR = BLOCKS.register("advanced_connector", properties -> new AdvancedConnectorBlock(CableBlockType.ADVANCED_CONNECTOR, properties));
+    public static final DeferredItem<Item> ADVANCED_CONNECTOR_RED = ITEMS.register("advanced_connector_red", tab(properties -> new ColorBlockItem(ADVANCED_CONNECTOR.get(), properties, CableColor.RED)));
+    public static final DeferredItem<Item> ADVANCED_CONNECTOR_GREEN = ITEMS.register("advanced_connector_green", tab(properties -> new ColorBlockItem(ADVANCED_CONNECTOR.get(), properties, CableColor.GREEN)));
+    public static final DeferredItem<Item> ADVANCED_CONNECTOR_BLUE = ITEMS.register("advanced_connector_blue", tab(properties -> new ColorBlockItem(ADVANCED_CONNECTOR.get(), properties, CableColor.BLUE)));
+    public static final DeferredItem<Item> ADVANCED_CONNECTOR_YELLOW = ITEMS.register("advanced_connector_yellow", tab(properties -> new ColorBlockItem(ADVANCED_CONNECTOR.get(), properties, CableColor.YELLOW)));
+    public static final DeferredItem<Item> ADVANCED_CONNECTOR_ROUTING = ITEMS.register("advanced_connector_routing", tab(properties -> new ColorBlockItem(ADVANCED_CONNECTOR.get(), properties, CableColor.ROUTING)));
 
-    public static final Supplier<BlockEntityType<?>> TYPE_CONNECTOR = TILES.register("connector", () -> BlockEntityType.Builder.of(ConnectorTileEntity::new, CONNECTOR.get()).build(null));
-    public static final Supplier<BlockEntityType<?>> TYPE_ADVANCED_CONNECTOR = TILES.register("advanced_connector", () -> BlockEntityType.Builder.of(AdvancedConnectorTileEntity::new, ADVANCED_CONNECTOR.get()).build(null));
+    public static final Supplier<BlockEntityType<?>> TYPE_CONNECTOR = TILES.register("connector", () -> new BlockEntityType<>(ConnectorTileEntity::new, java.util.Set.of(CONNECTOR.get())));
+    public static final Supplier<BlockEntityType<?>> TYPE_ADVANCED_CONNECTOR = TILES.register("advanced_connector", () -> new BlockEntityType<>(AdvancedConnectorTileEntity::new, java.util.Set.of(ADVANCED_CONNECTOR.get())));
 
     public static final Supplier<MenuType<GenericContainer>> CONTAINER_CONNECTOR = CONTAINERS.register("connector", GenericContainer::createContainerType);
 
-    public static final TagKey<Item> TAG_KEY_CABLES = TagTools.createItemTagKey(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "cables"));
-    public static final TagKey<Item> TAG_KEY_CONNECTORS = TagTools.createItemTagKey(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "connectors"));
-    public static final TagKey<Item> TAG_KEY_ADVANCED_CONNECTORS = TagTools.createItemTagKey(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "advanced_connectors"));
+    public static final TagKey<Item> TAG_KEY_CABLES = TagTools.createItemTagKey(Identifier.fromNamespaceAndPath(XNet.MODID, "cables"));
+    public static final TagKey<Item> TAG_KEY_CONNECTORS = TagTools.createItemTagKey(Identifier.fromNamespaceAndPath(XNet.MODID, "connectors"));
+    public static final TagKey<Item> TAG_KEY_ADVANCED_CONNECTORS = TagTools.createItemTagKey(Identifier.fromNamespaceAndPath(XNet.MODID, "advanced_connectors"));
 
     public static final Supplier<AttachmentType<ConnectorData>> CONNECTOR_DATA = ATTACHMENT_TYPES.register(
             "connector_data", () -> AttachmentType.builder(() -> ConnectorData.EMPTY)
-                    .serialize(ConnectorData.CODEC)
+                    .serialize(com.mojang.serialization.MapCodec.assumeMapUnsafe(ConnectorData.CODEC))
                     .build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ConnectorData>> ITEM_CONNECTOR_DATA = COMPONENTS.registerComponentType(
             "connector_data",

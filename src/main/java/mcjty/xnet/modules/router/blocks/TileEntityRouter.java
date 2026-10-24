@@ -87,8 +87,8 @@ public final class TileEntityRouter extends GenericTileEntity {
         super(ROUTER.be().get(), pos, state);
     }
 
-    public static BaseBlock createBlock() {
-        return new BaseBlock(new BlockBuilder()
+    public static BaseBlock createBlock(net.minecraft.world.level.block.state.BlockBehaviour.Properties properties) {
+        return new BaseBlock(new BlockBuilder().properties(mcjty.rftoolsbase.tools.RegistryProperties.block(properties))
                 .topDriver(XNetTOPDriver.DRIVER)
                 .tileEntitySupplier(TileEntityRouter::new)
                 .manualEntry(ManualHelper.create("rftoolsbase:network/router"))
@@ -310,7 +310,7 @@ public final class TileEntityRouter extends GenericTileEntity {
     }
 
     @Override
-    protected void applyImplicitComponents(DataComponentInput input) {
+    protected void applyImplicitComponents(net.minecraft.core.component.DataComponentGetter input) {
         super.applyImplicitComponents(input);
         var data = input.get(RouterModule.ITEM_ROUTER_DATA);
         if (data != null) {
@@ -355,7 +355,7 @@ public final class TileEntityRouter extends GenericTileEntity {
         if (state.getBlock() == newstate.getBlock()) {
             return;
         }
-        if (!this.level.isClientSide) {
+        if (!this.level.isClientSide()) {
             XNetBlobData blobData = XNetBlobData.get(this.level);
             WorldBlob worldBlob = blobData.getWorldBlob(this.level);
             worldBlob.removeCableSegment(pos);
@@ -366,7 +366,7 @@ public final class TileEntityRouter extends GenericTileEntity {
     @Override
     public void onBlockPlacedBy(Level world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         super.onBlockPlacedBy(world, pos, state, placer, stack);
-        if (!world.isClientSide) {
+        if (!world.isClientSide()) {
             XNetBlobData blobData = XNetBlobData.get(world);
             WorldBlob worldBlob = blobData.getWorldBlob(world);
             NetworkId networkId = worldBlob.newNetwork();

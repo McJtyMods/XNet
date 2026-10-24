@@ -14,7 +14,7 @@ import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.cables.ConnectorType;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -104,7 +104,7 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
             BlockPos consumerPos = connector.getBlockPos().relative(facing);
 
             BlockState state = level.getBlockState(consumerPos);
-            ItemStack item = state.getBlock().getCloneItemStack(level, consumerPos, state);
+            ItemStack item = state.getCloneItemStack(level, consumerPos, false);
             connectedBlockRenders[facing.ordinal()] = new BlockRender().renderItem(item).userObject("block");
             toggleButtons[facing.ordinal()] = new ToggleButton().text(facing.getSerializedName().substring(0, 1).toUpperCase())
                                                       .desiredWidth(16)
@@ -132,7 +132,7 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
     }
 
     @Override
-    protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@Nonnull GuiGraphicsExtractor graphics, float partialTicks, int mouseX, int mouseY) {
         drawWindow(graphics, partialTicks, mouseX, mouseY);
     }
 }

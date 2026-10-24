@@ -34,7 +34,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.common.util.Lazy;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
@@ -68,7 +67,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     @Override
     public void setRemoved() {
         super.setRemoved();
-        if (level.isClientSide && getMimicBlock() != null) {
+        if (level.isClientSide() && getMimicBlock() != null) {
             level.setBlockAndUpdate(worldPosition, getBlockState());
         }
     }
@@ -89,11 +88,11 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider provider) {
-        super.onDataPacket(net, pkt, provider);
+    public void onDataPacket(Connection net, net.minecraft.world.level.storage.ValueInput input) {
+        super.onDataPacket(net, input);
 
-        if (level.isClientSide) {
-            requestModelDataUpdate();
+        if (level.isClientSide()) {
+            // Dynamic models read the synchronized block entity when rebuilding the section.
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
         }
     }
@@ -111,7 +110,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         }
         this.powerOut[side.ordinal()] = powerOut;
         setChanged();
-        level.neighborChanged(worldPosition.relative(side), this.getBlockState().getBlock(), this.worldPosition);
+        level.neighborChanged(worldPosition.relative(side), this.getBlockState().getBlock(), null);
     }
 
     public void setEnabled(Direction direction, boolean e) {
@@ -181,32 +180,38 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     }
 
     @Override
-    public void loadAdditional(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        super.loadAdditional(tagCompound, provider);
-        energy = tagCompound.getInt("energy");
-        inputFromSide = tagCompound.getIntArray("inputs");
+    public void loadAdditional(net.minecraft.world.level.storage.ValueInput input) {
+        super.loadAdditional(input);
+        CompoundTag tagCompound = input.read(com.mojang.serialization.MapCodec.assumeMapUnsafe(CompoundTag.CODEC)).orElseGet(CompoundTag::new);
+        HolderLookup.Provider provider = input.lookup();
+        energy = tagCompound.getIntOr("energy", 0);
+        inputFromSide = tagCompound.getIntArray("inputs").orElseGet(() -> new int[6]);
         if (inputFromSide.length != 6) {
             inputFromSide = new int[] { 0, 0, 0, 0, 0, 0 };
         }
-        pulseCounter = tagCompound.getInt("pulse");
+        pulseCounter = tagCompound.getIntOr("pulse", 0);
         for (int i = 0 ; i < 6 ; i++) {
-            powerOut[i] = tagCompound.getByte("p" + i);
+            powerOut[i] = tagCompound.getByteOr("p" + i, (byte) 0);
         }
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
-        super.saveAdditional(tagCompound, provider);
+    public void saveAdditional(net.minecraft.world.level.storage.ValueOutput output) {
+        super.saveAdditional(output);
+        CompoundTag tagCompound = new CompoundTag();
+        HolderLookup.Provider provider = (level != null ? level.registryAccess() : net.minecraft.core.RegistryAccess.EMPTY);
         tagCompound.putInt("energy", energy);
         tagCompound.putIntArray("inputs", inputFromSide);
         tagCompound.putInt("pulse", pulseCounter);
         for (int i = 0 ; i < 6 ; i++) {
             tagCompound.putByte("p" + i, (byte) powerOut[i]);
         }
+
+        output.store(com.mojang.serialization.MapCodec.assumeMapUnsafe(CompoundTag.CODEC), tagCompound);
     }
 
     @Override
-    protected void applyImplicitComponents(DataComponentInput input) {
+    protected void applyImplicitComponents(net.minecraft.core.component.DataComponentGetter input) {
         super.applyImplicitComponents(input);
         var data = input.get(CableModule.ITEM_CONNECTOR_DATA);
         if (data != null) {
@@ -301,14 +306,6 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         return getMaxEnergy();
     }
 
-    @Nonnull
-    @Override
-    public ModelData getModelData() {
-        return ModelData.builder()
-                .with(GenericCableBlock.FACADEID, getMimicBlock())
-                .build();
-    }
-
 
     public static final Key<Integer> PARAM_FACING = new Key<>(TAG_FACING, Type.INTEGER);
     public static final Key<Boolean> PARAM_ENABLED = new Key<>(TAG_ENABLED, Type.BOOLEAN);
@@ -325,6 +322,19 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     public static final ResultCommand<?> CMD_GET_NAME = ResultCommand.<ConnectorTileEntity>create("xnet.connector.name",
             (te, player, params) -> TypedMap.builder().put(PARAM_NAME, te.getConnectorName()).build(),
             (te, player, params) -> te.setConnectorName(params.get(PARAM_NAME)));
+
+
+    private record EnergySnapshot(int energy, int[] inputs) { }
+    private final mcjty.rftoolsbase.tools.EnergyTransactions.Journal<EnergySnapshot> energyJournal =
+            new mcjty.rftoolsbase.tools.EnergyTransactions.Journal<>(
+                    () -> new EnergySnapshot(energy, inputFromSide.clone()), snapshot -> {
+                        energy = snapshot.energy();
+                        inputFromSide = snapshot.inputs().clone();
+                    });
+
+    public net.neoforged.neoforge.transfer.energy.EnergyHandler getEnergyHandler(Direction side) {
+        return mcjty.rftoolsbase.tools.EnergyTransactions.input(getEnergyStorage(side), () -> java.util.List.of(energyJournal));
+    }
 
     public IEnergyStorage getEnergyStorage(Direction facing) {
         if (facing == null) {

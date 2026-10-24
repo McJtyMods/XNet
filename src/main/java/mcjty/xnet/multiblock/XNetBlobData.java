@@ -29,7 +29,7 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
             ListTag worlds = (ListTag) tag.get(TAG_WORLDS);
             for (net.minecraft.nbt.Tag world : worlds) {
                 CompoundTag tc = (CompoundTag) world;
-                ResourceKey<Level> dim = LevelTools.getId(tc.getString(TAG_DIMTYPE));
+                ResourceKey<Level> dim = LevelTools.getId(tc.getStringOr(TAG_DIMTYPE, ""));
                 WorldBlob blob = new WorldBlob(dim);
                 blob.readFromNBT(tc);
                 worldBlobMap.put(dim, blob);
@@ -39,7 +39,8 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
 
     @Nonnull
     public static XNetBlobData get(Level world) {
-        return getData(world, XNetBlobData::new, XNetBlobData::new, NAME);
+        return mcjty.rftoolsbase.tools.LegacyWorldData.get(world, XNetBlobData::new, XNetBlobData::new,
+                "xnet:blob_data", NAME);
     }
 
     public WorldBlob getWorldBlob(Level world) {
@@ -61,7 +62,7 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
         for (var entry : worldBlobMap.entrySet()) {
             WorldBlob blob = entry.getValue();
             CompoundTag tc = new CompoundTag();
-            tc.putString(TAG_DIMTYPE, blob.getDimensionType().location().toString());
+            tc.putString(TAG_DIMTYPE, blob.getDimensionType().identifier().toString());
             blob.writeToNBT(tc);
             list.add(tc);
         }

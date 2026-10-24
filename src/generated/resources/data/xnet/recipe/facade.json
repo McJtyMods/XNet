@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "G": {
-      "tag": "c:glass_blocks"
-    },
-    "p": {
-      "item": "minecraft:paper"
-    },
-    "w": {
-      "tag": "minecraft:wool"
-    }
+    "G": "#c:glass_blocks",
+    "p": "minecraft:paper",
+    "w": "#minecraft:wool"
   },
   "pattern": [
     "pwp",

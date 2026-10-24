@@ -75,8 +75,8 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
             .infoShift(header(), gold(stack -> isAdvancedConnector()),
                     parameter("info", stack -> Integer.toString(isAdvancedConnector() ? Config.maxRfAdvancedConnector.get() : Config.maxRfConnector.get()))));
 
-    public ConnectorBlock(CableBlockType type) {
-        super(type);
+    public ConnectorBlock(CableBlockType type, net.minecraft.world.level.block.state.BlockBehaviour.Properties properties) {
+        super(type, properties);
     }
 
     @Override
@@ -92,7 +92,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
-        if (!world.isClientSide) {
+        if (!world.isClientSide()) {
             BlockEntity te = world.getBlockEntity(pos);
             if (te instanceof GenericTileEntity) {
                 GenericTileEntity genericTileEntity = (GenericTileEntity) te;
@@ -130,12 +130,12 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
     }
 
     @Override
-    public boolean onDestroyedByPlayer(BlockState state, Level world, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
+    public boolean onDestroyedByPlayer(BlockState state, Level world, BlockPos pos, Player player, ItemStack tool, boolean willHarvest, FluidState fluid) {
         BlockEntity te = world.getBlockEntity(pos);
         if (te instanceof ConnectorTileEntity connectorTileEntity) {
             if (connectorTileEntity.getMimicBlock() == null) {
                 this.playerWillDestroy(world, pos, state, player);
-                return world.setBlock(pos, Blocks.AIR.defaultBlockState(), world.isClientSide ? 11 : 3);
+                return world.setBlock(pos, Blocks.AIR.defaultBlockState(), world.isClientSide() ? 11 : 3);
             } else {
                 // We are in mimic mode. Don't remove the connector
                 this.playerWillDestroy(world, pos, state, player);
@@ -144,16 +144,16 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
                 }
             }
         } else {
-            return super.onDestroyedByPlayer(state, world, pos, player, willHarvest, fluid);
+            return super.onDestroyedByPlayer(state, world, pos, player, tool, willHarvest, fluid);
         }
         return true;
     }
 
     @SuppressWarnings("deprecation")
     @Override
-    public void neighborChanged(@Nonnull BlockState state, @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Block blockIn, @Nonnull BlockPos fromPos, boolean isMoving) {
+    public void neighborChanged(@Nonnull BlockState state, @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Block blockIn, net.minecraft.world.level.redstone.Orientation orientation, boolean isMoving) {
         checkRedstone(world, pos);
-        super.neighborChanged(state, world, pos, blockIn, fromPos, isMoving);
+        super.neighborChanged(state, world, pos, blockIn, orientation, isMoving);
     }
 
     @Override
@@ -289,10 +289,10 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
             return true;
         }
         Level level = te.getLevel();
-        if (level.getCapability(Capabilities.ItemHandler.BLOCK, te.getBlockPos(), null) != null) {
+        if (mcjty.lib.varia.CapabilityTools.itemHandler(level.getCapability(Capabilities.Item.BLOCK, te.getBlockPos(), null)) != null) {
             return true;
         }
-        if (level.getCapability(Capabilities.FluidHandler.BLOCK, te.getBlockPos(), null) != null) {
+        if (mcjty.lib.varia.CapabilityTools.fluidHandler(level.getCapability(Capabilities.Fluid.BLOCK, te.getBlockPos(), null)) != null) {
             return true;
         }
         if (te instanceof TileEntityController) {
@@ -338,9 +338,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
         return drops;
     }
 
-    @Override
     public void appendHoverText(@Nonnull ItemStack stack, Item.TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn) {
-        super.appendHoverText(stack, context, tooltip, flagIn);
         tooltipBuilder.get().makeTooltip(Tools.getId(this), stack, tooltip, flagIn);
     }
 

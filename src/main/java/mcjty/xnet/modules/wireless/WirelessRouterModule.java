@@ -36,8 +36,8 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder;
+import mcjty.lib.datagen.model.ModelFile;
+import mcjty.lib.datagen.model.VariantBlockStateBuilder;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -58,21 +58,20 @@ public class WirelessRouterModule implements IModule {
     public static final RBlock<BaseBlock, BlockItem, TileEntityWirelessRouter> WIRELESS_ROUTER = RBLOCKS.registerBlock("wireless_router",
             TileEntityWirelessRouter.class,
             TileEntityWirelessRouter::createBlock,
-            block -> new BlockItem(block.get(), createStandardProperties()),
-            TileEntityWirelessRouter::new
-    );
+            (block, itemProperties) -> new BlockItem(block.get(), itemProperties),
+            TileEntityWirelessRouter::new);
     public static final Supplier<MenuType<GenericContainer>> CONTAINER_WIRELESS_ROUTER = CONTAINERS.register("wireless_router", GenericContainer::createContainerType);
 
     public static final DeferredBlock<BaseBlock> ANTENNA = BLOCKS.register(ITEM_ANTENNA, WirelessRouterModule::createAntennaBlock);
-    public static final DeferredItem<Item> ANTENNA_ITEM = ITEMS.register(ITEM_ANTENNA, tab(() -> new BlockItem(ANTENNA.get(), Registration.createStandardProperties())));
+    public static final DeferredItem<Item> ANTENNA_ITEM = ITEMS.register(ITEM_ANTENNA, tab(properties -> new BlockItem(ANTENNA.get(), properties)));
     public static final DeferredBlock<BaseBlock> ANTENNA_BASE = BLOCKS.register(ITEM_ANTENNA_BASE, WirelessRouterModule::createAntennaBaseBlock);
-    public static final DeferredItem<Item> ANTENNA_BASE_ITEM = ITEMS.register(ITEM_ANTENNA_BASE, tab(() -> new BlockItem(ANTENNA_BASE.get(), Registration.createStandardProperties())));
+    public static final DeferredItem<Item> ANTENNA_BASE_ITEM = ITEMS.register(ITEM_ANTENNA_BASE, tab(properties -> new BlockItem(ANTENNA_BASE.get(), properties)));
     public static final DeferredBlock<BaseBlock> ANTENNA_DISH = BLOCKS.register(ITEM_ANTENNA_DISH, WirelessRouterModule::createAntennaDishBlock);
-    public static final DeferredItem<Item> ANTENNA_DISH_ITEM = ITEMS.register(ITEM_ANTENNA_DISH, tab(() -> new BlockItem(ANTENNA_DISH.get(), Registration.createStandardProperties())));
+    public static final DeferredItem<Item> ANTENNA_DISH_ITEM = ITEMS.register(ITEM_ANTENNA_DISH, tab(properties -> new BlockItem(ANTENNA_DISH.get(), properties)));
 
     public static final Supplier<AttachmentType<WirelessRouterData>> WIRELESS_ROUTER_DATA = ATTACHMENT_TYPES.register(
             "wireless_router_data", () -> AttachmentType.builder(() -> WirelessRouterData.EMPTY)
-                    .serialize(WirelessRouterData.CODEC)
+                    .serialize(com.mojang.serialization.MapCodec.assumeMapUnsafe(WirelessRouterData.CODEC))
                     .build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<WirelessRouterData>> ITEM_WIRELESS_ROUTER_DATA = COMPONENTS.registerComponentType(
             "wireless_router_data",
@@ -83,8 +82,8 @@ public class WirelessRouterModule implements IModule {
 
     public static final VoxelShape SMALLER_CUBE = Shapes.box(0.01f, 0.01f, 0.01f, 0.99f, 0.99f, 0.99f);
 
-    private static BaseBlock createAntennaDishBlock() {
-        return new BaseBlock(new BlockBuilder()
+    private static BaseBlock createAntennaDishBlock(net.minecraft.world.level.block.state.BlockBehaviour.Properties properties) {
+        return new BaseBlock(new BlockBuilder().properties(mcjty.rftoolsbase.tools.RegistryProperties.block(properties))
                 .manualEntry(ManualHelper.create("xnet:wireless/antennas"))
                 .info(TooltipBuilder.key("message.xnet.shiftmessage"))
                 .infoShift(TooltipBuilder.header(),
@@ -97,14 +96,14 @@ public class WirelessRouterModule implements IModule {
 
             @Nonnull
             @Override
-            public VoxelShape getOcclusionShape(@Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos) {
+            public VoxelShape getOcclusionShape(@Nonnull BlockState state) {
                 return SMALLER_CUBE;
             }
         };
     }
 
-    private static BaseBlock createAntennaBaseBlock() {
-        return new BaseBlock(new BlockBuilder()
+    private static BaseBlock createAntennaBaseBlock(net.minecraft.world.level.block.state.BlockBehaviour.Properties properties) {
+        return new BaseBlock(new BlockBuilder().properties(mcjty.rftoolsbase.tools.RegistryProperties.block(properties))
                 .manualEntry(ManualHelper.create("xnet:wireless/antennas"))
                 .info(TooltipBuilder.key("message.xnet.shiftmessage"))
                 .infoShift(TooltipBuilder.header())
@@ -116,14 +115,14 @@ public class WirelessRouterModule implements IModule {
 
             @Nonnull
             @Override
-            public VoxelShape getOcclusionShape(@Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos) {
+            public VoxelShape getOcclusionShape(@Nonnull BlockState state) {
                 return SMALLER_CUBE;
             }
         };
     }
 
-    private static BaseBlock createAntennaBlock() {
-        return new BaseBlock(new BlockBuilder()
+    private static BaseBlock createAntennaBlock(net.minecraft.world.level.block.state.BlockBehaviour.Properties properties) {
+        return new BaseBlock(new BlockBuilder().properties(mcjty.rftoolsbase.tools.RegistryProperties.block(properties))
                 .manualEntry(ManualHelper.create("xnet:wireless/antennas"))
                 .info(TooltipBuilder.key("message.xnet.shiftmessage"))
                 .infoShift(TooltipBuilder.header(),
@@ -138,7 +137,7 @@ public class WirelessRouterModule implements IModule {
 
             @Nonnull
             @Override
-            public VoxelShape getOcclusionShape(@Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos) {
+            public VoxelShape getOcclusionShape(@Nonnull BlockState state) {
                 return SMALLER_CUBE;
             }
         };
@@ -177,12 +176,8 @@ public class WirelessRouterModule implements IModule {
                             ModelFile modelOk = p.frontBasedModel(ITEM_WIRELESS_ROUTER, p.modLoc("block/machine_wireless_router"));
                             ModelFile modelError = p.frontBasedModel("wireless_router_error", p.modLoc("block/machine_wireless_router_error"));
                             VariantBlockStateBuilder builder = p.getVariantBuilder(WIRELESS_ROUTER.block().get());
-                            for (Direction direction : OrientationTools.DIRECTION_VALUES) {
-                                p.applyRotation(builder.partialState().with(BlockStateProperties.FACING, direction).with(TileEntityController.ERROR, false)
-                                        .modelForState().modelFile(modelOk), direction);
-                                p.applyRotation(builder.partialState().with(BlockStateProperties.FACING, direction).with(TileEntityController.ERROR, true)
-                                        .modelForState().modelFile(modelError), direction);
-                            }
+                            builder.forAllStates(state -> mcjty.rftoolsbase.tools.ModelDataGen.rotated(
+                                    state.getValue(TileEntityController.ERROR) ? modelError : modelOk, state.getValue(BlockStateProperties.FACING)));
                         })
                         .shaped(builder -> builder
                                         .define('F', VariousModule.MACHINE_FRAME.get())

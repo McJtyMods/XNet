@@ -36,13 +36,13 @@ import mcjty.xnet.utils.ChannelChoiceLabel;
 import mcjty.xnet.utils.I18nUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
@@ -106,7 +106,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     @Override
     public void init() {
-        window = new Window(this, getBE(), ResourceLocation.fromNamespaceAndPath(XNet.MODID, "gui/controller.gui"));
+        window = new Window(this, getBE(), Identifier.fromNamespaceAndPath(XNet.MODID, "gui/controller.gui"));
         super.init();
 
         initializeFields();
@@ -185,14 +185,15 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
+        int keyCode = event.key();
         if (handleClipboard(keyCode)) {
             return true;
         }
         if (handleKeyUpDown(keyCode)) {
             return true;
         }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(event);
     }
 
     @Override
@@ -584,7 +585,6 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
 
-
     private void requestListsIfNeeded() {
         TileEntityController tileEntity = getBE();
         if (tileEntity.clientChannels != null && tileEntity.clientConnectedBlocks != null) {
@@ -701,7 +701,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     @Override
-    protected void renderBg(@Nonnull GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(@Nonnull GuiGraphicsExtractor graphics, float partialTicks, int mouseX, int mouseY) {
         updateFields();
         requestListsIfNeeded();
         populateList();
@@ -743,9 +743,9 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         if (channel != -1) {
             int x = (int) window.getToplevel().getBounds().getX();
             int y = (int) window.getToplevel().getBounds().getY();
-            RenderHelper.drawVerticalGradientRect(x+channel * 14 + 41, y+22, x+channel * 14 + 41+12, y+230, 0x33aaffff, 0x33aaffff);
+            RenderHelper.drawVerticalGradientRect(graphics, x+channel * 14 + 41, y+22, x+channel * 14 + 41+12, y+230, 0x33aaffff, 0x33aaffff);
         }
-        IEnergyStorage h = tileEntity.getLevel().getCapability(Capabilities.EnergyStorage.BLOCK, tileEntity.getBlockPos(), null);
+        IEnergyStorage h = mcjty.lib.varia.CapabilityTools.energyHandler(tileEntity.getLevel().getCapability(Capabilities.Energy.BLOCK, tileEntity.getBlockPos(), null));
         if (h != null) {
             long currentRF = h.getEnergyStored();
             int max = h.getMaxEnergyStored();
@@ -754,7 +754,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
     }
 
     @Override
-    protected void drawStackTooltips(GuiGraphics graphics, int mouseX, int mouseY) {
+    protected void drawStackTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         int x = GuiTools.getRelativeX(this);
         int y = GuiTools.getRelativeY(this);
         Widget<?> widget = window.getToplevel().getWidgetAtPosition(x, y);

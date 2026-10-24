@@ -26,7 +26,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -43,7 +43,7 @@ import static mcjty.xnet.apiimpl.Constants.TAG_MODE;
 
 public class FluidChannelSettings extends DefaultChannelSettings implements IChannelSettings {
 
-    public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
+    public static final Identifier iconGuiElements = Identifier.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
     private ChannelMode channelMode = ChannelMode.ROUNDROBIN;
     private int delay = 0;
     private int roundRobinOffset = 0;
@@ -91,8 +91,8 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
 
     @Override
     public void readFromNBT(CompoundTag tag) {
-        delay = tag.getInt("delay");
-        roundRobinOffset = tag.getInt("offset");
+        delay = tag.getIntOr("delay", 0);
+        roundRobinOffset = tag.getIntOr("offset", 0);
     }
 
     @Override
@@ -345,7 +345,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
     @Nullable
     public static IFluidHandler getFluidHandlerAt(@Nullable BlockEntity te, Direction intSide) {
         if (te != null) {
-            return te.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, te.getBlockPos(), intSide);
+            return mcjty.lib.varia.CapabilityTools.fluidHandler(te.getLevel().getCapability(Capabilities.Fluid.BLOCK, te.getBlockPos(), intSide));
         } else {
             return null;
         }

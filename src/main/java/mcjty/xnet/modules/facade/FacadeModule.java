@@ -31,13 +31,13 @@ import static mcjty.xnet.setup.Registration.*;
 
 public class FacadeModule implements IModule {
 
-    public static final DeferredBlock<FacadeBlock> FACADE = BLOCKS.register(ITEM_FACADE, () -> new FacadeBlock(GenericCableBlock.CableBlockType.FACADE)); // @todo 1.14
-    public static final DeferredItem<Item> FACADE_ITEM = ITEMS.register(ITEM_FACADE, tab(() -> new FacadeBlockItem(FACADE.get())));
-    public static final Supplier<BlockEntityType<?>> TYPE_FACADE = TILES.register(ITEM_FACADE, () -> BlockEntityType.Builder.of(FacadeTileEntity::new, FACADE.get()).build(null));
+    public static final DeferredBlock<FacadeBlock> FACADE = BLOCKS.register(ITEM_FACADE, properties -> new FacadeBlock(GenericCableBlock.CableBlockType.FACADE, properties)); // @todo 1.14
+    public static final DeferredItem<Item> FACADE_ITEM = ITEMS.register(ITEM_FACADE, tab(properties -> new FacadeBlockItem(FACADE.get(), properties)));
+    public static final Supplier<BlockEntityType<?>> TYPE_FACADE = TILES.register(ITEM_FACADE, () -> new BlockEntityType<>(FacadeTileEntity::new, java.util.Set.of(FACADE.get())));
 
     public static final Supplier<AttachmentType<MimicData>> MIMIC_DATA = ATTACHMENT_TYPES.register(
             "mimic_data", () -> AttachmentType.builder(() -> MimicData.EMPTY)
-                    .serialize(MimicData.CODEC)
+                    .serialize(com.mojang.serialization.MapCodec.assumeMapUnsafe(MimicData.CODEC))
                     .build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<MimicData>> ITEM_MIMIC_DATA = COMPONENTS.registerComponentType(
             "mimic_data",

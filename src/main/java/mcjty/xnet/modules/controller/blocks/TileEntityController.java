@@ -56,7 +56,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -170,8 +170,8 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         return filterCaches[idx];
     }
 
-    public static BaseBlock createBlock() {
-        return new BaseBlock(new BlockBuilder()
+    public static BaseBlock createBlock(net.minecraft.world.level.block.state.BlockBehaviour.Properties properties) {
+        return new BaseBlock(new BlockBuilder().properties(mcjty.rftoolsbase.tools.RegistryProperties.block(properties))
                 .topDriver(XNetTOPDriver.DRIVER)
                 .tileEntitySupplier(TileEntityController::new)
                 .manualEntry(ManualHelper.create("rftoolsbase:simple/controller"))
@@ -374,10 +374,10 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     }
 
     @Override
-    protected void applyImplicitComponents(DataComponentInput input) {
+    protected void applyImplicitComponents(net.minecraft.core.component.DataComponentGetter input) {
         super.applyImplicitComponents(input);
-        energyStorage.applyImplicitComponents(input.get(Registration.ITEM_ENERGY));
-        items.applyImplicitComponents(input.get(Registration.ITEM_INVENTORY));
+        energyStorage.applyImplicitComponents(input.get(mcjty.lib.setup.Registration.ITEM_ENERGY));
+        items.applyImplicitComponents(input.get(mcjty.lib.setup.Registration.ITEM_INVENTORY));
         var data = input.get(ControllerModule.ITEM_CONTROLLER_DATA);
         if (data != null) {
             setData(ControllerModule.CONTROLLER_DATA, data);
@@ -393,8 +393,10 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag tagCompound, HolderLookup.Provider provider) {
-        super.saveAdditional(tagCompound, provider);
+    public void saveAdditional(net.minecraft.world.level.storage.ValueOutput output) {
+        super.saveAdditional(output);
+        CompoundTag tagCompound = new CompoundTag();
+        HolderLookup.Provider provider = (level != null ? level.registryAccess() : net.minecraft.core.RegistryAccess.EMPTY);
         ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
         for (int i = 0 ; i < data.channels().size() ; i++) {
             CompoundTag channelTag = new CompoundTag();
@@ -416,20 +418,24 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         }
         energyStorage.save(tagCompound, "energy", provider);
         items.save(tagCompound, "items", provider);
+
+        output.store(com.mojang.serialization.MapCodec.assumeMapUnsafe(CompoundTag.CODEC), tagCompound);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        super.loadAdditional(tagCompound, provider);
+    public void loadAdditional(net.minecraft.world.level.storage.ValueInput input) {
+        super.loadAdditional(input);
+        CompoundTag tagCompound = input.read(com.mojang.serialization.MapCodec.assumeMapUnsafe(CompoundTag.CODEC)).orElseGet(CompoundTag::new);
+        HolderLookup.Provider provider = input.lookup();
         ControllerData data = getData(ControllerModule.CONTROLLER_DATA);
         for (int i = 0 ; i < data.channels().size() ; i++) {
             ChannelInfo channel = data.channels().get(i);
-            CompoundTag channelTag = tagCompound.getCompound("channel" + i);
+            CompoundTag channelTag = tagCompound.getCompoundOrEmpty("channel" + i);
             channel.getChannelSettings().readFromNBT(channelTag);
-            CompoundTag connectorsTag = channelTag.getCompound("connectors");
+            CompoundTag connectorsTag = channelTag.getCompoundOrEmpty("connectors");
             for (Map.Entry<SidedConsumer, ConnectorInfo> entry : channel.getConnectors().entrySet()) {
                 SidedConsumer sidedConsumer = entry.getKey();
-                CompoundTag connectorTag = connectorsTag.getCompound(sidedConsumer.consumerId().toString() + ":" + sidedConsumer.side().getName());
+                CompoundTag connectorTag = connectorsTag.getCompoundOrEmpty(sidedConsumer.consumerId().toString() + ":" + sidedConsumer.side().getName());
                 if (!connectorTag.isEmpty()) {
                     ConnectorInfo connectorInfo = entry.getValue();
                     connectorInfo.getConnectorSettings().readFromNBT(connectorTag);
@@ -437,7 +443,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             }
         }
         if (tagCompound.contains("networkId")) {
-            networkId = new NetworkId(tagCompound.getInt("networkId"));
+            networkId = new NetworkId(tagCompound.getIntOr("networkId", 0));
         } else {
             networkId = null;
         }
@@ -498,7 +504,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
                     BlockPos pos = consumerPos.relative(facing);
                     SidedPos sidedPos = new SidedPos(pos, facing.getOpposite());
                     BlockState state = level.getBlockState(pos);
-                    ItemStack item = state.getBlock().getCloneItemStack(level, pos, state);
+                    ItemStack item = state.getCloneItemStack(level, pos, false);
                     ConnectedBlockClientInfo info = new ConnectedBlockClientInfo(sidedPos, item, name);
                     set.add(info);
                 }
@@ -759,7 +765,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         }
     }
 
-    private int calculateMatchingScore(IChannelType type, ConnectedBlockInfo info, String name, ResourceLocation block,
+    private int calculateMatchingScore(IChannelType type, ConnectedBlockInfo info, String name, Identifier block,
                                        @Nonnull Direction side, @Nonnull Direction facingOverride, boolean advanced,
                                        boolean advancedNeeded) {
         int score = 0;
@@ -777,7 +783,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             score -= 1000;
         }
 
-        ResourceLocation infoBlock = Tools.getId(info.getConnectedState());
+        Identifier infoBlock = Tools.getId(info.getConnectedState());
 
         // If the side doesn't match we give a bad penalty
         if (!KnownUnsidedBlocks.isUnsided(infoBlock) && !facingOverride.equals(facing)) {
@@ -917,7 +923,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
                 // and also the name of the block we were connecting too
                 String name = connector.get(JSON_NAME).getAsString();
                 boolean advanced = connector.get(JSON_ADVANCED).getAsBoolean();
-                ResourceLocation block = connector.has(JSON_BLOCK) ? ResourceLocation.parse(connector.get(JSON_BLOCK).getAsString()) : null;
+                Identifier block = connector.has(JSON_BLOCK) ? Identifier.parse(connector.get(JSON_BLOCK).getAsString()) : null;
 
                 // Also get some useful settings from the connector data itself. Using these we can estimate a
                 // matching score to see how well the destination connector matches with this one
@@ -980,7 +986,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
                 }
 
                 // Actually create the connector and paste the connector settings
-                ResourceLocation block = connector.has(JSON_BLOCK) ? ResourceLocation.parse(connector.get(JSON_BLOCK).getAsString()) : null;
+                Identifier block = connector.has(JSON_BLOCK) ? Identifier.parse(connector.get(JSON_BLOCK).getAsString()) : null;
                 System.out.println("Pasting " + info.getName() + " (" + block.toString() + " into " + Tools.getId(info.getConnectedState()) + ") with score = " + pair.sortedMatches.get(0).getRight());
                 ConnectorInfo connectorInfo = createConnector(channel, info.getPos());
                 connectorInfo.getConnectorSettings().readFromJson(connectorSettings);
@@ -1068,14 +1074,14 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     @Override
     public void checkRedstone(Level world, BlockPos pos) {
         // We abuse the redstone check for something else
-        if (!world.isClientSide) {
+        if (!world.isClientSide()) {
             findNeighbourConnector(world, pos);
         }
     }
 
     // Check neighbour blocks for a connector and inherit the color from that
     private void findNeighbourConnector(Level world, BlockPos pos) {
-        if (world.isClientSide) {
+        if (world.isClientSide()) {
             return;
         }
         XNetBlobData blobData = XNetBlobData.get(world);

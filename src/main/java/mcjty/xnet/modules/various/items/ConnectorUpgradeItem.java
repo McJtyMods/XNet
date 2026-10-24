@@ -17,7 +17,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -39,21 +38,24 @@ import static mcjty.xnet.utils.I18nConstants.CONNECTOR_WAS_UPGRADED;
 
 public class ConnectorUpgradeItem extends Item {
 
-    public ConnectorUpgradeItem() {
-        super(XNet.setup.defaultProperties());
+    public ConnectorUpgradeItem(net.minecraft.world.item.Item.Properties properties) {
+        super(properties);
     }
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn) {
-        super.appendHoverText(stack, context, tooltip, flagIn);
+    public void appendHoverText(@Nonnull ItemStack stack, TooltipContext context, @Nonnull net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> consumer, @Nonnull TooltipFlag flagIn) {
+        List<Component> tooltip = new java.util.ArrayList<>();
+        super.appendHoverText(stack, context, display, consumer, flagIn);
         for (String part : I18nUtils.getSplitedTooltip(CONNECTOR_UPGRADE.i18n())) {
             tooltip.add(ComponentFactory.literal(ChatFormatting.BLUE + part));
         }
+
+        tooltip.forEach(consumer);
     }
 
     @Override
     @Nonnull
-    public InteractionResultHolder<ItemStack> use(@Nonnull Level worldIn, @Nonnull Player playerIn, @Nonnull InteractionHand hand) {
+    public InteractionResult use(@Nonnull Level worldIn, @Nonnull Player playerIn, @Nonnull InteractionHand hand) {
         return super.use(worldIn, playerIn, hand);
     }
 
@@ -67,7 +69,7 @@ public class ConnectorUpgradeItem extends Item {
         Block block = state.getBlock();
 
         if (block == CableModule.CONNECTOR.get()) {
-            if (!world.isClientSide) {
+            if (!world.isClientSide()) {
                 BlockEntity te = world.getBlockEntity(pos);
                 if (te instanceof ConnectorTileEntity) {
                     CompoundTag tag = te.saveWithoutMetadata(world.registryAccess());
@@ -83,20 +85,20 @@ public class ConnectorUpgradeItem extends Item {
 
                     blockState = ((ConnectorBlock) block).calculateState(world, pos, blockState);
                     world.setBlock(pos, blockState, Block.UPDATE_ALL);
-                    player.getInventory().removeItem(player.getInventory().selected, 1);
+                    player.getInventory().removeItem(player.getInventory().getSelectedSlot(), 1);
                     player.containerMenu.broadcastChanges();
-                    player.displayClientMessage(ComponentFactory.literal(ChatFormatting.GREEN + CONNECTOR_WAS_UPGRADED.i18n()), false);
+                    player.sendSystemMessage(ComponentFactory.literal(ChatFormatting.GREEN + CONNECTOR_WAS_UPGRADED.i18n()));
                 }
             }
             return InteractionResult.SUCCESS;
         } else if (block == CableModule.ADVANCED_CONNECTOR.get()) {
-            if (!world.isClientSide) {
-                player.displayClientMessage(ComponentFactory.literal(ChatFormatting.YELLOW + CONNECTOR_ALREADY_ADVANCED.i18n()), false);
+            if (!world.isClientSide()) {
+                player.sendSystemMessage(ComponentFactory.literal(ChatFormatting.YELLOW + CONNECTOR_ALREADY_ADVANCED.i18n()));
             }
             return InteractionResult.SUCCESS;
         } else {
-            if (!world.isClientSide) {
-                player.displayClientMessage(ComponentFactory.literal(ChatFormatting.RED + CONNECTOR_USE_IT_TO_UPGRADE.i18n()), false);
+            if (!world.isClientSide()) {
+                player.sendSystemMessage(ComponentFactory.literal(ChatFormatting.RED + CONNECTOR_USE_IT_TO_UPGRADE.i18n()));
             }
             return InteractionResult.SUCCESS;
         }

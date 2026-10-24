@@ -10,14 +10,14 @@ import mcjty.xnet.XNet;
 import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class NoneConnectorSettings extends AbstractConnectorSettings {
 
-    public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
+    public static final Identifier iconGuiElements = Identifier.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
 
     public static final NoneConnectorSettings EMPTY = new NoneConnectorSettings(Direction.NORTH);
     public static final MapCodec<NoneConnectorSettings> CODEC = MapCodec.unit(EMPTY);

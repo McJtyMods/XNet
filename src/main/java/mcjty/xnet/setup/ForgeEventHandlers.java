@@ -13,7 +13,7 @@ public class ForgeEventHandlers {
 
     @SubscribeEvent
     public void onWorldTick(LevelTickEvent.Pre event) {
-        if (!event.getLevel().isClientSide && event.getLevel().dimension().equals(Level.OVERWORLD)) {
+        if (!event.getLevel().isClientSide() && event.getLevel().dimension().equals(Level.OVERWORLD)) {
             cnt--;
             if (cnt > 0) {
                 return;

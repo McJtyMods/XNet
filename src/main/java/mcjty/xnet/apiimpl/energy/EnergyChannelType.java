@@ -55,7 +55,7 @@ public class EnergyChannelType implements IChannelType {
         if (te == null) {
             return false;
         }
-        if (world.getCapability(Capabilities.EnergyStorage.BLOCK, pos, side) != null) {
+        if (mcjty.lib.varia.CapabilityTools.energyHandler(world.getCapability(Capabilities.Energy.BLOCK, pos, side)) != null) {
             return true;
         }
 //        if (te instanceof IInventory) {

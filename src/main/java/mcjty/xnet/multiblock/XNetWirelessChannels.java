@@ -44,17 +44,17 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
 
     public XNetWirelessChannels(CompoundTag tag) {
         channelToWireless.clear();
-        ListTag tagList = tag.getList(TAG_CHANNELS, Tag.TAG_COMPOUND);
+        ListTag tagList = tag.getListOrEmpty(TAG_CHANNELS);
         for (int i = 0 ; i < tagList.size() ; i++) {
-            CompoundTag tc = tagList.getCompound(i);
+            CompoundTag tc = tagList.getCompoundOrEmpty(i);
             WirelessChannelInfo channelInfo = new WirelessChannelInfo();
-            readRouters(tc.getList(TAG_ROUTERS, Tag.TAG_COMPOUND), channelInfo);
+            readRouters(tc.getListOrEmpty(TAG_ROUTERS), channelInfo);
             UUID owner = null;
-            if (tc.hasUUID("ownerUUID")) {
-                owner = tc.getUUID("ownerUUID");
+            if (tc.read("ownerUUID", net.minecraft.core.UUIDUtil.CODEC).isPresent()) {
+                owner = tc.read("ownerUUID", net.minecraft.core.UUIDUtil.CODEC).orElse(null);
             }
-            String name = tc.getString(TAG_NAME);
-            IChannelType type = XNet.xNetApi.findType(tc.getString(TAG_TYPE));
+            String name = tc.getStringOr(TAG_NAME, "");
+            IChannelType type = XNet.xNetApi.findType(tc.getStringOr(TAG_TYPE, ""));
             channelToWireless.put(new WirelessChannelKey(name, type, owner), channelInfo);
         }
     }
@@ -158,7 +158,8 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
 
     @Nonnull
     public static XNetWirelessChannels get(Level world) {
-        return getData(world, XNetWirelessChannels::new, XNetWirelessChannels::new, NAME);
+        return mcjty.rftoolsbase.tools.LegacyWorldData.get(world, XNetWirelessChannels::new, XNetWirelessChannels::new,
+                "xnet:wireless_channels", NAME);
     }
 
     public WirelessChannelInfo findChannel(String name, @Nonnull IChannelType channelType, @Nullable UUID owner) {
@@ -180,12 +181,12 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
 
     private void readRouters(ListTag tagList, WirelessChannelInfo channelInfo) {
         for (int i = 0 ; i < tagList.size() ; i++) {
-            CompoundTag tc = tagList.getCompound(i);
-            ResourceKey<Level> dim = LevelTools.getId(tc.getString(TAG_DIM));
-            GlobalPos pos = GlobalPos.of(dim, new BlockPos(tc.getInt("x"), tc.getInt("y"), tc.getInt("z")));
+            CompoundTag tc = tagList.getCompoundOrEmpty(i);
+            ResourceKey<Level> dim = LevelTools.getId(tc.getStringOr(TAG_DIM, ""));
+            GlobalPos pos = GlobalPos.of(dim, new BlockPos(tc.getIntOr("x", 0), tc.getIntOr("y", 0), tc.getIntOr("z", 0)));
             WirelessRouterInfo info = new WirelessRouterInfo(pos);
-            info.setAge(tc.getInt(TAG_AGE));
-            info.setNetworkId(new NetworkId(tc.getInt(TAG_NETWORK)));
+            info.setAge(tc.getIntOr(TAG_AGE, 0));
+            info.setNetworkId(new NetworkId(tc.getIntOr(TAG_NETWORK, 0)));
             channelInfo.updateRouterInfo(pos, info);
         }
     }
@@ -202,7 +203,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
             channelTc.putString(TAG_NAME, key.name());
             channelTc.putString(TAG_TYPE, key.channelType().getID());
             if (key.owner() != null) {
-                channelTc.putUUID("ownerUUID", key.owner());
+                channelTc.store("ownerUUID", net.minecraft.core.UUIDUtil.CODEC, key.owner());
             }
             channelTc.put(TAG_ROUTERS, writeRouters(channelInfo));
             channelTagList.add(channelTc);
@@ -219,7 +220,7 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
         for (Map.Entry<GlobalPos, WirelessRouterInfo> infoEntry : channelInfo.getRouters().entrySet()) {
             CompoundTag tc = new CompoundTag();
             GlobalPos pos = infoEntry.getKey();
-            tc.putString(TAG_DIM, pos.dimension().location().toString());
+            tc.putString(TAG_DIM, pos.dimension().identifier().toString());
             tc.putInt("x", pos.pos().getX());
             tc.putInt("y", pos.pos().getY());
             tc.putInt("z", pos.pos().getZ());

@@ -26,7 +26,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -40,7 +40,7 @@ import static mcjty.xnet.apiimpl.Constants.TAG_COLORS;
 
 public class LogicChannelSettings extends DefaultChannelSettings implements IChannelSettings {
 
-    public static final ResourceLocation iconGuiElements = ResourceLocation.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
+    public static final Identifier iconGuiElements = Identifier.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
     private int colors = 0;     // Colors for this channel
     private List<ConnectedOptionalEntity<LogicConnectorSettings>> sensors = null;
     private List<ConnectedBlock<LogicConnectorSettings>> outputs = null;
@@ -67,7 +67,7 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
 
     @Override
     public void readFromNBT(CompoundTag tag) {
-        colors = tag.getInt(TAG_COLORS);
+        colors = tag.getIntOr(TAG_COLORS, 0);
     }
 
     @Override

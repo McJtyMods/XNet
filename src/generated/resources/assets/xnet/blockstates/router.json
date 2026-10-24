@@ -17,7 +17,7 @@
     },
     "error=false,facing=up": {
       "model": "xnet:block/router",
-      "x": -90
+      "x": 270
     },
     "error=false,facing=west": {
       "model": "xnet:block/router",
@@ -40,7 +40,7 @@
     },
     "error=true,facing=up": {
       "model": "xnet:block/router_error",
-      "x": -90
+      "x": 270
     },
     "error=true,facing=west": {
       "model": "xnet:block/router_error",

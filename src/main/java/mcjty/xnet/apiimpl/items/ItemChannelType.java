@@ -57,7 +57,7 @@ public class ItemChannelType implements IChannelType {
         if (te == null) {
             return false;
         }
-        if (world.getCapability(Capabilities.ItemHandler.BLOCK, pos, side) != null) {
+        if (mcjty.lib.varia.CapabilityTools.itemHandler(world.getCapability(Capabilities.Item.BLOCK, pos, side)) != null) {
             return true;
         }
         if (te instanceof Container) {

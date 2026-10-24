@@ -8,19 +8,14 @@ import mcjty.xnet.modules.cables.ConnectorType;
 import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
 import mcjty.xnet.modules.cables.blocks.GenericCableBlock;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.ChunkRenderTypeSet;
-import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -39,7 +34,7 @@ import static mcjty.xnet.modules.cables.client.CablePatterns.SpriteIdx.SPRITE_TH
 
 public class GenericCableBakedModel extends AbstractDynamicBakedModel {
 
-    private TextureAtlasSprite spriteCable;
+    public GenericCableBakedModel() { cableTextures = null; spriteSide = null; }
 
     public static class CableTextures {
         private TextureAtlasSprite spriteConnector;
@@ -80,18 +75,18 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
             for (CableColor color : CableColor.VALUES) {
                 int i = color.ordinal();
                 tt[i] = new CableTextures();
-                tt[i].spriteConnector = getTexture(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/connector"));
-                tt[i].spriteAdvancedConnector = getTexture(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/advanced_connector"));
+                tt[i].spriteConnector = getTexture(Identifier.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/connector"));
+                tt[i].spriteAdvancedConnector = getTexture(Identifier.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/advanced_connector"));
 
-                tt[i].spriteNormalCable = getTexture(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/normal_netcable"));
-                tt[i].spriteNoneCable = getTexture(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/normal_none_netcable"));
-                tt[i].spriteEndCable = getTexture(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/normal_end_netcable"));
-                tt[i].spriteCornerCable = getTexture(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/normal_corner_netcable"));
-                tt[i].spriteThreeCable = getTexture(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/normal_three_netcable"));
-                tt[i].spriteCrossCable = getTexture(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/normal_cross_netcable"));
+                tt[i].spriteNormalCable = getTexture(Identifier.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/normal_netcable"));
+                tt[i].spriteNoneCable = getTexture(Identifier.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/normal_none_netcable"));
+                tt[i].spriteEndCable = getTexture(Identifier.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/normal_end_netcable"));
+                tt[i].spriteCornerCable = getTexture(Identifier.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/normal_corner_netcable"));
+                tt[i].spriteThreeCable = getTexture(Identifier.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/normal_three_netcable"));
+                tt[i].spriteCrossCable = getTexture(Identifier.fromNamespaceAndPath(XNet.MODID, "block/cable" + i + "/normal_cross_netcable"));
             }
 
-            spriteSide = getTexture(ResourceLocation.fromNamespaceAndPath(XNet.MODID, "block/connector_side"));
+            spriteSide = getTexture(Identifier.fromNamespaceAndPath(XNet.MODID, "block/connector_side"));
             cableTextures = tt;
         }
     }
@@ -120,11 +115,22 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
     }
 
     @Override
-    @NotNull
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand, @NotNull ModelData extraData, @Nullable RenderType layer) {
-        List<BakedQuad> quads = new ArrayList<>();
+    public void collectParts(net.minecraft.client.renderer.block.BlockAndTintGetter world, net.minecraft.core.BlockPos pos,
+            BlockState state, RandomSource random, List<net.minecraft.client.renderer.block.dispatch.BlockStateModelPart> parts) {
+        if (state.getBlock() instanceof GenericCableBlock) {
+            parts.add(new mcjty.rftoolsbase.client.QuadModelPart(buildQuads(state), particleMaterial()));
+        }
+        if (world.getBlockEntity(pos) instanceof mcjty.xnet.modules.facade.IFacadeSupport facade) {
+            BlockState mimic = facade.getMimicBlock();
+            if (mimic != null && mimic.getBlock() != state.getBlock()) {
+                Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(mimic).collectParts(world, pos, mimic, random, parts);
+            }
+        }
+    }
 
-        if (side == null && (layer == null || layer.equals(RenderType.solid()))) {
+    private List<BakedQuad> buildQuads(BlockState state) {
+        List<BakedQuad> quads = new ArrayList<>();
+        {
             // Called with the blockstate from our block. Here we get the values of the six properties and pass that to
             // our baked model implementation.
             ConnectorType north = state.getValue(GenericCableBlock.NORTH);
@@ -138,7 +144,7 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
 
             initTextures();
             CableTextures ct = cableTextures[index];
-            spriteCable = ct.spriteNormalCable;
+            TextureAtlasSprite spriteCable = ct.spriteNormalCable;
             GenericCableBlock block = (GenericCableBlock) state.getBlock();
             TextureAtlasSprite spriteConnector;
             if (block.isAdvancedConnector()) {
@@ -300,58 +306,15 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
             }
         }
 
-        BlockState facadeId = extraData.get(GenericCableBlock.FACADEID);
-        if (facadeId != null) {
-            BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(facadeId);
-            ChunkRenderTypeSet renderTypes = model.getRenderTypes(facadeId, rand, extraData);
-            if (layer == null || renderTypes.contains(layer)) { // always render in the null layer or the block-breaking textures don't show up
-                try {
-                    quads.addAll(model.getQuads(state, side, rand, ModelData.EMPTY, layer));
-                } catch (Exception ignored) {
-                }
-            }
-        }
-
         return quads;
     }
 
-    @Override
-    public boolean useAmbientOcclusion() {
-        return true;
-    }
-
-    @Override
-    public boolean isGui3d() {
-        return false;
-    }
-
-    @Override
-    public boolean isCustomRenderer() {
-        return false;
-    }
-
-    @Override
-    @Nonnull
-    public ChunkRenderTypeSet getRenderTypes(@NotNull BlockState state, @NotNull RandomSource rand, @NotNull ModelData data) {
-        return ChunkRenderTypeSet.all();
-    }
 
     @Nonnull
     @Override
-    public TextureAtlasSprite getParticleIcon() {
-        return spriteCable == null ? getTexture(ResourceLocation.fromNamespaceAndPath("minecraft", "missingno")) : spriteCable;
+    public net.minecraft.client.resources.model.sprite.Material.Baked particleMaterial() {
+        return new net.minecraft.client.resources.model.sprite.Material.Baked(getTexture(Identifier.fromNamespaceAndPath(XNet.MODID, "block/cable0/normal_netcable")), false);
     }
 
-    @Nonnull
-    @Override
-    public ItemTransforms getTransforms() {
-        return ItemTransforms.NO_TRANSFORMS;
-    }
-
-    @Nonnull
-    @Override
-    public ItemOverrides getOverrides() {
-        return ItemOverrides.EMPTY;
-    }
 
 }

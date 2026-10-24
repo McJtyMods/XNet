@@ -8,7 +8,7 @@ public class TagUtils {
         if (key == null || key.isEmpty() || !tag.contains(key)) {
             return null;
         } else {
-            return tag.getInt(key);
+            return tag.getIntOr(key, 0);
         }
     }
 
@@ -16,7 +16,7 @@ public class TagUtils {
         if (key == null || key.isEmpty() || !tag.contains(key)) {
             return value;
         } else {
-            return tag.getInt(key);
+            return tag.getIntOr(key, 0);
         }
     }
 
@@ -24,7 +24,7 @@ public class TagUtils {
         if (key == null || key.isEmpty() || !tag.contains(key)) {
             return null;
         } else {
-            return tag.getString(key);
+            return tag.getStringOr(key, "");
         }
     }
 

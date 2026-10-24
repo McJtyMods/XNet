@@ -22,8 +22,8 @@ import java.util.Set;
 
 public class RedstoneProxyUBlock extends RedstoneProxyBlock implements ITooltipSettings {
 
-    public RedstoneProxyUBlock() {
-        super();
+    public RedstoneProxyUBlock(net.minecraft.world.level.block.state.BlockBehaviour.Properties properties) {
+        super(properties);
     }
 
     @Override
@@ -40,7 +40,7 @@ public class RedstoneProxyUBlock extends RedstoneProxyBlock implements ITooltipS
 
     @SuppressWarnings("deprecation")
     @Override
-    public void neighborChanged(@Nonnull BlockState state, @Nonnull Level worldIn, @Nonnull BlockPos pos, @Nonnull Block blockIn, @Nonnull BlockPos fromPos, boolean isMoving) {
+    public void neighborChanged(@Nonnull BlockState state, @Nonnull Level worldIn, @Nonnull BlockPos pos, @Nonnull Block blockIn, net.minecraft.world.level.redstone.Orientation orientation, boolean isMoving) {
         if(loopDetector.add(pos)) {
             try {
                 worldIn.updateNeighborsAt(pos, this);

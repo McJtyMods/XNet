@@ -1,3 +1,4 @@
 {
-  "loader": "xnet:cableloader"
+  "parent": "minecraft:block/cube_all",
+  "textures": { "all": "xnet:block/cable0/normal_netcable" }
 }

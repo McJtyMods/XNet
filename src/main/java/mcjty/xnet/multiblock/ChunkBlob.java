@@ -74,7 +74,7 @@ public class ChunkBlob {
 
     public ChunkBlob(ChunkPos chunkPos) {
         this.chunkPos = chunkPos;
-        this.chunkNum = ChunkPos.asLong(chunkPos.x, chunkPos.z);
+        this.chunkNum = ChunkPos.pack(chunkPos.x(), chunkPos.z());
     }
 
     public long getChunkNum() {
@@ -174,8 +174,8 @@ public class ChunkBlob {
         System.out.println("Checking chunk: " + chunkPos);
         for (int cx = 0 ; cx < 16 ; cx++) {
             for (int cz = 0 ; cz < 16 ; cz++) {
-                for (int cy = world.getMinBuildHeight() ; cy < world.getMaxBuildHeight() ; cy++) {
-                    BlockPos pos = new BlockPos((chunkPos.x << 4) + cx, cy, (chunkPos.z << 4) + cz);
+                for (int cy = world.getMinY() ; cy < world.getMaxY() ; cy++) {
+                    BlockPos pos = new BlockPos((chunkPos.x() << 4) + cx, cy, (chunkPos.z() << 4) + cz);
 //                    BlockPos pos = chunkPos.getBlock(cx, cy, cz);
                     Block block = world.getBlockState(pos).getBlock();
                     boolean hasid = block == CableModule.CONNECTOR.get() || block == CableModule.ADVANCED_CONNECTOR.get() || block == CableModule.NETCABLE.get() || block == ControllerModule.CONTROLLER.block().get() || block == FacadeModule.FACADE.get();
@@ -376,7 +376,7 @@ public class ChunkBlob {
     }
 
     public void dump() {
-        System.out.println("################# Chunk (" + chunkPos.x + "," + chunkPos.z + ") #################");
+        System.out.println("################# Chunk (" + chunkPos.x() + "," + chunkPos.z() + ") #################");
         System.out.println("Network providers:");
         for (Map.Entry<IntPos, NetworkId> entry : networkProviders.entrySet()) {
             System.out.println("    " + toString(entry.getKey()) + ", network = " + entry.getValue().id());
@@ -413,12 +413,12 @@ public class ChunkBlob {
         cachedConsumers = null;
         cachedProviders = null;
 
-        int intVersion = compound.getInt(TAG_LAST_INT_VERSION);
+        int intVersion = compound.getIntOr(TAG_LAST_INT_VERSION, 0);
 
-        lastBlobId = compound.getInt(TAG_LAST_BLOB);
+        lastBlobId = compound.getIntOr(TAG_LAST_BLOB, 0);
         Set<BlobId> foundBlobs = new HashSet<>();       // Keep track of blobs we found
         if (compound.contains(TAG_ALLOCATIONS)) {
-            int[] allocations = compound.getIntArray(TAG_ALLOCATIONS);
+            int[] allocations = compound.getIntArray(TAG_ALLOCATIONS).orElse(new int[0]);
             int idx = 0;
             while (idx < allocations.length-1) {
                 IntPos pos = new IntPos(allocations[idx]).upgrade(intVersion);
@@ -433,7 +433,7 @@ public class ChunkBlob {
         }
 
         if (compound.contains(TAG_MAPPINGS)) {
-            int[] mappings = compound.getIntArray(TAG_MAPPINGS);
+            int[] mappings = compound.getIntArray(TAG_MAPPINGS).orElse(new int[0]);
             int idx = 0;
             while (idx < mappings.length-1) {
                 int key = mappings[idx];
@@ -453,7 +453,7 @@ public class ChunkBlob {
         }
 
         if (compound.contains(TAG_PROVIDERS)) {
-            int[] providers = compound.getIntArray(TAG_PROVIDERS);
+            int[] providers = compound.getIntArray(TAG_PROVIDERS).orElse(new int[0]);
             int idx = 0;
             while (idx < providers.length-1) {
                 networkProviders.put(new IntPos(providers[idx]).upgrade(intVersion), new NetworkId(providers[idx+1]));
@@ -462,7 +462,7 @@ public class ChunkBlob {
         }
 
         if (compound.contains(TAG_CONSUMERS)) {
-            int[] consumers = compound.getIntArray(TAG_CONSUMERS);
+            int[] consumers = compound.getIntArray(TAG_CONSUMERS).orElse(new int[0]);
             int idx = 0;
             while (idx < consumers.length-1) {
                 IntPos intPos = new IntPos(consumers[idx]).upgrade(intVersion);
@@ -474,7 +474,7 @@ public class ChunkBlob {
         }
 
         if (compound.contains(TAG_COLORS)) {
-            int[] colors = compound.getIntArray(TAG_COLORS);
+            int[] colors = compound.getIntArray(TAG_COLORS).orElse(new int[0]);
             int idx = 0;
             while (idx < colors.length-1) {
                 BlobId blob = new BlobId(colors[idx]);

@@ -13,7 +13,7 @@ public class MimicBlockSupport {
     public static BlockState readFromNBT(HolderLookup.Provider provider, CompoundTag tagCompound) {
         BlockState mimicBlock;
         if (tagCompound != null && tagCompound.contains("mimic")) {
-            mimicBlock = NbtUtils.readBlockState(provider.lookup(Registries.BLOCK).get(), tagCompound.getCompound("mimic"));
+            mimicBlock = NbtUtils.readBlockState(provider.lookup(Registries.BLOCK).get(), tagCompound.getCompoundOrEmpty("mimic"));
         } else {
             mimicBlock = null;
         }

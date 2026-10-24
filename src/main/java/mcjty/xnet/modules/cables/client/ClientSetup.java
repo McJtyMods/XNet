@@ -8,7 +8,7 @@ public class ClientSetup {
         NeoForge.EVENT_BUS.addListener(CableWorldRenderer::tick);
     }
 
-    public static void modelInit(ModelEvent.RegisterGeometryLoaders event) {
+    public static void modelInit(ModelEvent.ModifyBakingResult event) {
         CableModelLoader.register(event);
     }
 }

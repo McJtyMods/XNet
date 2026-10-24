@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "C": {
-      "item": "minecraft:comparator"
-    },
-    "F": {
-      "item": "rftoolsbase:machine_frame"
-    },
-    "o": {
-      "tag": "c:ender_pearls"
-    },
-    "r": {
-      "item": "minecraft:redstone"
-    }
+    "C": "minecraft:comparator",
+    "F": "rftoolsbase:machine_frame",
+    "o": "#c:ender_pearls",
+    "r": "minecraft:redstone"
   },
   "pattern": [
     "oCo",
@@ -21,7 +13,6 @@
     "oro"
   ],
   "result": {
-    "count": 1,
     "id": "xnet:wireless_router"
   }
 }

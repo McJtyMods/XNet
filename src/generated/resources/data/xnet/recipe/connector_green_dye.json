@@ -2,15 +2,10 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "tag": "c:dyes/green"
-    },
-    {
-      "tag": "xnet:connectors"
-    }
+    "#c:dyes/green",
+    "#xnet:connectors"
   ],
   "result": {
-    "count": 1,
     "id": "xnet:connector_green"
   }
 }
