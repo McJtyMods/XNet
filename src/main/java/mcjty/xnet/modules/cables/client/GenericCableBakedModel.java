@@ -34,8 +34,6 @@ import static mcjty.xnet.modules.cables.client.CablePatterns.SpriteIdx.SPRITE_TH
 
 public class GenericCableBakedModel extends AbstractDynamicBakedModel {
 
-    public GenericCableBakedModel() { cableTextures = null; spriteSide = null; }
-
     public static class CableTextures {
         private TextureAtlasSprite spriteConnector;
         private TextureAtlasSprite spriteAdvancedConnector;
@@ -47,8 +45,8 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
         private TextureAtlasSprite spriteCrossCable;
     }
 
-    private static CableTextures[] cableTextures = null;
-    private static TextureAtlasSprite spriteSide;
+    private CableTextures[] cableTextures;
+    private TextureAtlasSprite spriteSide;
 
     static {
         CablePatterns.PATTERNS.put(new CablePatterns.Pattern(false, false, false, false), new CablePatterns.QuadSetting(SPRITE_NONE, 0));
@@ -69,7 +67,7 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
         CablePatterns.PATTERNS.put(new CablePatterns.Pattern(true, true, true, true), new CablePatterns.QuadSetting(SPRITE_CROSS, 0));
     }
 
-    private static void initTextures() {
+    private synchronized void initTextures() {
         if (cableTextures == null) {
             CableTextures[] tt = new CableTextures[CableColor.VALUES.length];
             for (CableColor color : CableColor.VALUES) {
@@ -91,7 +89,7 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
         }
     }
 
-    private static TextureAtlasSprite getSpriteNormal(CablePatterns.SpriteIdx idx, int index) {
+    private TextureAtlasSprite getSpriteNormal(CablePatterns.SpriteIdx idx, int index) {
         initTextures();
         CableTextures cableTexture = cableTextures[index];
         return switch (idx) {
@@ -117,8 +115,10 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
     @Override
     public void collectParts(net.minecraft.client.renderer.block.BlockAndTintGetter world, net.minecraft.core.BlockPos pos,
             BlockState state, RandomSource random, List<net.minecraft.client.renderer.block.dispatch.BlockStateModelPart> parts) {
-        if (state.getBlock() instanceof GenericCableBlock) {
-            parts.add(new mcjty.rftoolsbase.client.QuadModelPart(buildQuads(state), particleMaterial()));
+        if (state.getBlock() instanceof GenericCableBlock cable) {
+            // Use the same neighboring blocks as the outline, including during placement updates.
+            var connectedState = cable.calculateState(world, pos, state);
+            parts.add(new mcjty.rftoolsbase.client.QuadModelPart(buildQuads(connectedState), particleMaterial()));
         }
         if (world.getBlockEntity(pos) instanceof mcjty.xnet.modules.facade.IFacadeSupport facade) {
             BlockState mimic = facade.getMimicBlock();

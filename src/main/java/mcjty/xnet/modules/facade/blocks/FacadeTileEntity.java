@@ -37,8 +37,10 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
 
     @Override
     public BlockState getMimicBlock() {
-        BlockState state = getData(FacadeModule.MIMIC_DATA).state();
-        if (state.isAir()) {
+        // Packet serialization must not create attachments and queue another chunk update.
+        MimicData data = getExistingDataOrNull(FacadeModule.MIMIC_DATA.get());
+        BlockState state = data == null ? null : data.state();
+        if (state == null || state.isAir()) {
             return null;
         }
         return state;
@@ -52,8 +54,7 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
 
     @Override
     public void saveClientDataToNBT(CompoundTag tagCompound, HolderLookup.Provider provider) {
-        BlockState state = getData(FacadeModule.MIMIC_DATA).state();
-        MimicBlockSupport.writeToNBT(tagCompound, state);
+        MimicBlockSupport.writeToNBT(tagCompound, getMimicBlock());
     }
 
     @Override

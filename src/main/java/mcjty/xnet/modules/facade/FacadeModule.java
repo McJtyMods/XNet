@@ -32,7 +32,7 @@ import static mcjty.xnet.setup.Registration.*;
 public class FacadeModule implements IModule {
 
     public static final DeferredBlock<FacadeBlock> FACADE = BLOCKS.register(ITEM_FACADE, properties -> new FacadeBlock(GenericCableBlock.CableBlockType.FACADE, properties)); // @todo 1.14
-    public static final DeferredItem<Item> FACADE_ITEM = ITEMS.register(ITEM_FACADE, tab(properties -> new FacadeBlockItem(FACADE.get(), properties)));
+    public static final DeferredItem<Item> FACADE_ITEM = ITEMS.register(ITEM_FACADE, tab(properties -> new FacadeBlockItem(FACADE.get(), properties.useBlockDescriptionPrefix())));
     public static final Supplier<BlockEntityType<?>> TYPE_FACADE = TILES.register(ITEM_FACADE, () -> new BlockEntityType<>(FacadeTileEntity::new, java.util.Set.of(FACADE.get())));
 
     public static final Supplier<AttachmentType<MimicData>> MIMIC_DATA = ATTACHMENT_TYPES.register(

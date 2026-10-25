@@ -58,16 +58,16 @@ public class WirelessRouterModule implements IModule {
     public static final RBlock<BaseBlock, BlockItem, TileEntityWirelessRouter> WIRELESS_ROUTER = RBLOCKS.registerBlock("wireless_router",
             TileEntityWirelessRouter.class,
             TileEntityWirelessRouter::createBlock,
-            (block, itemProperties) -> new BlockItem(block.get(), itemProperties),
+            (block, itemProperties) -> new BlockItem(block.get(), itemProperties.useBlockDescriptionPrefix()),
             TileEntityWirelessRouter::new);
     public static final Supplier<MenuType<GenericContainer>> CONTAINER_WIRELESS_ROUTER = CONTAINERS.register("wireless_router", GenericContainer::createContainerType);
 
     public static final DeferredBlock<BaseBlock> ANTENNA = BLOCKS.register(ITEM_ANTENNA, WirelessRouterModule::createAntennaBlock);
-    public static final DeferredItem<Item> ANTENNA_ITEM = ITEMS.register(ITEM_ANTENNA, tab(properties -> new BlockItem(ANTENNA.get(), properties)));
+    public static final DeferredItem<Item> ANTENNA_ITEM = ITEMS.register(ITEM_ANTENNA, tab(properties -> new BlockItem(ANTENNA.get(), properties.useBlockDescriptionPrefix())));
     public static final DeferredBlock<BaseBlock> ANTENNA_BASE = BLOCKS.register(ITEM_ANTENNA_BASE, WirelessRouterModule::createAntennaBaseBlock);
-    public static final DeferredItem<Item> ANTENNA_BASE_ITEM = ITEMS.register(ITEM_ANTENNA_BASE, tab(properties -> new BlockItem(ANTENNA_BASE.get(), properties)));
+    public static final DeferredItem<Item> ANTENNA_BASE_ITEM = ITEMS.register(ITEM_ANTENNA_BASE, tab(properties -> new BlockItem(ANTENNA_BASE.get(), properties.useBlockDescriptionPrefix())));
     public static final DeferredBlock<BaseBlock> ANTENNA_DISH = BLOCKS.register(ITEM_ANTENNA_DISH, WirelessRouterModule::createAntennaDishBlock);
-    public static final DeferredItem<Item> ANTENNA_DISH_ITEM = ITEMS.register(ITEM_ANTENNA_DISH, tab(properties -> new BlockItem(ANTENNA_DISH.get(), properties)));
+    public static final DeferredItem<Item> ANTENNA_DISH_ITEM = ITEMS.register(ITEM_ANTENNA_DISH, tab(properties -> new BlockItem(ANTENNA_DISH.get(), properties.useBlockDescriptionPrefix())));
 
     public static final Supplier<AttachmentType<WirelessRouterData>> WIRELESS_ROUTER_DATA = ATTACHMENT_TYPES.register(
             "wireless_router_data", () -> AttachmentType.builder(() -> WirelessRouterData.EMPTY)

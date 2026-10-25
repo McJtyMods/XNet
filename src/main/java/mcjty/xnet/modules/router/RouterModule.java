@@ -43,7 +43,7 @@ public class RouterModule implements IModule {
     public static final RBlock<BaseBlock, BlockItem, TileEntityRouter> ROUTER = RBLOCKS.registerBlock("router",
             TileEntityRouter.class,
             TileEntityRouter::createBlock,
-            (block, itemProperties) -> new BlockItem(block.get(), itemProperties),
+            (block, itemProperties) -> new BlockItem(block.get(), itemProperties.useBlockDescriptionPrefix()),
             TileEntityRouter::new);
     public static final Supplier<MenuType<GenericContainer>> CONTAINER_ROUTER = CONTAINERS.register("router", GenericContainer::createContainerType);
 

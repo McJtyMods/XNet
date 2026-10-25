@@ -1,6 +1,6 @@
 package mcjty.xnet.modules.cables.client;
 
-import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.RegisterBlockStateModels;
 import net.neoforged.neoforge.common.NeoForge;
 
 public class ClientSetup {
@@ -8,7 +8,7 @@ public class ClientSetup {
         NeoForge.EVENT_BUS.addListener(CableWorldRenderer::tick);
     }
 
-    public static void modelInit(ModelEvent.ModifyBakingResult event) {
+    public static void registerModels(RegisterBlockStateModels event) {
         CableModelLoader.register(event);
     }
 }

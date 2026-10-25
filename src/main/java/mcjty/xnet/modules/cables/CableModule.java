@@ -96,7 +96,7 @@ public class CableModule implements IModule {
 
     public CableModule(IEventBus bus, Dist dist) {
         if (dist.isClient()) {
-            bus.addListener(ClientSetup::modelInit);
+            bus.addListener(ClientSetup::registerModels);
         }
         bus.addListener(this::registerScreens);
     }

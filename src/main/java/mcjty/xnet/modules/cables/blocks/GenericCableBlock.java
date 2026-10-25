@@ -316,6 +316,12 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
 
     @Nonnull
     public BlockState calculateState(LevelReader world, BlockPos pos, BlockState state) {
+        return calculateState((BlockGetter) world, pos, state);
+    }
+
+    /** Shared connection calculation for placement, outlines, and section meshing. */
+    @Nonnull
+    public BlockState calculateState(BlockGetter world, BlockPos pos, BlockState state) {
         CableColor color = state.getValue(COLOR);
         ConnectorType north = getConnectorType(color, world, pos, Direction.NORTH);
         ConnectorType south = getConnectorType(color, world, pos, Direction.SOUTH);

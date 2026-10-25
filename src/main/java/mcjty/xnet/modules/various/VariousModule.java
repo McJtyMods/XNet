@@ -27,8 +27,8 @@ public class VariousModule implements IModule {
 
     public static final DeferredBlock<RedstoneProxyBlock> REDSTONE_PROXY = BLOCKS.register("redstone_proxy", RedstoneProxyBlock::new);
     public static final DeferredBlock<RedstoneProxyUBlock> REDSTONE_PROXY_UPD = BLOCKS.register("redstone_proxy_upd", RedstoneProxyUBlock::new);
-    public static final DeferredItem<Item> REDSTONE_PROXY_ITEM = ITEMS.register("redstone_proxy", tab(properties -> new mcjty.xnet.modules.cables.blocks.TooltipBlockItem(REDSTONE_PROXY.get(), properties)));
-    public static final DeferredItem<Item> REDSTONE_PROXY_UPD_ITEM = ITEMS.register("redstone_proxy_upd", tab(properties -> new mcjty.xnet.modules.cables.blocks.TooltipBlockItem(REDSTONE_PROXY_UPD.get(), properties)));
+    public static final DeferredItem<Item> REDSTONE_PROXY_ITEM = ITEMS.register("redstone_proxy", tab(properties -> new mcjty.xnet.modules.cables.blocks.TooltipBlockItem(REDSTONE_PROXY.get(), properties.useBlockDescriptionPrefix())));
+    public static final DeferredItem<Item> REDSTONE_PROXY_UPD_ITEM = ITEMS.register("redstone_proxy_upd", tab(properties -> new mcjty.xnet.modules.cables.blocks.TooltipBlockItem(REDSTONE_PROXY_UPD.get(), properties.useBlockDescriptionPrefix())));
 
     public static final DeferredItem<ConnectorUpgradeItem> UPGRADE = ITEMS.register("connector_upgrade", ConnectorUpgradeItem::new);
 

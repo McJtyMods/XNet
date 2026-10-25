@@ -136,7 +136,9 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
 
     @Override
     public BlockState getMimicBlock() {
-        BlockState state = getData(FacadeModule.MIMIC_DATA).state();
+        // Packet serialization must not create attachments and queue another chunk update.
+        MimicData data = getExistingDataOrNull(FacadeModule.MIMIC_DATA.get());
+        BlockState state = data == null ? null : data.state();
         if (state == null || state.isAir()) {
             return null;
         }

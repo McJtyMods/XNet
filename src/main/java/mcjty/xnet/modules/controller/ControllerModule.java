@@ -43,7 +43,7 @@ public class ControllerModule implements IModule {
     public static final RBlock<BaseBlock, BlockItem, TileEntityController> CONTROLLER = RBLOCKS.registerBlock("controller",
             TileEntityController.class,
             TileEntityController::createBlock,
-            (block, itemProperties) -> new BlockItem(block.get(), itemProperties),
+            (block, itemProperties) -> new BlockItem(block.get(), itemProperties.useBlockDescriptionPrefix()),
             TileEntityController::new);
     public static final Supplier<MenuType<GenericContainer>> CONTAINER_CONTROLLER = CONTAINERS.register("controller", GenericContainer::createContainerType);
 
