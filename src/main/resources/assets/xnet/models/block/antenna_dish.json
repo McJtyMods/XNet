@@ -1,12 +1,12 @@
 {
   "parent": "block/cube",
   "render_type": "minecraft:cutout",
-  "loader": "neoforge:obj",
   "model": "xnet:models/block/antenna_dish.obj",
   "flip_v": true,
   "textures": {
     "particle": "xnet:block/antenna",
     "xnet:block/antenna": "xnet:block/antenna",
     "xnet:block/antenna_dish": "xnet:block/antenna_dish"
-  }
+  },
+  "fabric:type": "xnet:obj"
 }

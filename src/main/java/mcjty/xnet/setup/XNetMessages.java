@@ -1,31 +1,22 @@
 package mcjty.xnet.setup;
 
-import mcjty.xnet.XNet;
 import mcjty.xnet.modules.controller.network.PacketControllerError;
 import mcjty.xnet.modules.controller.network.PacketJsonToClipboard;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import mcjty.lib.network.Networking;
 
 public class XNetMessages {
-
-    public static void registerMessages(RegisterPayloadHandlersEvent event) {
-        final PayloadRegistrar registrar = event.registrar(XNet.MODID)
-                .versioned("1.0")
-                .optional();
-
-        registrar.playToClient(PacketJsonToClipboard.TYPE, PacketJsonToClipboard.CODEC, PacketJsonToClipboard::handle);
-        registrar.playToClient(PacketControllerError.TYPE, PacketControllerError.CODEC, PacketControllerError::handle);
+    public static void registerMessages() {
+        net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.clientboundPlay().register(PacketJsonToClipboard.TYPE, PacketJsonToClipboard.CODEC);
+        net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.clientboundPlay().register(PacketControllerError.TYPE, PacketControllerError.CODEC);
     }
 
     public static <T extends CustomPacketPayload> void sendToPlayer(T packet, Player player) {
-        PacketDistributor.sendToPlayer((ServerPlayer)player, packet);
+        Networking.sendToPlayer(packet, player);
     }
 
     public static <T extends CustomPacketPayload> void sendToServer(T packet) {
-        net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(packet);
+        Networking.sendToServer(packet);
     }
 }

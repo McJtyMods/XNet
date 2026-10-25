@@ -8,32 +8,14 @@ import mcjty.xnet.modules.facade.blocks.FacadeTileEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.fml.InterModComms;
 
 import java.util.function.Function;
 
 import static mcjty.theoneprobe.api.TextStyleClass.MODNAME;
 
-public class TopExtras {
+public class TopExtras implements mcjty.theoneprobe.api.TheOneProbePlugin {
 
-    private static boolean registered;
-
-    public static void register() {
-        if (registered) {
-            return;
-        }
-        registered = true;
-        InterModComms.sendTo("theoneprobe", "getTheOneProbe", GetTheOneProbe::new);
-    }
-
-    private static class GetTheOneProbe implements Function<ITheOneProbe, Void> {
-
-        @Override
-        public Void apply(ITheOneProbe probe) {
-            registerTopExtras(probe);
-            return null;
-        }
-    }
+    @Override public void register(ITheOneProbe probe) { registerTopExtras(probe); }
 
     private static void registerTopExtras(ITheOneProbe probe) {
         probe.registerBlockDisplayOverride((mode, probeInfo, player, world, blockState, data) -> {

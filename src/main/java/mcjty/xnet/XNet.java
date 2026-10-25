@@ -1,16 +1,12 @@
 package mcjty.xnet;
 
-
 import mcjty.lib.api.container.CapabilityContainerProvider;
-import mcjty.lib.datagen.DataGen;
 import mcjty.lib.modules.Modules;
-import mcjty.rftoolsbase.api.xnet.IXNet;
 import mcjty.xnet.apiimpl.XNetApi;
 import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.modules.controller.ControllerModule;
 import mcjty.xnet.modules.facade.FacadeModule;
-import mcjty.xnet.modules.facade.client.ClientSetup;
 import mcjty.xnet.modules.router.RouterModule;
 import mcjty.xnet.modules.various.VariousModule;
 import mcjty.xnet.modules.wireless.WirelessRouterModule;
@@ -18,61 +14,33 @@ import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.ModSetup;
 import mcjty.xnet.setup.Registration;
 import mcjty.xnet.setup.XNetMessages;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.InterModProcessEvent;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.capabilities.IBlockCapabilityProvider;
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.data.event.GatherDataEvent;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.function.Function;
 import java.util.function.Supplier;
 
-@Mod(XNet.MODID)
-public class XNet {
-
+public class XNet implements net.fabricmc.api.ModInitializer {
     public static final String MODID = "xnet";
-
     public static final ModSetup setup = new ModSetup();
-
     public static XNet instance;
-    private final Modules modules = new Modules();
-
+    public final Modules modules = new Modules();
     public static final XNetApi xNetApi = new XNetApi();
-
-    public XNet(ModContainer mod, IEventBus bus, Dist dist) {
+    @Override
+    public void onInitialize() {
         instance = this;
-        setupModules(bus, dist);
-
-        Config.register(mod, modules);
-
-        Registration.register(bus);
-
-        bus.addListener(setup::init);
-        bus.addListener(modules::init);
-        bus.addListener(this::processIMC);
-        bus.addListener(this::onDataGen);
-        bus.addListener(XNetMessages::registerMessages);
-        bus.addListener(setup.getBlockCapabilityRegistrar(Registration.RBLOCKS));
-        bus.addListener(this::onRegisterCapabilities);
-
-        if (dist.isClient()) {
-            bus.addListener(modules::initClient);
-            bus.addListener(ClientSetup::registerBlockColor);
-        }
+        modules.register(new CableModule());
+        modules.register(new ControllerModule());
+        modules.register(new FacadeModule());
+        modules.register(new RouterModule());
+        modules.register(new WirelessRouterModule());
+        modules.register(new VariousModule());
+        Config.register(modules);
+        Registration.register();
+        setup.init();
+        modules.init();
+        setup.registerBlockCapabilities(Registration.RBLOCKS);
+        XNetMessages.registerMessages();
+        mcjty.xnet.setup.BlockBreakHandler.register();
+        registerCapabilities();
     }
-
     public static <T extends Item> java.util.function.Function<Item.Properties, T> tab(java.util.function.Function<Item.Properties, T> factory) {
         return properties -> instance.setup.tab(() -> factory.apply(properties)).get();
     }
@@ -81,52 +49,14 @@ public class XNet {
         return instance.setup.tab(supplier);
     }
 
-    private void onDataGen(GatherDataEvent.Client event) {
-        DataGen datagen = new DataGen(MODID, event);
-        modules.datagen(datagen, event.getLookupProvider());
-        datagen.generate();
-        event.getGenerator().addProvider(true,
-                new mcjty.rftoolsbase.tools.ClientItemDefinitions(event.getGenerator().getPackOutput(), MODID, java.util.Map.of()));
-    }
-
-    private void setupModules(IEventBus bus, Dist dist) {
-        modules.register(new CableModule(bus, dist));
-        modules.register(new ControllerModule(bus));
-        modules.register(new FacadeModule());
-        modules.register(new RouterModule(bus));
-        modules.register(new WirelessRouterModule(bus));
-        modules.register(new VariousModule());
-    }
-
-    private void processIMC(final InterModProcessEvent event) {
-        event.getIMCStream().forEach(message -> {
-            if ("getXNet".equalsIgnoreCase(message.method())) {
-                Supplier<?> supplier = message.messageSupplier();
-                if (supplier.get() instanceof Function<?, ?> function) {
-                    ((Function<IXNet, ?>) function).apply(xNetApi);
-                }
-            }
-        });
-    }
-
-    private void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
-        event.registerBlock(CapabilityContainerProvider.CONTAINER_PROVIDER_CAPABILITY, new IBlockCapabilityProvider<>() {
-            @Override
-            public @Nullable MenuProvider getCapability(Level level, BlockPos blockPos, BlockState blockState, @Nullable BlockEntity blockEntity, Direction direction) {
-                if (blockEntity instanceof ConnectorTileEntity connector) {
-                    return ConnectorTileEntity.SCREEN_CAP.apply(connector);
-                }
-                return null;
-            }
-        }, CableModule.CONNECTOR.get(), CableModule.ADVANCED_CONNECTOR.get());
-        event.registerBlock(Capabilities.Energy.BLOCK, new IBlockCapabilityProvider<net.neoforged.neoforge.transfer.energy.EnergyHandler, Direction>() {
-            @Override
-            public @Nullable net.neoforged.neoforge.transfer.energy.EnergyHandler getCapability(Level level, BlockPos blockPos, BlockState blockState, @Nullable BlockEntity blockEntity, Direction direction) {
-                if (blockEntity instanceof ConnectorTileEntity connector) {
-                    return connector.getEnergyHandler(direction);
-                }
-                return null;
-            }
-        }, CableModule.CONNECTOR.get(), CableModule.ADVANCED_CONNECTOR.get());
+    private void registerCapabilities() {
+        CapabilityContainerProvider.CONTAINER_PROVIDER_CAPABILITY.registerForBlocks((level, pos, state, be, side) ->
+                be instanceof ConnectorTileEntity connector ? ConnectorTileEntity.SCREEN_CAP.apply(connector) : null,
+                CableModule.CONNECTOR.get(), CableModule.ADVANCED_CONNECTOR.get());
+        team.reborn.energy.api.EnergyStorage.SIDED.registerForBlocks((level, pos, state, be, side) ->
+                be instanceof ConnectorTileEntity connector ? connector.getEnergyHandler(side) : null,
+                CableModule.CONNECTOR.get(), CableModule.ADVANCED_CONNECTOR.get());
+        net.fabricmc.loader.api.FabricLoader.getInstance().getEntrypoints("xnet", mcjty.rftoolsbase.api.xnet.XNetPlugin.class)
+                .forEach(plugin -> plugin.register(xNetApi));
     }
 }

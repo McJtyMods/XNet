@@ -7,7 +7,7 @@ import mcjty.xnet.utils.I18nUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
-import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
+import mcjty.lib.network.StreamCodecs;
 
 public enum SensorMode implements ITranslatableEnum<SensorMode>, StringRepresentable {
     OFF("xnet.enum.logic.sensormode.off"),
@@ -19,7 +19,7 @@ public enum SensorMode implements ITranslatableEnum<SensorMode>, StringRepresent
     private final String i18n;
 
     public static final Codec<SensorMode> CODEC = StringRepresentable.fromEnum(SensorMode::values);
-    public static final StreamCodec<FriendlyByteBuf, SensorMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(SensorMode.class);
+    public static final StreamCodec<FriendlyByteBuf, SensorMode> STREAM_CODEC = StreamCodecs.enumCodec(SensorMode.class);
 
     SensorMode(String i18n) {
         this.i18n = i18n;

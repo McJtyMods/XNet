@@ -18,7 +18,6 @@
           "name": "xnet:netcable_blue"
         }
       ],
-      "name": "cable_blue",
       "rolls": 1.0
     },
     {
@@ -38,7 +37,6 @@
           "name": "xnet:netcable_red"
         }
       ],
-      "name": "cable_red",
       "rolls": 1.0
     },
     {
@@ -58,7 +56,6 @@
           "name": "xnet:netcable_green"
         }
       ],
-      "name": "cable_green",
       "rolls": 1.0
     },
     {
@@ -78,7 +75,6 @@
           "name": "xnet:netcable_yellow"
         }
       ],
-      "name": "cable_yellow",
       "rolls": 1.0
     },
     {
@@ -98,7 +94,6 @@
           "name": "xnet:netcable_routing"
         }
       ],
-      "name": "cable_routing",
       "rolls": 1.0
     }
   ],

@@ -9,9 +9,9 @@ import mcjty.rftoolsbase.api.control.parameters.Tuple;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
+import mcjty.lib.varia.FluidStack;
+import mcjty.lib.varia.IFluidHandler;
+import mcjty.lib.container.IItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

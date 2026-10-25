@@ -8,7 +8,7 @@ import mcjty.xnet.utils.I18nUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
-import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
+import mcjty.lib.network.StreamCodecs;
 import org.apache.commons.lang3.StringUtils;
 
 import static mcjty.rftoolsbase.api.xnet.channels.Color.COLORS;
@@ -118,7 +118,7 @@ public enum LogicFilter implements ITranslatableEnum<LogicFilter>, StringReprese
     private final String i18n;
 
     public static final Codec<LogicFilter> CODEC = StringRepresentable.fromEnum(LogicFilter::values);
-    public static final StreamCodec<FriendlyByteBuf, LogicFilter> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(LogicFilter.class);
+    public static final StreamCodec<FriendlyByteBuf, LogicFilter> STREAM_CODEC = StreamCodecs.enumCodec(LogicFilter.class);
 
     LogicFilter(String i18n) {
         this.i18n = i18n;

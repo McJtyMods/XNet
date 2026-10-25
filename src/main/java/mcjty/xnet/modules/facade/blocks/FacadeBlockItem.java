@@ -27,7 +27,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.util.Lazy;
+import mcjty.lib.varia.Lazy;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -55,11 +55,11 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
                     parameter("info", FacadeBlockItem::isMimicking, FacadeBlockItem::getMimickingString)));
 
     private static boolean isMimicking(ItemStack stack) {
-        return !stack.getOrDefault(FacadeModule.ITEM_MIMIC_DATA, MimicData.EMPTY).state().isAir();
+        return !stack.getOrDefault(FacadeModule.ITEM_MIMIC_DATA.get(), MimicData.EMPTY).state().isAir();
     }
 
     private static String getMimickingString(ItemStack stack) {
-        BlockState state = stack.getOrDefault(FacadeModule.ITEM_MIMIC_DATA, MimicData.EMPTY).state();
+        BlockState state = stack.getOrDefault(FacadeModule.ITEM_MIMIC_DATA.get(), MimicData.EMPTY).state();
         if (!state.isAir()) {
 //            ItemStack s = new ItemStack(state.getBlock(), 1);
 //            s.getHoverName()
@@ -88,12 +88,12 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
     }
 
     public static void setMimicBlock(@Nonnull ItemStack item, @Nonnull BlockState mimicBlock) {
-        item.set(FacadeModule.ITEM_MIMIC_DATA, new MimicData(mimicBlock));
+        item.set(FacadeModule.ITEM_MIMIC_DATA.get(), new MimicData(mimicBlock));
     }
 
     @Nonnull
     public static BlockState getMimicBlock(@Nonnull ItemStack stack) {
-        return stack.getOrDefault(FacadeModule.ITEM_MIMIC_DATA, MimicData.EMPTY).state();
+        return stack.getOrDefault(FacadeModule.ITEM_MIMIC_DATA.get(), MimicData.EMPTY).state();
     }
 
     @Override
@@ -128,7 +128,7 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
                         ;
 
                 if (placeBlock(blockContext, placementState)) {
-                    SoundType soundtype = world.getBlockState(pos).getBlock().getSoundType(world.getBlockState(pos), world, pos, player);
+                    SoundType soundtype = world.getBlockState(pos).getBlock().getSoundType(world.getBlockState(pos));
                     world.playSound(player, pos, soundtype.getPlaceSound(), SoundSource.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
                     BlockEntity te = world.getBlockEntity(pos);
                     if (te instanceof FacadeTileEntity) {
@@ -142,7 +142,7 @@ public class FacadeBlockItem extends BlockItem implements ITooltipSettings {
                 if (te instanceof ConnectorTileEntity connectorTileEntity) {
                     if (connectorTileEntity.getMimicBlock() == null) {
                         connectorTileEntity.setMimicBlock(getMimicBlock(itemstack));
-                        SoundType soundtype = world.getBlockState(pos).getBlock().getSoundType(world.getBlockState(pos), world, pos, player);
+                        SoundType soundtype = world.getBlockState(pos).getBlock().getSoundType(world.getBlockState(pos));
                         world.playSound(player, pos, soundtype.getPlaceSound(), SoundSource.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
                         int amount = -1;
                         itemstack.grow(amount);

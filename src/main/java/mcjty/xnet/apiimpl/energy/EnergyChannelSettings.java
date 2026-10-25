@@ -25,8 +25,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import mcjty.lib.varia.IEnergyStorage;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -148,26 +147,32 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
         }
 
 
-        long actuallyConsumed = insertEnergy(context, totalToDistribute);
-        if (actuallyConsumed <= 0) {
-            return; // Nothing was done
-        }
-
-        // Now we need to actually fetch the energy from the producers
-        for (Pair<ConnectorTileEntity, Integer> entry : energyProducers) {
-            ConnectorTileEntity connectorTE = entry.getKey();
-            int amount = entry.getValue();
-
-            long actuallySpent = Math.min(amount, actuallyConsumed);
-            connectorTE.setEnergy((int) (connectorTE.getEnergy() - actuallySpent));
-            actuallyConsumed -= actuallySpent;
+        try (var transaction = net.fabricmc.fabric.api.transfer.v1.transaction.Transaction.openOuter()) {
+            long actuallyConsumed = insertEnergy(context, totalToDistribute, transaction);
             if (actuallyConsumed <= 0) {
-                break;
+                return; // Nothing was done
             }
+
+            // Now we need to actually fetch the energy from the producers
+            for (Pair<ConnectorTileEntity, Integer> entry : energyProducers) {
+                ConnectorTileEntity connectorTE = entry.getKey();
+                int amount = entry.getValue();
+
+                long actuallySpent = Math.min(amount, actuallyConsumed);
+                if (connectorTE.extractNetworkEnergy((int)actuallySpent, transaction) != actuallySpent) {
+                    throw new IllegalStateException("Energy source changed during an XNet transaction");
+                }
+                actuallyConsumed -= actuallySpent;
+                if (actuallyConsumed <= 0) {
+                    break;
+                }
+            }
+            transaction.commit();
         }
+
     }
 
-    private long insertEnergy(@Nonnull IControllerContext context, long energy) {
+    private long insertEnergy(@Nonnull IControllerContext context, long energy, net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext transaction) {
         long total = 0;
         Level world = context.getControllerWorld();
         for (EnergyConnectedEntity consumer : energyConsumers) {
@@ -190,7 +195,8 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
             }
 
             long totransfer = Math.min(consumer.rate(), energy);
-            long e = EnergyTools.receiveEnergy(te, settings.getFacing(), totransfer);
+            var target = team.reborn.energy.api.EnergyStorage.SIDED.find(te.getLevel(), te.getBlockPos(), settings.getFacing());
+            long e = target == null ? 0 : target.insert(totransfer, transaction);
             energy -= e;
             total += e;
             if (energy <= 0) {
@@ -205,12 +211,12 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
         if (be == null) {
             return false;
         }
-        return mcjty.lib.varia.CapabilityTools.energyHandler(be.getLevel().getCapability(Capabilities.Energy.BLOCK, be.getBlockPos(), side)) != null;
+        return mcjty.lib.varia.CapabilityTools.energyHandler(team.reborn.energy.api.EnergyStorage.SIDED.find(be.getLevel(), be.getBlockPos(), side)) != null;
     }
 
     public static int getEnergyLevel(BlockEntity be, @Nonnull Direction side) {
         if (be != null) {
-            IEnergyStorage capability = mcjty.lib.varia.CapabilityTools.energyHandler(be.getLevel().getCapability(Capabilities.Energy.BLOCK, be.getBlockPos(), side));
+            IEnergyStorage capability = mcjty.lib.varia.CapabilityTools.energyHandler(team.reborn.energy.api.EnergyStorage.SIDED.find(be.getLevel(), be.getBlockPos(), side));
             if (capability != null) {
                 return capability.getEnergyStored();
             }

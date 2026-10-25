@@ -44,9 +44,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import mcjty.lib.varia.IEnergyStorage;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nonnull;
@@ -94,8 +92,8 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         openController = this;
     }
 
-    public static void register(RegisterMenuScreensEvent event) {
-        event.register(ControllerModule.CONTAINER_CONTROLLER.get(), GuiController::new);
+    public static void register() {
+        net.minecraft.client.gui.screens.MenuScreens.register(ControllerModule.CONTAINER_CONTROLLER.get(), GuiController::new);
     }
 
     @Override
@@ -745,7 +743,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             int y = (int) window.getToplevel().getBounds().getY();
             RenderHelper.drawVerticalGradientRect(graphics, x+channel * 14 + 41, y+22, x+channel * 14 + 41+12, y+230, 0x33aaffff, 0x33aaffff);
         }
-        IEnergyStorage h = mcjty.lib.varia.CapabilityTools.energyHandler(tileEntity.getLevel().getCapability(Capabilities.Energy.BLOCK, tileEntity.getBlockPos(), null));
+        IEnergyStorage h = mcjty.lib.varia.CapabilityTools.energyHandler(team.reborn.energy.api.EnergyStorage.SIDED.find(tileEntity.getLevel(), tileEntity.getBlockPos(), null));
         if (h != null) {
             long currentRF = h.getEnergyStored();
             int max = h.getMaxEnergyStored();

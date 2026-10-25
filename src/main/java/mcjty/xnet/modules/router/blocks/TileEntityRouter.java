@@ -46,7 +46,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.neoforged.neoforge.common.util.Lazy;
+import mcjty.lib.varia.Lazy;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -312,7 +312,7 @@ public final class TileEntityRouter extends GenericTileEntity {
     @Override
     protected void applyImplicitComponents(net.minecraft.core.component.DataComponentGetter input) {
         super.applyImplicitComponents(input);
-        var data = input.get(RouterModule.ITEM_ROUTER_DATA);
+        var data = input.get(RouterModule.ITEM_ROUTER_DATA.get());
         if (data != null) {
             setData(RouterModule.ROUTER_DATA, data);
         }
@@ -321,7 +321,7 @@ public final class TileEntityRouter extends GenericTileEntity {
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder builder) {
         super.collectImplicitComponents(builder);
-        builder.set(RouterModule.ITEM_ROUTER_DATA, getData(RouterModule.ROUTER_DATA));
+        builder.set(RouterModule.ITEM_ROUTER_DATA.get(), getData(RouterModule.ROUTER_DATA));
     }
 
 

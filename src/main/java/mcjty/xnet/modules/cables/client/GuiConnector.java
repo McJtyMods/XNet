@@ -24,7 +24,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 
 import javax.annotation.Nonnull;
 
@@ -54,12 +53,11 @@ public class GuiConnector extends GenericGuiContainer<ConnectorTileEntity, Gener
         }
         Networking.sendToServer(new PacketRequestDataFromServer(level.dimension(), getBE().getBlockPos(), CMD_GET_NAME.name(), TypedMap.EMPTY, false));
 
-        imageWidth = WIDTH;
-        imageHeight = HEIGHT;
+        setWindowDimensions(WIDTH, HEIGHT);
     }
 
-    public static void register(RegisterMenuScreensEvent event) {
-        event.register(CableModule.CONTAINER_CONNECTOR.get(), GuiConnector::new);
+    public static void register() {
+        net.minecraft.client.gui.screens.MenuScreens.register(CableModule.CONTAINER_CONNECTOR.get(), GuiConnector::new);
     }
 
     @Override

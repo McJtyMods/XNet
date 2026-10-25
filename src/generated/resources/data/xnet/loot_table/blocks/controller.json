@@ -24,7 +24,6 @@
           "name": "xnet:controller"
         }
       ],
-      "name": "controller",
       "rolls": 1.0
     }
   ],

@@ -67,6 +67,21 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
         CablePatterns.PATTERNS.put(new CablePatterns.Pattern(true, true, true, true), new CablePatterns.QuadSetting(SPRITE_CROSS, 0));
     }
 
+    @Override
+    public void emitQuads(net.fabricmc.fabric.api.client.renderer.v1.mesh.QuadEmitter emitter,
+            net.minecraft.client.renderer.block.BlockAndTintGetter world, net.minecraft.core.BlockPos pos,
+            BlockState state, RandomSource random, java.util.function.Predicate<Direction> cullTest) {
+        super.emitQuads(emitter, world, pos, state, random, cullTest);
+        if (world.getBlockEntity(pos) instanceof mcjty.xnet.modules.facade.IFacadeSupport facade) {
+            BlockState mimic = facade.getMimicBlock();
+            if (mimic != null && mimic.getBlock() != state.getBlock()) {
+                var model = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(mimic);
+                ((net.fabricmc.fabric.api.client.renderer.v1.model.FabricBlockStateModel) model)
+                        .emitQuads(emitter, world, pos, mimic, random, cullTest);
+            }
+        }
+    }
+
     private synchronized void initTextures() {
         if (cableTextures == null) {
             CableTextures[] tt = new CableTextures[CableColor.VALUES.length];
@@ -120,12 +135,7 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
             var connectedState = cable.calculateState(world, pos, state);
             parts.add(new mcjty.rftoolsbase.client.QuadModelPart(buildQuads(connectedState), particleMaterial()));
         }
-        if (world.getBlockEntity(pos) instanceof mcjty.xnet.modules.facade.IFacadeSupport facade) {
-            BlockState mimic = facade.getMimicBlock();
-            if (mimic != null && mimic.getBlock() != state.getBlock()) {
-                Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(mimic).collectParts(world, pos, mimic, random, parts);
-            }
-        }
+
     }
 
     private List<BakedQuad> buildQuads(BlockState state) {

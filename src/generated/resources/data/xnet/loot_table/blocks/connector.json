@@ -18,7 +18,6 @@
           "name": "xnet:connector_blue"
         }
       ],
-      "name": "connector_blue",
       "rolls": 1.0
     },
     {
@@ -38,7 +37,6 @@
           "name": "xnet:connector_red"
         }
       ],
-      "name": "connector_red",
       "rolls": 1.0
     },
     {
@@ -58,7 +56,6 @@
           "name": "xnet:connector_green"
         }
       ],
-      "name": "connector_green",
       "rolls": 1.0
     },
     {
@@ -78,7 +75,6 @@
           "name": "xnet:connector_yellow"
         }
       ],
-      "name": "connector_yellow",
       "rolls": 1.0
     },
     {
@@ -98,7 +94,6 @@
           "name": "xnet:connector_routing"
         }
       ],
-      "name": "connector_routing",
       "rolls": 1.0
     }
   ],

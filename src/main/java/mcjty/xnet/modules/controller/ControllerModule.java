@@ -18,15 +18,10 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.attachment.AttachmentType;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import mcjty.lib.datagen.model.ModelFile;
 import mcjty.lib.datagen.model.VariantBlockStateBuilder;
-import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import mcjty.lib.setup.DeferredHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,41 +42,37 @@ public class ControllerModule implements IModule {
             TileEntityController::new);
     public static final Supplier<MenuType<GenericContainer>> CONTAINER_CONTROLLER = CONTAINERS.register("controller", GenericContainer::createContainerType);
 
-    public static final Supplier<AttachmentType<ControllerData>> CONTROLLER_DATA = ATTACHMENT_TYPES.register(
-            "controller_data", () -> AttachmentType.builder(() -> {
+    public static final AttachmentType<ControllerData> CONTROLLER_DATA = net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry.create(
+            net.minecraft.resources.Identifier.fromNamespaceAndPath("xnet", "controller_data"), builder -> builder.initializer(() -> {
                         var data = new ControllerData(0, new ArrayList<>());
                         for (int i = 0; i < MAX_CHANNELS; i++) {
                             data.channels().add(ChannelInfo.EMPTY);
                         }
                         return data;
-                    })
-                    .serialize(com.mojang.serialization.MapCodec.assumeMapUnsafe(ControllerData.CODEC))
-                    .build());
+                    }).persistent(ControllerData.CODEC));
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ControllerData>> ITEM_CONTROLLER_DATA = COMPONENTS.registerComponentType(
             "controller_data",
             builder -> builder
                     .persistent(ControllerData.CODEC)
                     .networkSynchronized(ControllerData.STREAM_CODEC));
 
-    public ControllerModule(IEventBus bus) {
-        bus.addListener(this::registerScreens);
-    }
 
     @Override
-    public void init(FMLCommonSetupEvent event) {
+    public void init() {
 
     }
 
     @Override
-    public void initClient(FMLClientSetupEvent event) {
+    public void initClient() {
+        registerScreens();
     }
 
-    public void registerScreens(RegisterMenuScreensEvent event) {
-        GuiController.register(event);
+    public void registerScreens() {
+        GuiController.register();
     }
 
     @Override
-    public void initConfig(IEventBus bus) {
+    public void initConfig() {
 
     }
 
@@ -103,7 +94,7 @@ public class ControllerModule implements IModule {
                                         .define('F', mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())
                                         .define('I', Items.REPEATER)
                                         .define('C', Items.COMPARATOR)
-                                        .define('g', Tags.Items.INGOTS_GOLD)
+                                        .define('g', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:ingots/gold")))
                                         .unlockedBy("frame", has(VariousModule.MACHINE_FRAME.get())),
                                 "ICI", "rFr", "igi"));
     }

@@ -14,13 +14,10 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.attachment.AttachmentType;
-import net.neoforged.neoforge.registries.DeferredBlock;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredItem;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import mcjty.lib.setup.DeferredBlock;
+import mcjty.lib.setup.DeferredHolder;
+import mcjty.lib.setup.DeferredItem;
 
 import java.util.function.Supplier;
 
@@ -35,10 +32,8 @@ public class FacadeModule implements IModule {
     public static final DeferredItem<Item> FACADE_ITEM = ITEMS.register(ITEM_FACADE, tab(properties -> new FacadeBlockItem(FACADE.get(), properties.useBlockDescriptionPrefix())));
     public static final Supplier<BlockEntityType<?>> TYPE_FACADE = TILES.register(ITEM_FACADE, () -> new BlockEntityType<>(FacadeTileEntity::new, java.util.Set.of(FACADE.get())));
 
-    public static final Supplier<AttachmentType<MimicData>> MIMIC_DATA = ATTACHMENT_TYPES.register(
-            "mimic_data", () -> AttachmentType.builder(() -> MimicData.EMPTY)
-                    .serialize(com.mojang.serialization.MapCodec.assumeMapUnsafe(MimicData.CODEC))
-                    .build());
+    public static final AttachmentType<MimicData> MIMIC_DATA = net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry.create(
+            net.minecraft.resources.Identifier.fromNamespaceAndPath("xnet", "mimic_data"), builder -> builder.initializer(() -> MimicData.EMPTY).persistent(MimicData.CODEC));
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<MimicData>> ITEM_MIMIC_DATA = COMPONENTS.registerComponentType(
             "mimic_data",
             builder -> builder
@@ -47,16 +42,16 @@ public class FacadeModule implements IModule {
 
 
     @Override
-    public void init(FMLCommonSetupEvent event) {
+    public void init() {
 
     }
 
     @Override
-    public void initClient(FMLClientSetupEvent event) {
+    public void initClient() {
     }
 
     @Override
-    public void initConfig(IEventBus bus) {
+    public void initConfig() {
 
     }
 

@@ -1,3 +1,3 @@
 {
-  "neoforge:definition_type": "xnet:cable"
+  "variants": { "": { "model": "xnet:block/netcable" } }
 }

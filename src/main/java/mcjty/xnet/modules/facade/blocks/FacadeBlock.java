@@ -76,7 +76,7 @@ public class FacadeBlock extends NetCableBlock implements EntityBlock {
         popResource(worldIn, pos, item);
     }
 
-    private boolean replaceWithCable(LevelAccessor world, BlockPos pos, BlockState state) {
+    public boolean replaceWithCable(LevelAccessor world, BlockPos pos, BlockState state) {
         CableColor color = state.getValue(COLOR);
         BlockState defaultState = CableModule.NETCABLE.get().defaultBlockState().setValue(COLOR, color);
         BlockState newState = this.calculateState(world, pos, defaultState);
@@ -92,11 +92,6 @@ public class FacadeBlock extends NetCableBlock implements EntityBlock {
         }
     }
 
-
-    @Override
-    public boolean onDestroyedByPlayer(BlockState state, Level world, BlockPos pos, Player player, ItemStack tool, boolean willHarvest, FluidState fluid) {
-        return replaceWithCable(world, pos, state);
-    }
 
     // @todo 1.14
 //    @Override

@@ -27,16 +27,10 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.attachment.AttachmentType;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.registries.DeferredBlock;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredItem;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import mcjty.lib.setup.DeferredBlock;
+import mcjty.lib.setup.DeferredHolder;
+import mcjty.lib.setup.DeferredItem;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -78,10 +72,8 @@ public class CableModule implements IModule {
     public static final TagKey<Item> TAG_KEY_CONNECTORS = TagTools.createItemTagKey(Identifier.fromNamespaceAndPath(XNet.MODID, "connectors"));
     public static final TagKey<Item> TAG_KEY_ADVANCED_CONNECTORS = TagTools.createItemTagKey(Identifier.fromNamespaceAndPath(XNet.MODID, "advanced_connectors"));
 
-    public static final Supplier<AttachmentType<ConnectorData>> CONNECTOR_DATA = ATTACHMENT_TYPES.register(
-            "connector_data", () -> AttachmentType.builder(() -> ConnectorData.EMPTY)
-                    .serialize(com.mojang.serialization.MapCodec.assumeMapUnsafe(ConnectorData.CODEC))
-                    .build());
+    public static final AttachmentType<ConnectorData> CONNECTOR_DATA = net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry.create(
+            net.minecraft.resources.Identifier.fromNamespaceAndPath("xnet", "connector_data"), builder -> builder.initializer(() -> ConnectorData.EMPTY).persistent(ConnectorData.CODEC));
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ConnectorData>> ITEM_CONNECTOR_DATA = COMPONENTS.registerComponentType(
             "connector_data",
             builder -> builder
@@ -94,29 +86,25 @@ public class CableModule implements IModule {
                     .persistent(CableItemData.CODEC)
                     .networkSynchronized(CableItemData.STREAM_CODEC));
 
-    public CableModule(IEventBus bus, Dist dist) {
-        if (dist.isClient()) {
-            bus.addListener(ClientSetup::registerModels);
-        }
-        bus.addListener(this::registerScreens);
-    }
 
     @Override
-    public void init(FMLCommonSetupEvent event) {
+    public void init() {
 
     }
 
     @Override
-    public void initClient(FMLClientSetupEvent event) {
+    public void initClient() {
+        registerScreens();
+        ClientSetup.registerModels();
         ClientSetup.initClient();
     }
 
-    public void registerScreens(RegisterMenuScreensEvent event) {
-        GuiConnector.register(event);
+    public void registerScreens() {
+        GuiConnector.register();
     }
 
     @Override
-    public void initConfig(IEventBus bus) {
+    public void initConfig() {
 
     }
 
@@ -161,116 +149,116 @@ public class CableModule implements IModule {
                 Dob.itemBuilder(NETCABLE_BLUE)
                         .itemTags(List.of(TAG_KEY_CABLES))
                         .shaped(builder -> builder
-                                        .define('g', Tags.Items.NUGGETS_GOLD)
+                                        .define('g', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:nuggets/gold")))
                                         .define('s', Items.STRING)
-                                        .define('1', Tags.Items.DYES_BLUE)
+                                        .define('1', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:dyes/blue")))
                                         .unlockedBy("nugget", has(Items.GOLD_NUGGET)),
                                 16,
                                 "s1s", "rgr", "srs")
                         .shapeless("netcable_blue_dye", builder -> builder
-                                .requires(Tags.Items.DYES_BLUE)
+                                .requires(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:dyes/blue")))
                                 .requires(CableModule.TAG_KEY_CABLES)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(NETCABLE_GREEN)
                         .itemTags(List.of(TAG_KEY_CABLES))
                         .shaped(builder -> builder
-                                        .define('g', Tags.Items.NUGGETS_GOLD)
+                                        .define('g', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:nuggets/gold")))
                                         .define('s', Items.STRING)
-                                        .define('1', Tags.Items.DYES_GREEN)
+                                        .define('1', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:dyes/green")))
                                         .unlockedBy("nugget", has(Items.GOLD_NUGGET)),
                                 16,
                                 "s1s", "rgr", "srs")
                         .shapeless("netcable_green_dye", builder -> builder
-                                .requires(Tags.Items.DYES_GREEN)
+                                .requires(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:dyes/green")))
                                 .requires(CableModule.TAG_KEY_CABLES)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(NETCABLE_RED)
                         .itemTags(List.of(TAG_KEY_CABLES))
                         .shaped(builder -> builder
-                                        .define('g', Tags.Items.NUGGETS_GOLD)
+                                        .define('g', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:nuggets/gold")))
                                         .define('s', Items.STRING)
-                                        .define('1', Tags.Items.DYES_RED)
+                                        .define('1', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:dyes/red")))
                                         .unlockedBy("nugget", has(Items.GOLD_NUGGET)),
                                 16,
                                 "s1s", "rgr", "srs")
                         .shapeless("netcable_red_dye", builder -> builder
-                                .requires(Tags.Items.DYES_RED)
+                                .requires(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:dyes/red")))
                                 .requires(CableModule.TAG_KEY_CABLES)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(NETCABLE_YELLOW)
                         .itemTags(List.of(TAG_KEY_CABLES))
                         .shaped(builder -> builder
-                                        .define('g', Tags.Items.NUGGETS_GOLD)
+                                        .define('g', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:nuggets/gold")))
                                         .define('s', Items.STRING)
-                                        .define('1', Tags.Items.DYES_YELLOW)
+                                        .define('1', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:dyes/yellow")))
                                         .unlockedBy("nugget", has(Items.GOLD_NUGGET)),
                                 16,
                                 "s1s", "rgr", "srs")
                         .shapeless("netcable_yellow_dye", builder -> builder
-                                .requires(Tags.Items.DYES_YELLOW)
+                                .requires(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:dyes/yellow")))
                                 .requires(CableModule.TAG_KEY_CABLES)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(NETCABLE_ROUTING)
                         .itemTags(List.of(TAG_KEY_CABLES))
                         .shaped(builder -> builder
-                                        .define('g', Tags.Items.NUGGETS_GOLD)
+                                        .define('g', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:nuggets/gold")))
                                         .define('s', Items.STRING)
-                                        .define('1', Tags.Items.DYES_BLACK)
+                                        .define('1', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:dyes/black")))
                                         .unlockedBy("nugget", has(Items.GOLD_NUGGET)),
                                 32,
                                 "s1s", "rgr", "srs"),
                 Dob.itemBuilder(CONNECTOR_BLUE)
                         .itemTags(List.of(TAG_KEY_CONNECTORS))
                         .shaped(builder -> builder
-                                        .define('g', Tags.Items.INGOTS_GOLD)
-                                        .define('1', Tags.Items.DYES_BLUE)
-                                        .define('C', Tags.Items.CHESTS)
+                                        .define('g', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:ingots/gold")))
+                                        .define('1', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:dyes/blue")))
+                                        .define('C', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:chests")))
                                         .unlockedBy("chest", has(Items.CHEST)),
                                 "1C1", "rgr", "1r1")
                         .shapeless("connector_blue_dye", builder -> builder
-                                .requires(Tags.Items.DYES_BLUE)
+                                .requires(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:dyes/blue")))
                                 .requires(CableModule.TAG_KEY_CONNECTORS)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(CONNECTOR_GREEN)
                         .itemTags(List.of(TAG_KEY_CONNECTORS))
                         .shaped(builder -> builder
-                                        .define('g', Tags.Items.INGOTS_GOLD)
-                                        .define('1', Tags.Items.DYES_GREEN)
-                                        .define('C', Tags.Items.CHESTS)
+                                        .define('g', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:ingots/gold")))
+                                        .define('1', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:dyes/green")))
+                                        .define('C', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:chests")))
                                         .unlockedBy("chest", has(Items.CHEST)),
                                 "1C1", "rgr", "1r1")
                         .shapeless("connector_green_dye", builder -> builder
-                                .requires(Tags.Items.DYES_GREEN)
+                                .requires(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:dyes/green")))
                                 .requires(CableModule.TAG_KEY_CONNECTORS)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(CONNECTOR_RED)
                         .itemTags(List.of(TAG_KEY_CONNECTORS))
                         .shaped(builder -> builder
-                                        .define('g', Tags.Items.INGOTS_GOLD)
-                                        .define('1', Tags.Items.DYES_RED)
-                                        .define('C', Tags.Items.CHESTS)
+                                        .define('g', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:ingots/gold")))
+                                        .define('1', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:dyes/red")))
+                                        .define('C', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:chests")))
                                         .unlockedBy("chest", has(Items.CHEST)),
                                 "1C1", "rgr", "1r1")
                         .shapeless("connector_red_dye", builder -> builder
-                                .requires(Tags.Items.DYES_RED)
+                                .requires(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:dyes/red")))
                                 .requires(CableModule.TAG_KEY_CONNECTORS)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(CONNECTOR_YELLOW)
                         .itemTags(List.of(TAG_KEY_CONNECTORS))
                         .shaped(builder -> builder
-                                        .define('g', Tags.Items.INGOTS_GOLD)
-                                        .define('1', Tags.Items.DYES_YELLOW)
-                                        .define('C', Tags.Items.CHESTS)
+                                        .define('g', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:ingots/gold")))
+                                        .define('1', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:dyes/yellow")))
+                                        .define('C', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:chests")))
                                         .unlockedBy("chest", has(Items.CHEST)),
                                 "1C1", "rgr", "1r1")
                         .shapeless("connector_yellow_dye", builder -> builder
-                                .requires(Tags.Items.DYES_YELLOW)
+                                .requires(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:dyes/yellow")))
                                 .requires(CableModule.TAG_KEY_CONNECTORS)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(CONNECTOR_ROUTING)
                         .itemTags(List.of(TAG_KEY_CONNECTORS))
                         .shaped(builder -> builder
-                                        .define('g', Tags.Items.NUGGETS_GOLD)
+                                        .define('g', net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:nuggets/gold")))
                                         .define('C', TAG_KEY_CONNECTORS)
                                         .unlockedBy("chest", has(Items.CHEST)),
                                 "rrr", "gCg", "rrr"),
@@ -281,7 +269,7 @@ public class CableModule implements IModule {
                                         .unlockedBy("chest", has(Items.CHEST)),
                                 "Co", "dr")
                         .shapeless("advanced_connector_blue_dye", builder -> builder
-                                .requires(Tags.Items.DYES_BLUE)
+                                .requires(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:dyes/blue")))
                                 .requires(CableModule.TAG_KEY_ADVANCED_CONNECTORS)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(ADVANCED_CONNECTOR_GREEN)
@@ -291,7 +279,7 @@ public class CableModule implements IModule {
                                         .unlockedBy("chest", has(Items.CHEST)),
                                 "Co", "dr")
                         .shapeless("advanced_connector_green_dye", builder -> builder
-                                .requires(Tags.Items.DYES_GREEN)
+                                .requires(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:dyes/green")))
                                 .requires(CableModule.TAG_KEY_ADVANCED_CONNECTORS)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(ADVANCED_CONNECTOR_RED)
@@ -301,7 +289,7 @@ public class CableModule implements IModule {
                                         .unlockedBy("chest", has(Items.CHEST)),
                                 "Co", "dr")
                         .shapeless("advanced_connector_red_dye", builder -> builder
-                                .requires(Tags.Items.DYES_RED)
+                                .requires(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:dyes/red")))
                                 .requires(CableModule.TAG_KEY_ADVANCED_CONNECTORS)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(ADVANCED_CONNECTOR_YELLOW)
@@ -311,7 +299,7 @@ public class CableModule implements IModule {
                                         .unlockedBy("chest", has(Items.CHEST)),
                                 "Co", "dr")
                         .shapeless("advanced_connector_yellow_dye", builder -> builder
-                                .requires(Tags.Items.DYES_YELLOW)
+                                .requires(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, net.minecraft.resources.Identifier.parse("c:dyes/yellow")))
                                 .requires(CableModule.TAG_KEY_ADVANCED_CONNECTORS)
                                 .unlockedBy("chest", has(Items.CHEST))),
                 Dob.itemBuilder(ADVANCED_CONNECTOR_ROUTING)

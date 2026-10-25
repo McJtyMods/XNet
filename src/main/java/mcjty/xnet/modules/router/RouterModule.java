@@ -20,14 +20,10 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.attachment.AttachmentType;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import mcjty.lib.datagen.model.ModelFile;
 import mcjty.lib.datagen.model.VariantBlockStateBuilder;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import mcjty.lib.setup.DeferredHolder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,35 +43,31 @@ public class RouterModule implements IModule {
             TileEntityRouter::new);
     public static final Supplier<MenuType<GenericContainer>> CONTAINER_ROUTER = CONTAINERS.register("router", GenericContainer::createContainerType);
 
-    public static final Supplier<AttachmentType<RouterData>> ROUTER_DATA = ATTACHMENT_TYPES.register(
-            "router_data", () -> AttachmentType.builder(() -> RouterData.EMPTY)
-                    .serialize(com.mojang.serialization.MapCodec.assumeMapUnsafe(RouterData.CODEC))
-                    .build());
+    public static final AttachmentType<RouterData> ROUTER_DATA = net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry.create(
+            net.minecraft.resources.Identifier.fromNamespaceAndPath("xnet", "router_data"), builder -> builder.initializer(() -> RouterData.EMPTY).persistent(RouterData.CODEC));
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<RouterData>> ITEM_ROUTER_DATA = COMPONENTS.registerComponentType(
             "router_data",
             builder -> builder
                     .persistent(RouterData.CODEC)
                     .networkSynchronized(RouterData.STREAM_CODEC));
 
-    public RouterModule(IEventBus bus) {
-        bus.addListener(this::registerScreens);
-    }
 
     @Override
-    public void init(FMLCommonSetupEvent event) {
+    public void init() {
 
     }
 
     @Override
-    public void initClient(FMLClientSetupEvent event) {
+    public void initClient() {
+        registerScreens();
     }
 
-    public void registerScreens(RegisterMenuScreensEvent event) {
-        GuiRouter.register(event);
+    public void registerScreens() {
+        GuiRouter.register();
     }
 
     @Override
-    public void initConfig(IEventBus bus) {
+    public void initConfig() {
 
     }
 

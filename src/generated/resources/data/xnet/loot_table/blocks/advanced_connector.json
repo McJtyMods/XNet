@@ -18,7 +18,6 @@
           "name": "xnet:advanced_connector_blue"
         }
       ],
-      "name": "advanced_connector_blue",
       "rolls": 1.0
     },
     {
@@ -38,7 +37,6 @@
           "name": "xnet:advanced_connector_red"
         }
       ],
-      "name": "advanced_connector_red",
       "rolls": 1.0
     },
     {
@@ -58,7 +56,6 @@
           "name": "xnet:advanced_connector_green"
         }
       ],
-      "name": "advanced_connector_green",
       "rolls": 1.0
     },
     {
@@ -78,7 +75,6 @@
           "name": "xnet:advanced_connector_yellow"
         }
       ],
-      "name": "advanced_connector_yellow",
       "rolls": 1.0
     },
     {
@@ -98,7 +94,6 @@
           "name": "xnet:advanced_connector_routing"
         }
       ],
-      "name": "advanced_connector_routing",
       "rolls": 1.0
     }
   ],

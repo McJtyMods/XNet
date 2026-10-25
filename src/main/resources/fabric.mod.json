@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "xnet",
+  "version": "${version}",
+  "name": "XNet",
+  "description": "ModXNet for Fabric",
+  "authors": [
+    "McJty"
+  ],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "mcjty.xnet.XNet"
+    ],
+    "client": [
+      "mcjty.xnet.setup.ClientSetup"
+    ],
+    "fabric-datagen": [
+      "mcjty.xnet.datagen.FabricDataGen"
+    ],
+    "theoneprobe": [
+      "mcjty.xnet.compat.TopExtras"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": "=26.1.2",
+    "java": ">=25",
+    "fabric-api": ">=0.155.3+26.1.2",
+    "forgeconfigapiport": ">=26.1.5",
+    "mcjtylib": ">=26.1.2-10.0.1-fabric",
+    "rftoolsbase": ">=26.1.2-7.0.0-fabric"
+  },
+  "suggests": {
+    "theoneprobe": "*",
+    "jei": "*"
+  },
+  "accessWidener": "xnet.accesswidener"
+}

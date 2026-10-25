@@ -35,9 +35,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
+import mcjty.lib.container.IItemHandler;
+import mcjty.lib.container.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -266,6 +265,11 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
     private int tickItemHandler(@Nonnull IControllerContext context, @Nonnull ItemConnectorSettings settings,
                                 @Nonnull IItemHandler handler, @Nonnull Level world, int startIdx, int extractorIdx) {
+        return NativeItems.transfer(() -> tickItemHandlerTransactional(context, settings, handler, world, startIdx, extractorIdx));
+    }
+
+    private int tickItemHandlerTransactional(IControllerContext context, ItemConnectorSettings settings,
+            IItemHandler handler, Level world, int startIdx, int extractorIdx) {
         Predicate<ItemStack> extractMatcher = settings.getMatcher(context);
 
         Integer count = settings.getCount();
@@ -304,8 +308,11 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             if (context.checkAndConsumeRF(Config.controllerOperationRFT.get())) {
                 int remaining = insertStack(context, stack, world, extractorIdx);
                 if (remaining != toextract) {
-                    fetchItem(handler, false, extractMatcher, settings.getStackMode(),
+                    var extracted = fetchItem(handler, false, extractMatcher, settings.getStackMode(),
                             settings.getExtractAmount(), toextract - remaining, index, startIdx);
+                    if (extracted.getCount() != toextract - remaining) {
+                        throw new IllegalStateException("Item source changed during an XNet transaction");
+                    }
                     break;
                 } else {
                     index.inc();
@@ -540,7 +547,8 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     @Nullable
     public static IItemHandler getItemHandlerAt(@Nullable BlockEntity te, Direction intSide) {
         if (te != null) {
-            return mcjty.lib.varia.CapabilityTools.itemHandler(te.getLevel().getCapability(Capabilities.Item.BLOCK, te.getBlockPos(), intSide));
+            var storage = net.fabricmc.fabric.api.transfer.v1.item.ItemStorage.SIDED.find(te.getLevel(), te.getBlockPos(), intSide);
+            return storage == null ? null : new NativeItems(storage);
         }
         return null;
     }

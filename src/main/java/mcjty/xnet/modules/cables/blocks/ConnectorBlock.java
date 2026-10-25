@@ -53,8 +53,7 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.common.util.Lazy;
+import mcjty.lib.varia.Lazy;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -96,7 +95,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
             BlockEntity te = world.getBlockEntity(pos);
             if (te instanceof GenericTileEntity) {
                 GenericTileEntity genericTileEntity = (GenericTileEntity) te;
-                player.openMenu(new MenuProvider() {
+                mcjty.lib.container.MenuTools.open(player, new MenuProvider() {
                     @Override
                     @Nonnull
                     public Component getDisplayName() {
@@ -108,7 +107,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
                     public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player player) {
                         return new GenericContainer(CableModule.CONTAINER_CONNECTOR, id, ContainerFactory.EMPTY, genericTileEntity, player);
                     }
-                }, pos);
+                }, data -> { data.writeBlockPos(pos); });
             }
         }
         return InteractionResult.SUCCESS;
@@ -129,48 +128,17 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
         super.playerDestroy(worldIn, player, pos, state, te, stack);
     }
 
-    @Override
-    public boolean onDestroyedByPlayer(BlockState state, Level world, BlockPos pos, Player player, ItemStack tool, boolean willHarvest, FluidState fluid) {
-        BlockEntity te = world.getBlockEntity(pos);
-        if (te instanceof ConnectorTileEntity connectorTileEntity) {
-            if (connectorTileEntity.getMimicBlock() == null) {
-                this.playerWillDestroy(world, pos, state, player);
-                return world.setBlock(pos, Blocks.AIR.defaultBlockState(), world.isClientSide() ? 11 : 3);
-            } else {
-                // We are in mimic mode. Don't remove the connector
-                this.playerWillDestroy(world, pos, state, player);
-                if (player.getAbilities().instabuild) {
-                    connectorTileEntity.setMimicBlock(null);
-                }
-            }
-        } else {
-            return super.onDestroyedByPlayer(state, world, pos, player, tool, willHarvest, fluid);
-        }
-        return true;
-    }
 
     @SuppressWarnings("deprecation")
     @Override
     public void neighborChanged(@Nonnull BlockState state, @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Block blockIn, net.minecraft.world.level.redstone.Orientation orientation, boolean isMoving) {
         checkRedstone(world, pos);
+        if (!world.isClientSide() && world.getBlockEntity(pos) instanceof ConnectorTileEntity connector) {
+            for (Direction side : Direction.values()) connector.possiblyMarkNetworkDirty(pos.relative(side));
+        }
         super.neighborChanged(state, world, pos, blockIn, orientation, isMoving);
     }
 
-    @Override
-    public void onNeighborChange(BlockState state, LevelReader blockAccess, BlockPos pos, BlockPos neighbor) {
-        if (!blockAccess.isClientSide()) {
-            BlockEntity te = blockAccess.getBlockEntity(pos);
-            if (te instanceof ConnectorTileEntity connector) {
-                connector.possiblyMarkNetworkDirty(neighbor);
-            }
-        }
-        super.onNeighborChange(state, blockAccess, pos, neighbor);
-    }
-
-    @Override
-    public boolean shouldCheckWeakPower(BlockState state, SignalGetter level, BlockPos pos, Direction side) {
-        return false;
-    }
 
     private void checkRedstone(Level world, BlockPos pos) {
         BlockEntity te = world.getBlockEntity(pos);
@@ -279,7 +247,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
                 block == Blocks.PISTON || block == Blocks.STICKY_PISTON) {
             return true;
         }
-        if (block.canConnectRedstone(state, world, pos, null) || state.isSignalSource()) {
+        if (state.isSignalSource()) {
             return true;
         }
         if (te == null) {
@@ -289,10 +257,10 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
             return true;
         }
         Level level = te.getLevel();
-        if (mcjty.lib.varia.CapabilityTools.itemHandler(level.getCapability(Capabilities.Item.BLOCK, te.getBlockPos(), null)) != null) {
+        if (mcjty.lib.varia.CapabilityTools.itemHandler(net.fabricmc.fabric.api.transfer.v1.item.ItemStorage.SIDED.find(level, te.getBlockPos(), null)) != null) {
             return true;
         }
-        if (mcjty.lib.varia.CapabilityTools.fluidHandler(level.getCapability(Capabilities.Fluid.BLOCK, te.getBlockPos(), null)) != null) {
+        if (mcjty.lib.varia.CapabilityTools.fluidHandler(net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage.SIDED.find(level, te.getBlockPos(), null)) != null) {
             return true;
         }
         if (te instanceof TileEntityController) {
@@ -332,7 +300,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
             Vec3 pos = builder.getOptionalParameter(LootContextParams.ORIGIN);
             ConsumerId consumer = worldBlob.getConsumerAt(new BlockPos((int) pos.x, (int) pos.y, (int) pos.z));
             if (consumer != null) {
-                drop.set(CableModule.ITEM_CABLE_ITEM_DATA, new CableItemData(consumer));
+                drop.set(CableModule.ITEM_CABLE_ITEM_DATA.get(), new CableItemData(consumer));
             }
         }
         return drops;
@@ -345,8 +313,8 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
     @Override
     public void createCableSegment(Level world, BlockPos pos, ItemStack stack) {
         ConsumerId consumer;
-        if (!stack.isEmpty() && stack.get(CableModule.ITEM_CABLE_ITEM_DATA) != null) {
-            consumer = stack.get(CableModule.ITEM_CABLE_ITEM_DATA).id();
+        if (!stack.isEmpty() && stack.get(CableModule.ITEM_CABLE_ITEM_DATA.get()) != null) {
+            consumer = stack.get(CableModule.ITEM_CABLE_ITEM_DATA.get()).id();
         } else {
             XNetBlobData blobData = XNetBlobData.get(world);
             WorldBlob worldBlob = blobData.getWorldBlob(world);

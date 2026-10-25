@@ -330,7 +330,7 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
     @Override
     protected void applyImplicitComponents(net.minecraft.core.component.DataComponentGetter input) {
         super.applyImplicitComponents(input);
-        var data = input.get(WirelessRouterModule.ITEM_WIRELESS_ROUTER_DATA);
+        var data = input.get(WirelessRouterModule.ITEM_WIRELESS_ROUTER_DATA.get());
         if (data != null) {
             setData(WirelessRouterModule.WIRELESS_ROUTER_DATA, data);
         }
@@ -339,7 +339,7 @@ public final class TileEntityWirelessRouter extends TickingTileEntity {
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder builder) {
         super.collectImplicitComponents(builder);
-        builder.set(WirelessRouterModule.ITEM_WIRELESS_ROUTER_DATA, getData(WirelessRouterModule.WIRELESS_ROUTER_DATA));
+        builder.set(WirelessRouterModule.ITEM_WIRELESS_ROUTER_DATA.get(), getData(WirelessRouterModule.WIRELESS_ROUTER_DATA));
     }
 
 

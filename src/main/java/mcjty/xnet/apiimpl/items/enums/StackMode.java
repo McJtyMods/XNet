@@ -7,7 +7,7 @@ import mcjty.xnet.utils.I18nUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
-import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
+import mcjty.lib.network.StreamCodecs;
 
 public enum StackMode implements ITranslatableEnum<StackMode>, StringRepresentable {
     SINGLE("xnet.enum.items.stackmode.single"),
@@ -17,7 +17,7 @@ public enum StackMode implements ITranslatableEnum<StackMode>, StringRepresentab
     private final String i18n;
 
     public static final Codec<StackMode> CODEC = StringRepresentable.fromEnum(StackMode::values);
-    public static final StreamCodec<FriendlyByteBuf, StackMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(StackMode.class);
+    public static final StreamCodec<FriendlyByteBuf, StackMode> STREAM_CODEC = StreamCodecs.enumCodec(StackMode.class);
 
     StackMode(String i18n) {
         this.i18n = i18n;

@@ -67,8 +67,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.neoforged.neoforge.common.util.Lazy;
-import net.neoforged.neoforge.items.IItemHandler;
+import mcjty.lib.varia.Lazy;
+import mcjty.lib.container.IItemHandler;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -376,9 +376,9 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     @Override
     protected void applyImplicitComponents(net.minecraft.core.component.DataComponentGetter input) {
         super.applyImplicitComponents(input);
-        energyStorage.applyImplicitComponents(input.get(mcjty.lib.setup.Registration.ITEM_ENERGY));
-        items.applyImplicitComponents(input.get(mcjty.lib.setup.Registration.ITEM_INVENTORY));
-        var data = input.get(ControllerModule.ITEM_CONTROLLER_DATA);
+        energyStorage.applyImplicitComponents(input.get(mcjty.lib.setup.Registration.ITEM_ENERGY.get()));
+        items.applyImplicitComponents(input.get(mcjty.lib.setup.Registration.ITEM_INVENTORY.get()));
+        var data = input.get(ControllerModule.ITEM_CONTROLLER_DATA.get());
         if (data != null) {
             setData(ControllerModule.CONTROLLER_DATA, data);
         }
@@ -389,7 +389,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         super.collectImplicitComponents(builder);
         energyStorage.collectImplicitComponents(builder);
         items.collectImplicitComponents(builder);
-        builder.set(ControllerModule.ITEM_CONTROLLER_DATA, getData(ControllerModule.CONTROLLER_DATA));
+        builder.set(ControllerModule.ITEM_CONTROLLER_DATA.get(), getData(ControllerModule.CONTROLLER_DATA));
     }
 
     @Override

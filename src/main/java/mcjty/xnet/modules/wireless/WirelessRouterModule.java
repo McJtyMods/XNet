@@ -31,16 +31,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.attachment.AttachmentType;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import mcjty.lib.datagen.model.ModelFile;
 import mcjty.lib.datagen.model.VariantBlockStateBuilder;
-import net.neoforged.neoforge.registries.DeferredBlock;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredItem;
+import mcjty.lib.setup.DeferredBlock;
+import mcjty.lib.setup.DeferredHolder;
+import mcjty.lib.setup.DeferredItem;
 
 import javax.annotation.Nonnull;
 import java.util.function.Supplier;
@@ -69,10 +65,8 @@ public class WirelessRouterModule implements IModule {
     public static final DeferredBlock<BaseBlock> ANTENNA_DISH = BLOCKS.register(ITEM_ANTENNA_DISH, WirelessRouterModule::createAntennaDishBlock);
     public static final DeferredItem<Item> ANTENNA_DISH_ITEM = ITEMS.register(ITEM_ANTENNA_DISH, tab(properties -> new BlockItem(ANTENNA_DISH.get(), properties.useBlockDescriptionPrefix())));
 
-    public static final Supplier<AttachmentType<WirelessRouterData>> WIRELESS_ROUTER_DATA = ATTACHMENT_TYPES.register(
-            "wireless_router_data", () -> AttachmentType.builder(() -> WirelessRouterData.EMPTY)
-                    .serialize(com.mojang.serialization.MapCodec.assumeMapUnsafe(WirelessRouterData.CODEC))
-                    .build());
+    public static final AttachmentType<WirelessRouterData> WIRELESS_ROUTER_DATA = net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry.create(
+            net.minecraft.resources.Identifier.fromNamespaceAndPath("xnet", "wireless_router_data"), builder -> builder.initializer(() -> WirelessRouterData.EMPTY).persistent(WirelessRouterData.CODEC));
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<WirelessRouterData>> ITEM_WIRELESS_ROUTER_DATA = COMPONENTS.registerComponentType(
             "wireless_router_data",
             builder -> builder
@@ -143,25 +137,23 @@ public class WirelessRouterModule implements IModule {
         };
     }
 
-    public WirelessRouterModule(IEventBus bus) {
-        bus.addListener(this::registerScreens);
-    }
 
     @Override
-    public void init(FMLCommonSetupEvent event) {
+    public void init() {
 
     }
 
     @Override
-    public void initClient(FMLClientSetupEvent event) {
+    public void initClient() {
+        registerScreens();
     }
 
-    public void registerScreens(RegisterMenuScreensEvent event) {
-        GuiWirelessRouter.register(event);
+    public void registerScreens() {
+        GuiWirelessRouter.register();
     }
 
     @Override
-    public void initConfig(IEventBus bus) {
+    public void initConfig() {
 
     }
 

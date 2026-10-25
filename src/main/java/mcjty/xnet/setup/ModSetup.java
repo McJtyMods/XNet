@@ -9,10 +9,6 @@ import mcjty.xnet.apiimpl.fluids.FluidChannelType;
 import mcjty.xnet.apiimpl.items.ItemChannelType;
 import mcjty.xnet.apiimpl.logic.LogicChannelType;
 import mcjty.xnet.apiimpl.none.NoneChannelType;
-import mcjty.xnet.compat.TopExtras;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.fml.ModList;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 
 public class ModSetup extends DefaultModSetup {
 
@@ -25,10 +21,10 @@ public class ModSetup extends DefaultModSetup {
     public final NoneChannelType noneChannelType = new NoneChannelType();
 
     @Override
-    public void init(FMLCommonSetupEvent e) {
-        super.init(e);
+    public void init() {
+        super.init();
 
-        NeoForge.EVENT_BUS.register(new ForgeEventHandlers());
+        new ServerEvents().register();
 //        CommandHandler.registerCommands();
 
         XNet.xNetApi.registerConsumerProvider((world, blob, net) -> blob.getConsumers(net));
@@ -41,7 +37,7 @@ public class ModSetup extends DefaultModSetup {
 
     @Override
     protected void setupModCompat() {
-        rftoolsControl = ModList.get().isLoaded("rftoolscontrol");
+        rftoolsControl = net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("rftoolscontrol");
 
         if (rftoolsControl) {
             Logging.log("XNet Detected RFTools Control: enabling support");
@@ -52,8 +48,6 @@ public class ModSetup extends DefaultModSetup {
         MainCompatHandler.registerWaila();
         MainCompatHandler.registerTOP();
 
-        if (ModList.get().isLoaded("theoneprobe")) {
-            TopExtras.register();
-        }
+        // TOP discovers TopExtras through the theoneprobe entrypoint.
     }
 }

@@ -23,7 +23,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,7 @@ import static mcjty.xnet.modules.cables.ConnectorType.CABLE;
 public class CableWorldRenderer {
 
     // @todo 1.20 is this correct?
-    public static void tick(SubmitCustomGeometryEvent evt) {
+    public static void tick(LevelRenderContext evt) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;
 
@@ -48,10 +48,10 @@ public class CableWorldRenderer {
         }
     }
 
-    private static void renderCables(SubmitCustomGeometryEvent evt, Minecraft mc) {
+    private static void renderCables(LevelRenderContext evt, Minecraft mc) {
         Player p = mc.player;
 
-        PoseStack matrixStack = evt.getPoseStack();
+        PoseStack matrixStack = evt.poseStack();
         Level world = mc.level;
 
         matrixStack.pushPose();
@@ -108,7 +108,7 @@ public class CableWorldRenderer {
                         }
                         List<RenderHelper.Rect> quads = getQuads(state);
                         float red = r, green = g, blue = b;
-                        evt.getSubmitNodeCollector().submitCustomGeometry(matrixStack, CustomRenderTypes.OVERLAY_LINES, (captured, builder) -> {
+                        evt.submitNodeCollector().submitCustomGeometry(matrixStack, CustomRenderTypes.OVERLAY_LINES, (captured, builder) -> {
                             PoseStack pose = new PoseStack();
                             pose.last().pose().set(captured.pose());
                             for (var quad : quads) RenderHelper.renderRect(pose, builder, quad, c, red, green, blue, .5f);

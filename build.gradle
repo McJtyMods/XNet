@@ -14,26 +14,26 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.1.38'
+    id 'net.fabricmc.fabric-loom' version '1.17.17'
 }
 
 apply plugin: 'com.hypherionmc.modutils.modpublisher'
 
 def sharedTools = rootProject.file('gradletools.gradle')
-if (rootProject != project && sharedTools.isFile()) {
+if (sharedTools.isFile()) {
     apply from: sharedTools
+} else if (file('gradletools.gradle').isFile()) {
+    apply from: 'gradletools.gradle'
 } else {
-    apply from: 'https://raw.githubusercontent.com/McJtyMods/MultiWorkspace/26.1.2_neo/gradletools.gradle'
+    apply from: 'https://raw.githubusercontent.com/McJtyMods/MultiWorkSpace/26.1.2_fabric/gradletools.gradle'
 }
 
 group = "com.github.mcjty"
-base.archivesName = "xnet"
+base.archivesName = "xnet-fabric"
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
-// The JEI version in the shared script requires NeoForge 26.1.2.99.
-neo_version = '26.1.2.99'
 
 repos()
-at()
+access()
 runs()
 jars()
 
@@ -45,12 +45,20 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.12.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.12.2'
     mc()
+    config()
+    energy()
     jei()
     top()
     mcjtylib()
     rftoolsbase()
 }
 
-modpublisher(['the-one-probe'], ['mcjtylib', 'rftools-base'], ['the-one-probe'], ['mcjtylib', 'rftools-base'], [])
+modpublisher(['the-one-probe'], ['mcjtylib', 'rftools-base', 'fabric-api', 'forge-config-api-port'], ['the-one-probe'], ['mcjtylib', 'rftools-base', 'fabric-api', 'forge-config-api-port'], [])
 
 tasks.named('test') { useJUnitPlatform() }
+
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') { expand version: project.version }
+}

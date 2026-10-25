@@ -7,14 +7,14 @@ import mcjty.xnet.utils.I18nUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
-import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
+import mcjty.lib.network.StreamCodecs;
 
 public enum ChannelMode implements ITranslatableEnum<ChannelMode>, StringRepresentable {
     PRIORITY("xnet.enum.channelmode.priority"),
     ROUNDROBIN("xnet.enum.channelmode.roundrobin");
 
     public static final Codec<ChannelMode> CODEC = StringRepresentable.fromEnum(ChannelMode::values);
-    public static final StreamCodec<FriendlyByteBuf, ChannelMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(ChannelMode.class);
+    public static final StreamCodec<FriendlyByteBuf, ChannelMode> STREAM_CODEC = StreamCodecs.enumCodec(ChannelMode.class);
 
     private final String i18n;
 

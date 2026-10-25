@@ -1,3 +1,6 @@
+26.1.2 Fabric:
+- Port to Fabric for Minecraft 26.1.2
+
 26.1.2-8.0.0:
 - Ported to Minecraft 26.1.2 with NeoForge
 - Updated rendering, registration, persistence, networking, and generated resources

@@ -8,7 +8,7 @@ import mcjty.xnet.utils.I18nUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
-import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
+import mcjty.lib.network.StreamCodecs;
 
 
 public enum LogicMode implements ITranslatableEnum<LogicMode>, StringRepresentable {
@@ -16,7 +16,7 @@ public enum LogicMode implements ITranslatableEnum<LogicMode>, StringRepresentab
     OUTPUT("xnet.enum.logic.logicmode.output");
 
     public static final Codec<LogicMode> CODEC = StringRepresentable.fromEnum(LogicMode::values);
-    public static final StreamCodec<FriendlyByteBuf, LogicMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(LogicMode.class);
+    public static final StreamCodec<FriendlyByteBuf, LogicMode> STREAM_CODEC = StreamCodecs.enumCodec(LogicMode.class);
 
     private final String i18n;
 

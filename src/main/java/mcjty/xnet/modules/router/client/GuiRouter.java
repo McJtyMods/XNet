@@ -22,7 +22,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 
 import javax.annotation.Nonnull;
 
@@ -52,8 +51,8 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
         super(container, inventory, title, RouterModule.ROUTER.block().get().getManualEntry());
     }
 
-    public static void register(RegisterMenuScreensEvent event) {
-        event.register(RouterModule.CONTAINER_ROUTER.get(), GuiRouter::new);
+    public static void register() {
+        net.minecraft.client.gui.screens.MenuScreens.register(RouterModule.CONTAINER_ROUTER.get(), GuiRouter::new);
     }
 
     @Override

@@ -4,7 +4,6 @@ package mcjty.xnet.compat;
 import mcjty.lib.varia.Tools;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.fml.ModList;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +21,7 @@ public final class ForestrySupport {
 
     	private final String name;
     	private final int flag;
-	
+
     	Tag(String name, int flag) {
     		this.name = name;
     		this.flag = flag;
@@ -52,12 +51,12 @@ public final class ForestrySupport {
 	    BUTTERFLY, SERUM, CATERPILLAR, COCOON };
 
     public static boolean isLoaded() {
-	    return ModList.get().isLoaded(ID);
+	    return net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded(ID);
     }
 
     /**
      * Determines if the item is breedable in Forestry.
-     * 
+     *
      * @param item	item being determined if breedable
      * @return		true if breedable, else false
      */

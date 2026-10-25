@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
-import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
+import mcjty.lib.network.StreamCodecs;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +22,7 @@ public enum Operator implements StringRepresentable {
     private final BiPredicate<Integer, Integer> matcher;
 
     public static final Codec<Operator> CODEC = StringRepresentable.fromEnum(Operator::values);
-    public static final StreamCodec<FriendlyByteBuf, Operator> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(Operator.class);
+    public static final StreamCodec<FriendlyByteBuf, Operator> STREAM_CODEC = StreamCodecs.enumCodec(Operator.class);
 
     private static final Map<String, Operator> OPERATOR_MAP = new HashMap<>();
 

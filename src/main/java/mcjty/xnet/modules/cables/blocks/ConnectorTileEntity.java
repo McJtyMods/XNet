@@ -34,8 +34,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.util.Lazy;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import mcjty.lib.varia.Lazy;
+import mcjty.lib.varia.IEnergyStorage;
 
 import javax.annotation.Nonnull;
 import java.util.function.Function;
@@ -87,15 +87,6 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         }
     }
 
-    @Override
-    public void onDataPacket(Connection net, net.minecraft.world.level.storage.ValueInput input) {
-        super.onDataPacket(net, input);
-
-        if (level.isClientSide()) {
-            // Dynamic models read the synchronized block entity when rebuilding the section.
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
-        }
-    }
 
     public int getPowerOut(Direction side) {
         return powerOut[side.ordinal()];
@@ -137,7 +128,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     @Override
     public BlockState getMimicBlock() {
         // Packet serialization must not create attachments and queue another chunk update.
-        MimicData data = getExistingDataOrNull(FacadeModule.MIMIC_DATA.get());
+        MimicData data = getAttached(FacadeModule.MIMIC_DATA);
         BlockState state = data == null ? null : data.state();
         if (state == null || state.isAir()) {
             return null;
@@ -195,6 +186,9 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         for (int i = 0 ; i < 6 ; i++) {
             powerOut[i] = tagCompound.getByteOr("p" + i, (byte) 0);
         }
+        if (level != null && level.isClientSide()) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
+        }
     }
 
     @Override
@@ -215,7 +209,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     @Override
     protected void applyImplicitComponents(net.minecraft.core.component.DataComponentGetter input) {
         super.applyImplicitComponents(input);
-        var data = input.get(CableModule.ITEM_CONNECTOR_DATA);
+        var data = input.get(CableModule.ITEM_CONNECTOR_DATA.get());
         if (data != null) {
             setData(CableModule.CONNECTOR_DATA, data);
         }
@@ -224,7 +218,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder builder) {
         super.collectImplicitComponents(builder);
-        builder.set(CableModule.ITEM_CONNECTOR_DATA, getData(CableModule.CONNECTOR_DATA));
+        builder.set(CableModule.ITEM_CONNECTOR_DATA.get(), getData(CableModule.CONNECTOR_DATA));
     }
 
     @Override
@@ -334,7 +328,15 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
                         inputFromSide = snapshot.inputs().clone();
                     });
 
-    public net.neoforged.neoforge.transfer.energy.EnergyHandler getEnergyHandler(Direction side) {
+    /** Internal network withdrawal participates in the same transaction as consumer insertion. */
+    public int extractNetworkEnergy(int amount, net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext transaction) {
+        int extracted = Math.min(amount, getEnergy());
+        energyJournal.updateSnapshots(transaction);
+        setEnergy(getEnergy() - extracted);
+        return extracted;
+    }
+
+    public team.reborn.energy.api.EnergyStorage getEnergyHandler(Direction side) {
         return mcjty.rftoolsbase.tools.EnergyTransactions.input(getEnergyStorage(side), () -> java.util.List.of(energyJournal));
     }
 

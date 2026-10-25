@@ -25,10 +25,10 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
     }
 
     @Override
-    public void onDataPacket(Connection net, net.minecraft.world.level.storage.ValueInput input) {
-        super.onDataPacket(net, input);
+    protected void loadAdditional(net.minecraft.world.level.storage.ValueInput input) {
+        super.loadAdditional(input);
 
-        if (level.isClientSide()) {
+        if (level != null && level.isClientSide()) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
             // Dynamic models read the synchronized block entity when rebuilding the section.
         }
@@ -38,7 +38,7 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
     @Override
     public BlockState getMimicBlock() {
         // Packet serialization must not create attachments and queue another chunk update.
-        MimicData data = getExistingDataOrNull(FacadeModule.MIMIC_DATA.get());
+        MimicData data = getAttached(FacadeModule.MIMIC_DATA);
         BlockState state = data == null ? null : data.state();
         if (state == null || state.isAir()) {
             return null;

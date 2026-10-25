@@ -7,14 +7,14 @@ import mcjty.xnet.utils.I18nUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
-import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
+import mcjty.lib.network.StreamCodecs;
 
 public enum InsExtMode implements ITranslatableEnum<InsExtMode>, StringRepresentable {
     INS("xnet.enum.insextmode.ins"),
     EXT("xnet.enum.insextmode.ext");
 
     public static final Codec<InsExtMode> CODEC = StringRepresentable.fromEnum(InsExtMode::values);
-    public static final StreamCodec<FriendlyByteBuf, InsExtMode> STREAM_CODEC = NeoForgeStreamCodecs.enumCodec(InsExtMode.class);
+    public static final StreamCodec<FriendlyByteBuf, InsExtMode> STREAM_CODEC = StreamCodecs.enumCodec(InsExtMode.class);
 
     private final String i18n;
 

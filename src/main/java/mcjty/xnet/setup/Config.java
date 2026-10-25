@@ -5,7 +5,6 @@ import com.electronwill.nightconfig.core.io.WritingMode;
 import com.google.common.collect.Lists;
 import mcjty.lib.modules.Modules;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
-import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
@@ -63,7 +62,7 @@ public class Config {
     public static final ModConfigSpec.Builder SERVER_BUILDER = new ModConfigSpec.Builder();
     public static final ModConfigSpec.Builder CLIENT_BUILDER = new ModConfigSpec.Builder();
 
-    public static void register(ModContainer mod, Modules modules) {
+    public static void register(Modules modules) {
         SERVER_BUILDER.comment("General settings").push(CATEGORY_GENERAL);
         CLIENT_BUILDER.comment("General settings").push(CATEGORY_GENERAL);
 
@@ -148,8 +147,8 @@ public class Config {
         SERVER_CONFIG = SERVER_BUILDER.build();
         CLIENT_CONFIG = CLIENT_BUILDER.build();
 
-        mod.registerConfig(ModConfig.Type.CLIENT, CLIENT_CONFIG);
-        mod.registerConfig(ModConfig.Type.SERVER, SERVER_CONFIG);
+        fuzs.forgeconfigapiport.fabric.api.v5.ConfigRegistry.INSTANCE.register("xnet", ModConfig.Type.CLIENT, CLIENT_CONFIG);
+        fuzs.forgeconfigapiport.fabric.api.v5.ConfigRegistry.INSTANCE.register("xnet", ModConfig.Type.SERVER, SERVER_CONFIG);
     }
 
     public static ModConfigSpec SERVER_CONFIG;

@@ -29,9 +29,8 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import mcjty.lib.varia.FluidStack;
+import mcjty.lib.varia.IFluidHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -131,12 +130,15 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             if (handler == null) {
                 continue;
             }
-            tickFluidHandler(context, settings, handler);
+            var storage = net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage.SIDED.find(
+                    extractor.getConnectedEntity().getLevel(), extractor.getConnectedEntity().getBlockPos(), settings.getFacing());
+            if (storage != null) tickFluidHandler(context, settings, handler, storage);
         }
 
     }
 
-    private void tickFluidHandler(IControllerContext context, FluidConnectorSettings settings, IFluidHandler handler) {
+    private void tickFluidHandler(IControllerContext context, FluidConnectorSettings settings, IFluidHandler handler,
+            net.fabricmc.fabric.api.transfer.v1.storage.Storage<net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant> source) {
         if (!context.checkAndConsumeRF(Config.controllerOperationRFT.get())) {
             return;
         }
@@ -154,18 +156,16 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             toextract = Math.min(toextract, canextract);
         }
 
-        while (true) {
-            FluidStack stack = fetchFluid(handler, true, extractMatcher, toextract);
-            if (stack.isEmpty()) {
-                return;
+        FluidStack stack = fetchFluid(handler, true, extractMatcher, toextract);
+        if (stack.isEmpty()) return;
+        try (var transaction = net.fabricmc.fabric.api.transfer.v1.transaction.Transaction.openOuter()) {
+            int remaining = insertFluid(context, stack, transaction);
+            long moved = (long)(stack.getAmount() - remaining) * 81;
+            if (moved == 0) return;
+            if (source.extract(stack.variant(), moved, transaction) != moved) {
+                throw new IllegalStateException("Fluid source changed during an XNet transaction");
             }
-            toextract = stack.getAmount();
-            int remaining = insertFluid(context, stack);
-            toextract -= remaining;
-            if (remaining != toextract) {
-                fetchFluid(handler, false, extractMatcher, toextract);
-                return;
-            }
+            transaction.commit();
         }
     }
 
@@ -188,7 +188,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
         }
     }
 
-    private int insertFluid(@Nonnull IControllerContext context, @Nonnull FluidStack stack) {
+    private int insertFluid(@Nonnull IControllerContext context, @Nonnull FluidStack stack, net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext transaction) {
         Level world = context.getControllerWorld();
         if (channelMode == ChannelMode.PRIORITY) {
             roundRobinOffset = 0;       // Always start at 0
@@ -229,7 +229,9 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             FluidStack copy = stack.copy();
             copy.setAmount(toinsert);
 
-            int filled = destination.fill(copy, IFluidHandler.FluidAction.EXECUTE);
+            var target = net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage.SIDED.find(
+                    consumer.getConnectedEntity().getLevel(), consumer.getConnectedEntity().getBlockPos(), settings.getFacing());
+            int filled = target == null ? 0 : insertWholeMillibuckets(target, copy, transaction);
             if (filled > 0) {
                 roundRobinOffset = (roundRobinOffset + 1) % fluidConsumers.size();
                 amount -= filled;
@@ -239,6 +241,23 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             }
         }
         return amount;
+    }
+
+    private static int insertWholeMillibuckets(
+            net.fabricmc.fabric.api.transfer.v1.storage.Storage<net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant> target,
+            FluidStack stack, net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext parent) {
+        long moved;
+        try (var nested = parent.openNested()) {
+            moved = target.insert(stack.variant(), (long)stack.getAmount() * 81, nested);
+            if (moved % 81 == 0) { nested.commit(); return (int)(moved / 81); }
+        }
+        // XNet configuration is in millibuckets; leave fractional droplets untouched.
+        try (var nested = parent.openNested()) {
+            long whole = target.insert(stack.variant(), moved / 81 * 81, nested);
+            if (whole % 81 != 0) return 0;
+            nested.commit();
+            return (int)(whole / 81);
+        }
     }
 
     private int countFluid(IFluidHandler handler, @Nullable FluidStack matcher) {
@@ -345,7 +364,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
     @Nullable
     public static IFluidHandler getFluidHandlerAt(@Nullable BlockEntity te, Direction intSide) {
         if (te != null) {
-            return mcjty.lib.varia.CapabilityTools.fluidHandler(te.getLevel().getCapability(Capabilities.Fluid.BLOCK, te.getBlockPos(), intSide));
+            return mcjty.lib.varia.CapabilityTools.fluidHandler(net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage.SIDED.find(te.getLevel(), te.getBlockPos(), intSide));
         } else {
             return null;
         }

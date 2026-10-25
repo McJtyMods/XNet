@@ -12,7 +12,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.Container;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.capabilities.Capabilities;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -57,7 +56,7 @@ public class ItemChannelType implements IChannelType {
         if (te == null) {
             return false;
         }
-        if (mcjty.lib.varia.CapabilityTools.itemHandler(world.getCapability(Capabilities.Item.BLOCK, pos, side)) != null) {
+        if (mcjty.lib.varia.CapabilityTools.itemHandler(net.fabricmc.fabric.api.transfer.v1.item.ItemStorage.SIDED.find(world, pos, side)) != null) {
             return true;
         }
         if (te instanceof Container) {
