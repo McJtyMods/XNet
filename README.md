@@ -15,6 +15,6 @@ Standalone builds resolve these Jenkins Fabric artifacts when source projects ar
 
 Minimum runtime mod versions omit the artifact revision suffix: McJtyLib `26.2-10.0.1-fabric` and RFToolsBase `26.2-8.0.0-fabric`. TOP remains an optional mod integration. Workspace builds use the local McJtyLib and TOP source checkouts when available.
 
-Standalone builds include the sibling `../RFToolsBase_fabric` source checkout when available. For an isolated CI checkout, first publish RFToolsBase Fabric, then select its artifact revision with `-Prftoolsbase_version=<published-version>`. The dependency artifact is `com.github.mcjty:rftoolsbase-fabric`.
+Standalone builds use `rftoolsbase()` from the remote shared script, which selects `com.github.mcjty:rftoolsbase-fabric:26.2-8.0.0-fabric-1` through `rftoolsbase_version`. The `-1` suffix identifies the Maven artifact build; the runtime mod dependency remains `26.2-8.0.0-fabric`. Workspace builds use the RFToolsBase source project when included.
 
 Validation commands cover all three builds, generated resources, JUnit tests, and an integrated Fabric client/server test. From Multi_fabric, run `./gradlew -PfabricPortTests :RFToolsBase:runClientGameTest` to check native energy and inventory rollback, fluid rounding, generation, menus, facade removal and cable/antenna models. The fixture is excluded from release jars.
