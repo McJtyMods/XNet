@@ -56,7 +56,7 @@ public class CableWorldRenderer {
 
         matrixStack.pushPose();
 
-        Vec3 projectedView = Minecraft.getInstance().gameRenderer.getMainCamera().position();
+        Vec3 projectedView = Minecraft.getInstance().gameRenderer.mainCamera().position();
         matrixStack.translate(-projectedView.x, -projectedView.y, -projectedView.z);
 
         for (int dx = -20 ; dx <= 20 ; dx++) {
