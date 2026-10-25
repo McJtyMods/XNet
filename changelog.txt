@@ -1,3 +1,8 @@
+26.2-9.0.0:
+- Ported to Minecraft 26.2 with NeoForge
+- Updated Minecraft APIs and regenerated resources for 26.2
+- Uses the 26.2 McJtyLib and shared MultiWorkspace build script
+
 26.1.2-8.0.0:
 - Ported to Minecraft 26.1.2 with NeoForge
 - Updated rendering, registration, persistence, networking, and generated resources
