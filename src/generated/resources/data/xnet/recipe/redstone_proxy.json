@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "F": "rftoolsbase:machine_frame",
     "r": "minecraft:redstone"

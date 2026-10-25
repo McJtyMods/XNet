@@ -1,3 +1,8 @@
+26.2-9.0.0-fabric:
+- Ported to Minecraft 26.2 with Fabric
+- Updated Minecraft and Fabric APIs and regenerated resources for 26.2
+- Uses the 26.2 McJtyLib and shared MultiWorkspace build script
+
 26.1.2 Fabric:
 - Port to Fabric for Minecraft 26.1.2
 

@@ -19,14 +19,7 @@ plugins {
 
 apply plugin: 'com.hypherionmc.modutils.modpublisher'
 
-def sharedTools = rootProject.file('gradletools.gradle')
-if (sharedTools.isFile()) {
-    apply from: sharedTools
-} else if (file('gradletools.gradle').isFile()) {
-    apply from: 'gradletools.gradle'
-} else {
-    apply from: 'https://raw.githubusercontent.com/McJtyMods/MultiWorkSpace/26.1.2_fabric/gradletools.gradle'
-}
+apply from: 'https://raw.githubusercontent.com/McJtyMods/MultiWorkSpace/26.2_fabric/gradletools.gradle'
 
 group = "com.github.mcjty"
 base.archivesName = "xnet-fabric"

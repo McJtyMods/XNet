@@ -1,6 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
   "key": {
     "C": "#xnet:connectors",
     "g": "#c:nuggets/gold",
