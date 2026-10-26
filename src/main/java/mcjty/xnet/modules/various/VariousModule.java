@@ -1,5 +1,6 @@
 package mcjty.xnet.modules.various;
 
+import java.util.List;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
 import mcjty.lib.modules.IModule;
@@ -8,6 +9,7 @@ import mcjty.xnet.modules.various.blocks.RedstoneProxyUBlock;
 import mcjty.xnet.modules.various.items.ConnectorUpgradeItem;
 import mcjty.xnet.setup.Registration;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -51,6 +53,7 @@ public class VariousModule implements IModule {
     public void initDatagen(DataGen dataGen, HolderLookup.Provider provider) {
         dataGen.add(
                 Dob.blockBuilder(REDSTONE_PROXY)
+                        .blockTags(List.of(BlockTags.BLOCKS_MOTION_NO_LEAVES))
                         .stonePickaxeTags()
                         .simpleLoot()
                         .parentedItem("block/redstone_proxy")
@@ -60,6 +63,7 @@ public class VariousModule implements IModule {
                                         .unlockedBy("frame", has(mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())),
                                 "rrr", "rFr", "rrr"),
                 Dob.blockBuilder(REDSTONE_PROXY_UPD)
+                        .blockTags(List.of(BlockTags.BLOCKS_MOTION_NO_LEAVES))
                         .stonePickaxeTags()
                         .simpleLoot()
                         .parentedItem("block/redstone_proxy_upd")

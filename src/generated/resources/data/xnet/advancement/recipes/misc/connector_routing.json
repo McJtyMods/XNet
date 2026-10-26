@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "xnet:connector_routing"
+        "recipes": "xnet:connector_routing"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

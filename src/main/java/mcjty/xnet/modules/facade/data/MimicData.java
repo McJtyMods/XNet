@@ -2,6 +2,8 @@ package mcjty.xnet.modules.facade.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.Objects;
+import javax.annotation.Nonnull;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -9,8 +11,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.Nonnull;
-import java.util.Objects;
 
 public record MimicData(@Nonnull BlockState state) {
 
@@ -21,7 +21,7 @@ public record MimicData(@Nonnull BlockState state) {
     }
 
     public static final Codec<MimicData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            BlockState.CODEC.fieldOf("state").forGetter(MimicData::state)
+            mcjty.xnet.modules.facade.MimicBlockSupport.BLOCK_STATE_CODEC.fieldOf("state").forGetter(MimicData::state)
     ).apply(instance, MimicData::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, MimicData> STREAM_CODEC = StreamCodec.composite(

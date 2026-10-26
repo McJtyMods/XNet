@@ -1,5 +1,7 @@
 package mcjty.xnet.modules.facade;
 
+import java.util.List;
+import java.util.function.Supplier;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
 import mcjty.lib.modules.IModule;
@@ -10,6 +12,7 @@ import mcjty.xnet.modules.facade.blocks.FacadeTileEntity;
 import mcjty.xnet.modules.facade.data.MimicData;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -21,8 +24,6 @@ import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
-
-import java.util.function.Supplier;
 
 import static mcjty.lib.datagen.DataGen.has;
 import static mcjty.xnet.XNet.tab;
@@ -64,6 +65,7 @@ public class FacadeModule implements IModule {
     public void initDatagen(DataGen dataGen, HolderLookup.Provider provider) {
         dataGen.add(
                 Dob.blockBuilder(FACADE)
+                        .blockTags(List.of(BlockTags.BLOCKS_MOTION_NO_LEAVES))
                         .ironPickaxeTags()
                         .shaped(builder -> builder
                                         .define('w', ItemTags.WOOL)

@@ -2,6 +2,12 @@ package mcjty.xnet.apiimpl.energy;
 
 import com.google.gson.JsonObject;
 import com.mojang.serialization.MapCodec;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import mcjty.lib.varia.EnergyTools;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
@@ -26,15 +32,9 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import org.apache.commons.lang3.tuple.Pair;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class EnergyChannelSettings extends DefaultChannelSettings implements IChannelSettings {
 
@@ -210,9 +210,9 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
 
     public static int getEnergyLevel(BlockEntity be, @Nonnull Direction side) {
         if (be != null) {
-            IEnergyStorage capability = mcjty.lib.varia.CapabilityTools.energyHandler(be.getLevel().getCapability(Capabilities.Energy.BLOCK, be.getBlockPos(), side));
+            EnergyHandler capability = mcjty.lib.varia.CapabilityTools.energyHandler(be.getLevel().getCapability(Capabilities.Energy.BLOCK, be.getBlockPos(), side));
             if (capability != null) {
-                return capability.getEnergyStored();
+                return capability.getAmountAsInt();
             }
         }
         return 0;

@@ -1,10 +1,14 @@
 package mcjty.xnet.modules.facade.blocks;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import mcjty.xnet.modules.cables.CableColor;
 import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.cables.blocks.NetCableBlock;
 import mcjty.xnet.modules.facade.FacadeModule;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -16,8 +20,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+
+
 
 public class FacadeBlock extends NetCableBlock implements EntityBlock {
 
@@ -63,7 +67,7 @@ public class FacadeBlock extends NetCableBlock implements EntityBlock {
     }
 
     @Override
-    public void playerDestroy(@Nonnull Level worldIn, @Nonnull Player player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity te, @Nonnull ItemStack stack) {
+    public void playerDestroy(@Nonnull ServerLevel worldIn, @Nonnull ServerPlayer player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity te, @Nonnull ItemStack stack) {
         ItemStack item = new ItemStack(FacadeModule.FACADE.get());
         BlockState mimicBlock;
         if (te instanceof FacadeTileEntity) {
@@ -112,7 +116,7 @@ public class FacadeBlock extends NetCableBlock implements EntityBlock {
 
 
     @Override
-    public void affectNeighborsAfterRemoval(BlockState state, net.minecraft.server.level.ServerLevel world, BlockPos pos, boolean isMoving) {
+    public void affectNeighborsAfterRemoval(BlockState state, ServerLevel world, BlockPos pos, boolean isMoving) {
         // Breaking a facade has no effect on blob network
         super.affectNeighborsAfterRemoval(state, world, pos, isMoving);
     }

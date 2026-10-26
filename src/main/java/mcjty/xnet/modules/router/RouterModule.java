@@ -1,10 +1,16 @@
 package mcjty.xnet.modules.router;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.function.Supplier;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.blocks.RBlock;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
+import mcjty.lib.datagen.model.ModelFile;
+import mcjty.lib.datagen.model.VariantBlockStateBuilder;
 import mcjty.lib.modules.IModule;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.modules.various.VariousModule;
@@ -16,6 +22,7 @@ import mcjty.xnet.modules.router.data.RouterData;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Items;
@@ -25,13 +32,7 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import mcjty.lib.datagen.model.ModelFile;
-import mcjty.lib.datagen.model.VariantBlockStateBuilder;
 import net.neoforged.neoforge.registries.DeferredHolder;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.function.Supplier;
 
 import static mcjty.lib.datagen.DataGen.has;
 import static mcjty.xnet.apiimpl.Constants.ITEM_ROUTER;
@@ -83,6 +84,7 @@ public class RouterModule implements IModule {
     public void initDatagen(DataGen dataGen, HolderLookup.Provider provider) {
         dataGen.add(
                 Dob.blockBuilder(ROUTER)
+                        .blockTags(List.of(BlockTags.BLOCKS_MOTION_NO_LEAVES))
                         .ironPickaxeTags()
                         .parentedItem("block/router")
                         .standardLoot(ITEM_ROUTER_DATA.get())

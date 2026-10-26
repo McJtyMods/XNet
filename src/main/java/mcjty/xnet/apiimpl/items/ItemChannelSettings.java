@@ -5,6 +5,11 @@ import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.*;
+import java.util.function.Predicate;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import mcjty.lib.varia.InventoryTools;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
@@ -36,13 +41,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.*;
-import java.util.function.Predicate;
+import net.neoforged.neoforge.transfer.RangedResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 
 import static mcjty.xnet.apiimpl.Constants.TAG_MODE;
 import static mcjty.xnet.compat.RFToolsSupport.isStorageScanner;
@@ -217,38 +220,38 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             if (isStorageScanner(extractor.getConnectedEntity())) {
                 RFToolsSupport.tickStorageScanner(context, settings, extractor.getConnectedEntity(), this, world);
             } else {
-                IItemHandler handler = getItemHandlerAt(extractor.getConnectedEntity(), extractor.settings().getFacing());
+                ResourceHandler<ItemResource> handler = getItemHandlerAt(extractor.getConnectedEntity(), extractor.settings().getFacing());
                 if (handler == null) {
                     continue;
                 }
                 int idx = getStartExtractIndex(settings, consumerId, handler);
                 idx = tickItemHandler(context, settings, handler, world, idx, i);
-                if (handler.getSlots() > 0) {
-                    rememberExtractIndex(consumerId, (idx + 1) % handler.getSlots());
+                if (handler.size() > 0) {
+                    rememberExtractIndex(consumerId, (idx + 1) % handler.size());
                 }
             }
         }
     }
 
-    private int getStartExtractIndex(ItemConnectorSettings settings, ConsumerId consumerId, IItemHandler handler) {
+    private int getStartExtractIndex(ItemConnectorSettings settings, ConsumerId consumerId, ResourceHandler<ItemResource> handler) {
         switch (settings.getExtractMode()) {
             case FIRST:
                 return 0;
             case RND: {
-                if (handler.getSlots() <= 0) {
+                if (handler.size() <= 0) {
                     return 0;
                 }
                 // Try 5 times to find a non empty slot
                 for (int i = 0; i < 5; i++) {
-                    int idx = random.nextInt(handler.getSlots());
-                    if (!handler.getStackInSlot(idx).isEmpty()) {
+                    int idx = random.nextInt(handler.size());
+                    if (!ItemUtil.getStack(handler, idx).isEmpty()) {
                         return idx;
                     }
                 }
                 // Otherwise use a more complicated algorithm
                 List<Integer> slots = new ArrayList<>();
-                for (int i = 0; i < handler.getSlots(); i++) {
-                    if (!handler.getStackInSlot(i).isEmpty()) {
+                for (int i = 0; i < handler.size(); i++) {
+                    if (!ItemUtil.getStack(handler, i).isEmpty()) {
                         slots.add(i);
                     }
                 }
@@ -265,7 +268,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
 
     private int tickItemHandler(@Nonnull IControllerContext context, @Nonnull ItemConnectorSettings settings,
-                                @Nonnull IItemHandler handler, @Nonnull Level world, int startIdx, int extractorIdx) {
+                                @Nonnull ResourceHandler<ItemResource> handler, @Nonnull Level world, int startIdx, int extractorIdx) {
         Predicate<ItemStack> extractMatcher = settings.getMatcher(context);
 
         Integer count = settings.getCount();
@@ -279,7 +282,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
         MInteger index = new MInteger(startIdx);
         while (true) {
-            ItemStack stack = fetchItem(handler, true, extractMatcher, settings.getStackMode(),
+            ItemStack stack = simulateItemExtraction(handler, extractMatcher, settings.getStackMode(),
                     settings.getExtractAmount(), 64, index, startIdx);
             if (stack.isEmpty()) {
                 break;
@@ -302,10 +305,9 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             }
 
             if (context.checkAndConsumeRF(Config.controllerOperationRFT.get())) {
-                int remaining = insertStack(context, stack, world, extractorIdx);
+                int remaining = insertStack(context, stack, world, extractorIdx,
+                        RangedResourceHandler.ofSingleIndex(handler, index.getSafe(handler.size())));
                 if (remaining != toextract) {
-                    fetchItem(handler, false, extractMatcher, settings.getStackMode(),
-                            settings.getExtractAmount(), toextract - remaining, index, startIdx);
                     break;
                 } else {
                     index.inc();
@@ -315,10 +317,15 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 break;
             }
         }
-        return index.getSafe(handler.getSlots());
+        return index.getSafe(handler.size());
     }
 
     public int insertStack(@Nonnull IControllerContext context, @Nonnull ItemStack source, @Nonnull Level world, int extractorIdx) {
+        return insertStack(context, source, world, extractorIdx, null);
+    }
+
+    private int insertStack(IControllerContext context, ItemStack source, Level world, int extractorIdx,
+                            @Nullable ResourceHandler<ItemResource> extracting) {
         if (channelMode == ChannelMode.PRIORITY) {
             roundRobinOffset = 0;       // Always start at 0
         }
@@ -339,7 +346,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
             ItemStack remaining;
 
-            IItemHandler destination = getItemHandlerAt(consumer.getConnectedEntity(), consumer.settings().getFacing());
+            ResourceHandler<ItemResource> destination = getItemHandlerAt(consumer.getConnectedEntity(), consumer.settings().getFacing());
             if (destination == null) {
                 continue;
             }
@@ -364,9 +371,21 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 source.setCount(toinsert);
             }
 
-            remaining = isStorageScanner(te)
-                                ? RFToolsSupport.insertItem(te, source, false)
-                                : ItemHandlerHelper.insertItem(destination, source, false);
+            ItemStack offered = source.copyWithCount(toinsert);
+            if (isStorageScanner(te)) {
+                // The optional scanner API still transfers stacks rather than resource handlers.
+                remaining = RFToolsSupport.insertItem(te, offered, false);
+                if (extracting != null) {
+                    InventoryTools.extractItem(extracting, 0, toinsert - remaining.getCount(), false);
+                }
+            } else if (extracting != null) {
+                ItemResource resource = ItemResource.of(offered);
+                int moved = ResourceHandlerUtil.move(
+                        extracting, destination, resource::equals, toinsert, null);
+                remaining = offered.copyWithCount(toinsert - moved);
+            } else {
+                remaining = InventoryTools.insertItem(destination, offered, false);
+            }
 
             int actuallyinserted = toinsert - remaining.getCount();
             if (count == null) {
@@ -395,21 +414,14 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
         return total;
     }
 
-    private boolean isFull(IItemHandler itemHandler) {
-        for (int i = 0; i < itemHandler.getSlots(); i++) {
-            ItemStack stackInSlot = itemHandler.getStackInSlot(i);
-            if (stackInSlot.getCount() < itemHandler.getSlotLimit(i)
-                        && stackInSlot.getCount() < stackInSlot.getMaxStackSize()) {
-                return false;
-            }
-        }
-        return true;
+    private boolean isFull(ResourceHandler<ItemResource> itemHandler) {
+        return ResourceHandlerUtil.isFull(itemHandler);
     }
 
-    private Integer countItems(IItemHandler h, Predicate<ItemStack> matcher) {
+    private Integer countItems(ResourceHandler<ItemResource> h, Predicate<ItemStack> matcher) {
         int cnt = 0;
-        for (int i = 0; i < h.getSlots(); i++) {
-            ItemStack s = h.getStackInSlot(i);
+        for (int i = 0; i < h.size(); i++) {
+            ItemStack s = ItemUtil.getStack(h, i);
             if (!s.isEmpty() && matcher.test(s)) {
                 cnt += s.getCount();
             }
@@ -418,14 +430,14 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     }
 
 
-    private ItemStack fetchItem(IItemHandler handler, boolean simulate, Predicate<ItemStack> matcher,
+    private ItemStack simulateItemExtraction(ResourceHandler<ItemResource> handler, Predicate<ItemStack> matcher,
                                 StackMode stackMode, int extractAmount, int maxamount, MInteger index, int startIdx) {
-        if (handler.getSlots() <= 0) {
+        if (handler.size() <= 0) {
             return ItemStack.EMPTY;
         }
-        for (int i = index.get(); i < handler.getSlots() + startIdx; i++) {
-            int j = i % handler.getSlots();
-            ItemStack stack = handler.getStackInSlot(j);
+        for (int i = index.get(); i < handler.size() + startIdx; i++) {
+            int j = i % handler.size();
+            ItemStack stack = ItemUtil.getStack(handler, j);
             if (!stack.isEmpty()) {
                 int s = switch (stackMode) {
                     case SINGLE -> 1;
@@ -433,7 +445,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                     case COUNT -> extractAmount;
                 };
                 s = Math.min(s, maxamount);
-                stack = handler.extractItem(j, s, simulate);
+                stack = InventoryTools.extractItem(handler, j, s, true);
                 if (!stack.isEmpty() && matcher.test(stack)) {
                     index.set(i);
                     return stack;
@@ -538,7 +550,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     }
 
     @Nullable
-    public static IItemHandler getItemHandlerAt(@Nullable BlockEntity te, Direction intSide) {
+    public static ResourceHandler<ItemResource> getItemHandlerAt(@Nullable BlockEntity te, Direction intSide) {
         if (te != null) {
             return mcjty.lib.varia.CapabilityTools.itemHandler(te.getLevel().getCapability(Capabilities.Item.BLOCK, te.getBlockPos(), intSide));
         }

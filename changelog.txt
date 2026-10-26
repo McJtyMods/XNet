@@ -1,3 +1,9 @@
+26.3-10.0.0:
+- Ported to Minecraft 26.3 with NeoForge
+- Uses the published 26.3 McJtyLib and shared MultiWorkspace build script
+- Migrated item and fluid channels to transactional transfers
+- Preserves facade block states saved by previous Minecraft versions
+
 26.2-9.0.0:
 - Ported to Minecraft 26.2 with NeoForge
 - Updated Minecraft APIs and regenerated resources for 26.2

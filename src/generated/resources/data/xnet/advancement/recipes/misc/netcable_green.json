@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "xnet:netcable_green"
+        "recipes": "xnet:netcable_green"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

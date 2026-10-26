@@ -1,10 +1,15 @@
 package mcjty.xnet.modules.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.blocks.RBlock;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
+import mcjty.lib.datagen.model.ModelFile;
+import mcjty.lib.datagen.model.VariantBlockStateBuilder;
 import mcjty.lib.modules.IModule;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.modules.various.VariousModule;
@@ -14,6 +19,7 @@ import mcjty.xnet.modules.controller.data.ControllerData;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Items;
@@ -23,14 +29,8 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import mcjty.lib.datagen.model.ModelFile;
-import mcjty.lib.datagen.model.VariantBlockStateBuilder;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredHolder;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Supplier;
 
 import static mcjty.lib.datagen.DataGen.has;
 import static mcjty.xnet.XNet.tab;
@@ -89,6 +89,7 @@ public class ControllerModule implements IModule {
     public void initDatagen(DataGen dataGen, HolderLookup.Provider provider) {
         dataGen.add(
                 Dob.blockBuilder(CONTROLLER)
+                        .blockTags(List.of(BlockTags.BLOCKS_MOTION_NO_LEAVES))
                         .ironPickaxeTags()
                         .parentedItem("block/controller")
                         .standardLoot(ITEM_CONTROLLER_DATA.get())

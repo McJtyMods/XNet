@@ -1,6 +1,8 @@
 package mcjty.xnet;
 
 
+import java.util.function.Function;
+import java.util.function.Supplier;
 import mcjty.lib.api.container.CapabilityContainerProvider;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.modules.Modules;
@@ -36,8 +38,6 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 @Mod(XNet.MODID)
 public class XNet {
@@ -83,7 +83,7 @@ public class XNet {
 
     private void onDataGen(GatherDataEvent.Client event) {
         DataGen datagen = new DataGen(MODID, event);
-        modules.datagen(datagen, event.getLookupProvider());
+        modules.datagen(datagen, event.getWorldLookupProvider());
         datagen.generate();
         event.getGenerator().addProvider(true,
                 new mcjty.rftoolsbase.tools.ClientItemDefinitions(event.getGenerator().getPackOutput(), MODID, java.util.Map.of()));

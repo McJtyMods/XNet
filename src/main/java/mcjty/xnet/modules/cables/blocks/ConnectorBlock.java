@@ -1,5 +1,8 @@
 package mcjty.xnet.modules.cables.blocks;
 
+import java.util.List;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.container.ContainerFactory;
 import mcjty.lib.container.GenericContainer;
@@ -31,6 +34,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -55,10 +59,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.util.Lazy;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.List;
 
 import static mcjty.lib.builder.TooltipBuilder.gold;
 import static mcjty.lib.builder.TooltipBuilder.header;
@@ -115,7 +115,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
     }
 
     @Override
-    public void playerDestroy(@Nonnull Level worldIn, @Nonnull Player player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity te, @Nonnull ItemStack stack) {
+    public void playerDestroy(@Nonnull ServerLevel worldIn, @Nonnull ServerPlayer player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity te, @Nonnull ItemStack stack) {
         if (te instanceof ConnectorTileEntity connectorTileEntity) {
             // If we are in mimic mode then the drop will be the facade as the connector will remain there
             if (connectorTileEntity.getMimicBlock() != null) {
@@ -279,7 +279,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
                 block == Blocks.PISTON || block == Blocks.STICKY_PISTON) {
             return true;
         }
-        if (block.canConnectRedstone(state, world, pos, null) || state.isSignalSource()) {
+        if (state.shouldRedstoneWireConnectTo(world, pos, null) || state.isSignalSource()) {
             return true;
         }
         if (te == null) {

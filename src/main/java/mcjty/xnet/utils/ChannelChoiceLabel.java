@@ -1,5 +1,8 @@
 package mcjty.xnet.utils;
 
+import com.mojang.blaze3d.platform.InputConstants;
+import java.util.*;
+import java.util.stream.Collectors;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.client.RenderHelper;
 import mcjty.lib.gui.GuiParser;
@@ -17,8 +20,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.util.*;
-import java.util.stream.Collectors;
+
 
 public class ChannelChoiceLabel extends AbstractLabel<ChannelChoiceLabel> {
 
@@ -113,7 +115,7 @@ public class ChannelChoiceLabel extends AbstractLabel<ChannelChoiceLabel> {
             if (choices.length == 0) {
                 return null;
             }
-            if (button == 1 || SafeClientTools.isSneaking()) {
+            if (button == InputConstants.MOUSE_BUTTON_RIGHT || SafeClientTools.isSneaking()) {
                 choiceIndex--;
                 if (choiceIndex < 0) {
                     choiceIndex = choices.length - 1;

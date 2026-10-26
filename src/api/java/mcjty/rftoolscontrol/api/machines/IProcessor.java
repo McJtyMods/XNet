@@ -10,8 +10,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -181,13 +182,13 @@ public interface IProcessor {
      * Get a fluidhandler for a tank at a given position on the network
      */
     @Nonnull
-    IFluidHandler getFluidHandlerAt(@Nonnull Inventory inv);
+    ResourceHandler<FluidResource> getFluidHandlerAt(@Nonnull Inventory inv);
 
     /**
      * Get an itemhandler for an inventory at a given position on the network
      */
     @Nonnull
-    IItemHandler getItemHandlerAt(@Nonnull Inventory inv);
+    ResourceHandler<ItemResource> getItemHandlerAt(@Nonnull Inventory inv);
 
     /**
      * Log a message on the console. This message can

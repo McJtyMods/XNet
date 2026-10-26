@@ -21,25 +21,25 @@ Powerful item/fluid/energy transfer
 [[dependencies.xnet]]
     modId="neoforge"
     type="required"
-    versionRange="[26.2.0.75,)"
+    versionRange="[26.3.0.83,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.xnet]]
     modId="mcjtylib"
     type="required"
-    versionRange="[26.2-10.0.1,)"
+    versionRange="[26.3-11.0.1,)"
     ordering="AFTER"
     side="BOTH"
 [[dependencies.xnet]]
     modId="rftoolsbase"
     type="required"
-    versionRange="[26.2-8.0.0,)"
+    versionRange="[26.3-9.0.0,)"
     ordering="AFTER"
     side="BOTH"
 
 [[dependencies.xnet]]
 modId="minecraft"
 type="required"
-versionRange="[26.2]"
+versionRange="[26.3]"
 ordering="NONE"
 side="BOTH"

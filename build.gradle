@@ -14,27 +14,44 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.1.38'
+    id 'net.neoforged.gradle.userdev' version '7.1.39'
 }
 
 apply plugin: 'com.hypherionmc.modutils.modpublisher'
 
-def sharedTools = rootProject.file('gradletools.gradle')
-if (sharedTools.isFile()) {
+// Share build tools with Multi_neo in standalone and workspace builds.
+def sharedTools = [rootProject.file('gradletools.gradle'),
+                   file('../Multi_neo/gradletools.gradle'),
+                   file('../gradletools.gradle')].find { it.isFile() }
+if (sharedTools != null) {
     apply from: sharedTools
-} else if (file('../Multi_neo/gradletools.gradle').isFile()) {
-    apply from: '../Multi_neo/gradletools.gradle'
 } else {
-    apply from: 'https://raw.githubusercontent.com/McJtyMods/MultiWorkspace/26.2_neo/gradletools.gradle'
+    apply from: 'https://raw.githubusercontent.com/McJtyMods/MultiWorkspace/26.3_neo/gradletools.gradle'
 }
 
 group = "com.github.mcjty"
 base.archivesName = "xnet"
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
+sourceSets {
+    gametest {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+configurations {
+    gametestImplementation.extendsFrom implementation
+    gametestCompileOnly.extendsFrom compileOnly
+    gametestRuntimeOnly.extendsFrom runtimeOnly
+}
+
 repos()
 at()
 runs()
+extensions.getByName('runs').named('gameTestServer') {
+    modSource sourceSets.gametest
+    arguments.addAll '--test', 'xnet:*'
+}
 jars()
 
 sourceSets.main.resources {

@@ -1,5 +1,7 @@
 package mcjty.xnet.modules.cables.blocks;
 
+import java.util.function.Function;
+import javax.annotation.Nonnull;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.bindings.GuiValue;
 import mcjty.lib.bindings.Value;
@@ -13,6 +15,7 @@ import mcjty.lib.typed.Type;
 import mcjty.lib.typed.TypedMap;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.api.xnet.tiles.IConnectorTile;
+import mcjty.rftoolsbase.tools.EnergyBuffer;
 import mcjty.xnet.modules.cables.CableModule;
 import mcjty.xnet.modules.cables.data.ConnectorData;
 import mcjty.xnet.modules.facade.FacadeModule;
@@ -35,10 +38,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.util.Lazy;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-
-import javax.annotation.Nonnull;
-import java.util.function.Function;
 
 import static mcjty.lib.api.container.DefaultContainerProvider.empty;
 import static mcjty.xnet.apiimpl.Constants.TAG_ENABLED;
@@ -338,7 +337,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         return mcjty.rftoolsbase.tools.EnergyTransactions.input(getEnergyStorage(side), () -> java.util.List.of(energyJournal));
     }
 
-    public IEnergyStorage getEnergyStorage(Direction facing) {
+    public EnergyBuffer getEnergyStorage(Direction facing) {
         if (facing == null) {
             return null;
         } else {
@@ -350,7 +349,7 @@ public class ConnectorTileEntity extends GenericTileEntity implements IFacadeSup
         return new SidedHandler(facing);
     }
 
-    class SidedHandler implements IEnergyStorage {
+    class SidedHandler implements EnergyBuffer {
 
         private final Direction facing;
 

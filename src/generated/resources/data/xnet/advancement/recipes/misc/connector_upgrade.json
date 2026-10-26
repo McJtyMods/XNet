@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "xnet:connector_upgrade"
+        "recipes": "xnet:connector_upgrade"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

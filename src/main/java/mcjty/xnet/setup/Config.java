@@ -3,14 +3,14 @@ package mcjty.xnet.setup;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
 import com.google.common.collect.Lists;
+import java.nio.file.Path;
+import java.util.List;
 import mcjty.lib.modules.Modules;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-import java.nio.file.Path;
-import java.util.List;
 
 public class Config {
     public static final String CATEGORY_GENERAL = "general";
@@ -149,7 +149,7 @@ public class Config {
         CLIENT_CONFIG = CLIENT_BUILDER.build();
 
         mod.registerConfig(ModConfig.Type.CLIENT, CLIENT_CONFIG);
-        mod.registerConfig(ModConfig.Type.SERVER, SERVER_CONFIG);
+        mod.registerConfig(ModConfig.Type.SYNCED, SERVER_CONFIG, "xnet-server.toml");
     }
 
     public static ModConfigSpec SERVER_CONFIG;

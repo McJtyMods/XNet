@@ -2,15 +2,13 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "conditions": [
-        {
-          "block": "xnet:advanced_connector",
-          "condition": "minecraft:block_state_property",
-          "properties": {
-            "color": "blue"
-          }
+      "condition": {
+        "type": "minecraft:match_block",
+        "blocks": "xnet:advanced_connector",
+        "state": {
+          "color": "blue"
         }
-      ],
+      },
       "entries": [
         {
           "type": "minecraft:item",
@@ -18,18 +16,16 @@
         }
       ],
       "name": "advanced_connector_blue",
-      "rolls": 1.0
+      "rolls": 1
     },
     {
-      "conditions": [
-        {
-          "block": "xnet:advanced_connector",
-          "condition": "minecraft:block_state_property",
-          "properties": {
-            "color": "red"
-          }
+      "condition": {
+        "type": "minecraft:match_block",
+        "blocks": "xnet:advanced_connector",
+        "state": {
+          "color": "red"
         }
-      ],
+      },
       "entries": [
         {
           "type": "minecraft:item",
@@ -37,18 +33,16 @@
         }
       ],
       "name": "advanced_connector_red",
-      "rolls": 1.0
+      "rolls": 1
     },
     {
-      "conditions": [
-        {
-          "block": "xnet:advanced_connector",
-          "condition": "minecraft:block_state_property",
-          "properties": {
-            "color": "green"
-          }
+      "condition": {
+        "type": "minecraft:match_block",
+        "blocks": "xnet:advanced_connector",
+        "state": {
+          "color": "green"
         }
-      ],
+      },
       "entries": [
         {
           "type": "minecraft:item",
@@ -56,18 +50,16 @@
         }
       ],
       "name": "advanced_connector_green",
-      "rolls": 1.0
+      "rolls": 1
     },
     {
-      "conditions": [
-        {
-          "block": "xnet:advanced_connector",
-          "condition": "minecraft:block_state_property",
-          "properties": {
-            "color": "yellow"
-          }
+      "condition": {
+        "type": "minecraft:match_block",
+        "blocks": "xnet:advanced_connector",
+        "state": {
+          "color": "yellow"
         }
-      ],
+      },
       "entries": [
         {
           "type": "minecraft:item",
@@ -75,18 +67,16 @@
         }
       ],
       "name": "advanced_connector_yellow",
-      "rolls": 1.0
+      "rolls": 1
     },
     {
-      "conditions": [
-        {
-          "block": "xnet:advanced_connector",
-          "condition": "minecraft:block_state_property",
-          "properties": {
-            "color": "routing"
-          }
+      "condition": {
+        "type": "minecraft:match_block",
+        "blocks": "xnet:advanced_connector",
+        "state": {
+          "color": "routing"
         }
-      ],
+      },
       "entries": [
         {
           "type": "minecraft:item",
@@ -94,7 +84,7 @@
         }
       ],
       "name": "advanced_connector_routing",
-      "rolls": 1.0
+      "rolls": 1
     }
   ],
   "random_sequence": "xnet:blocks/advanced_connector"

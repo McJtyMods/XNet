@@ -2,6 +2,9 @@ package mcjty.xnet.apiimpl.logic;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import mcjty.lib.varia.FluidTools;
 import mcjty.rftoolsbase.api.xnet.channels.Color;
 import mcjty.rftoolsbase.api.xnet.gui.IEditorGui;
@@ -21,12 +24,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Map;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 
 import static mcjty.rftoolsbase.api.xnet.channels.Color.COLORS;
 import static mcjty.rftoolsbase.api.xnet.channels.Color.OFF;
@@ -151,7 +153,7 @@ public class RSSensor {
                     int cnt = RFToolsSupport.countItems(te, filter, amount + 1);
                     return operator.match(cnt, amount);
                 } else {
-                    IItemHandler handler = ItemChannelSettings.getItemHandlerAt(te, settings.getFacing());
+                    ResourceHandler<ItemResource> handler = ItemChannelSettings.getItemHandlerAt(te, settings.getFacing());
                     if (handler == null) {
                         return false;
                     }
@@ -160,7 +162,7 @@ public class RSSensor {
                 }
             }
             case FLUID -> {
-                IFluidHandler fluidHandler = FluidChannelSettings.getFluidHandlerAt(te, settings.getFacing());
+                ResourceHandler<FluidResource> fluidHandler = FluidChannelSettings.getFluidHandlerAt(te, settings.getFacing());
                 if (fluidHandler == null) {
                     return false;
                 } else {
@@ -201,10 +203,10 @@ public class RSSensor {
 
 
     // Count items. We will stop early if we have enough to satisfy the sensor
-    private int countItem(@Nonnull IItemHandler handler, ItemStack matcher, int maxNeeded) {
+    private int countItem(@Nonnull ResourceHandler<ItemResource> handler, ItemStack matcher, int maxNeeded) {
         int cnt = 0;
-        for (int i = 0; i < handler.getSlots(); i++) {
-            ItemStack stack = handler.getStackInSlot(i);
+        for (int i = 0; i < handler.size(); i++) {
+            ItemStack stack = ItemUtil.getStack(handler, i);
             if (!stack.isEmpty()) {
                 if (!matcher.isEmpty()) {
                     // @todo 1.14 oredict?
@@ -225,7 +227,7 @@ public class RSSensor {
         return cnt;
     }
 
-    private int countFluid(@Nonnull IFluidHandler handler, ItemStack matcher, int maxNeeded) {
+    private int countFluid(@Nonnull ResourceHandler<FluidResource> handler, ItemStack matcher, int maxNeeded) {
         FluidStack fluidStack;
         if (!matcher.isEmpty()) {
             fluidStack = FluidTools.convertBucketToFluid(matcher);
@@ -233,8 +235,8 @@ public class RSSensor {
             fluidStack = null;
         }
         int cnt = 0;
-        for (int i = 0 ; i < handler.getTanks() ; i++) {
-            FluidStack contents = handler.getFluidInTank(i);
+        for (int i = 0 ; i < handler.size() ; i++) {
+            FluidStack contents = FluidUtil.getStack(handler, i);
             if (!contents.isEmpty()) {
                 if (fluidStack != null) {
                     if (FluidStack.isSameFluidSameComponents(fluidStack, contents)) {

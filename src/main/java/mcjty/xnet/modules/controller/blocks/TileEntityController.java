@@ -1,6 +1,12 @@
 package mcjty.xnet.modules.controller.blocks;
 
 import com.google.gson.*;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import mcjty.lib.api.container.DefaultContainerProvider;
 import mcjty.lib.blockcommands.Command;
 import mcjty.lib.blockcommands.ListCommand;
@@ -68,15 +74,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.neoforged.neoforge.common.util.Lazy;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.apache.commons.lang3.tuple.Pair;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 import static mcjty.lib.api.container.DefaultContainerProvider.container;
 import static mcjty.lib.container.SlotDefinition.specific;
@@ -129,7 +129,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             .onUpdate((slot, stack) -> clearFilterCache())
             .build();
     @Cap(type = CapType.ITEMS_AUTOMATION)
-    private static final Function<TileEntityController, IItemHandler> ITEM_CAP = tile -> tile.items;
+    private static final Function<TileEntityController, ResourceHandler<ItemResource>> ITEM_CAP = tile -> tile.items;
 
     private final GenericEnergyStorage energyStorage = new GenericEnergyStorage(this, true, Config.controllerMaxRF.get(), Config.controllerRfPerTick.get());
     @Cap(type = CapType.ENERGY)

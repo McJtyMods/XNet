@@ -4,6 +4,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelSettings;
 import mcjty.rftoolsbase.api.xnet.channels.IChannelType;
@@ -31,13 +36,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import static mcjty.xnet.apiimpl.Constants.TAG_MODE;
 
@@ -127,7 +130,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
                 continue;
             }
 
-            IFluidHandler handler = getFluidHandlerAt(extractor.getConnectedEntity(), extractor.settings().getFacing());
+            ResourceHandler<FluidResource> handler = getFluidHandlerAt(extractor.getConnectedEntity(), extractor.settings().getFacing());
             if (handler == null) {
                 continue;
             }
@@ -136,7 +139,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
 
     }
 
-    private void tickFluidHandler(IControllerContext context, FluidConnectorSettings settings, IFluidHandler handler) {
+    private void tickFluidHandler(IControllerContext context, FluidConnectorSettings settings, ResourceHandler<FluidResource> handler) {
         if (!context.checkAndConsumeRF(Config.controllerOperationRFT.get())) {
             return;
         }
@@ -154,18 +157,9 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             toextract = Math.min(toextract, canextract);
         }
 
-        while (true) {
-            FluidStack stack = fetchFluid(handler, true, extractMatcher, toextract);
-            if (stack.isEmpty()) {
-                return;
-            }
-            toextract = stack.getAmount();
-            int remaining = insertFluid(context, stack);
-            toextract -= remaining;
-            if (remaining != toextract) {
-                fetchFluid(handler, false, extractMatcher, toextract);
-                return;
-            }
+        FluidStack stack = simulateFluidExtraction(handler, extractMatcher, toextract);
+        if (!stack.isEmpty()) {
+            insertFluid(context, handler, stack);
         }
     }
 
@@ -177,18 +171,22 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
     }
 
     @Nonnull
-    private FluidStack fetchFluid(IFluidHandler handler, boolean simulate, @Nullable FluidStack matcher, int rate) {
-        IFluidHandler.FluidAction action = simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE;
-        if (matcher == null || matcher.isEmpty()) {
-            return handler.drain(rate, action);
-        } else {
-            matcher = matcher.copy();
-            matcher.setAmount(rate);
-            return handler.drain(matcher, action);
+    private FluidStack simulateFluidExtraction(ResourceHandler<FluidResource> handler, @Nullable FluidStack matcher, int rate) {
+        if (rate <= 0) return FluidStack.EMPTY;
+        try (var transaction = Transaction.openRoot()) {
+            for (int i = 0; i < handler.size(); i++) {
+                FluidResource resource = handler.getResource(i);
+                if (resource.isEmpty() || (matcher != null && !matcher.isEmpty() && !resource.matches(matcher))) continue;
+                int extracted = handler.extract(resource, rate, transaction);
+                if (extracted > 0) {
+                    return resource.toStack(extracted);
+                }
+            }
         }
+        return FluidStack.EMPTY;
     }
 
-    private int insertFluid(@Nonnull IControllerContext context, @Nonnull FluidStack stack) {
+    private int insertFluid(@Nonnull IControllerContext context, ResourceHandler<FluidResource> source, @Nonnull FluidStack stack) {
         Level world = context.getControllerWorld();
         if (channelMode == ChannelMode.PRIORITY) {
             roundRobinOffset = 0;       // Always start at 0
@@ -201,7 +199,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             if (!LevelTools.isLoaded(world, consumer.getBlockPos())) {
                 continue;
             }
-            IFluidHandler destination = getFluidHandlerAt(consumer.getConnectedEntity(), consumer.settings().getFacing());
+            ResourceHandler<FluidResource> destination = getFluidHandlerAt(consumer.getConnectedEntity(), consumer.settings().getFacing());
             if (destination == null) {
                 continue;
             }
@@ -229,7 +227,10 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             FluidStack copy = stack.copy();
             copy.setAmount(toinsert);
 
-            int filled = destination.fill(copy, IFluidHandler.FluidAction.EXECUTE);
+            // The native transfer commits both ends together, including partial inserts.
+            FluidResource resource = FluidResource.of(copy);
+            int filled = ResourceHandlerUtil.move(
+                    source, destination, resource::equals, toinsert, null);
             if (filled > 0) {
                 roundRobinOffset = (roundRobinOffset + 1) % fluidConsumers.size();
                 amount -= filled;
@@ -241,11 +242,11 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
         return amount;
     }
 
-    private int countFluid(IFluidHandler handler, @Nullable FluidStack matcher) {
+    private int countFluid(ResourceHandler<FluidResource> handler, @Nullable FluidStack matcher) {
         int cnt = 0;
-        for (int i = 0; i < handler.getTanks(); i++) {
-            if (!handler.getFluidInTank(i).isEmpty() && (matcher == null || FluidStack.isSameFluidSameComponents(matcher, handler.getFluidInTank(i)))) {
-                cnt += handler.getFluidInTank(i).getAmount();
+        for (int i = 0; i < handler.size(); i++) {
+            if (!FluidUtil.getStack(handler, i).isEmpty() && (matcher == null || FluidStack.isSameFluidSameComponents(matcher, FluidUtil.getStack(handler, i)))) {
+                cnt += FluidUtil.getStack(handler, i).getAmount();
             }
         }
         return cnt;
@@ -343,7 +344,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
     }
 
     @Nullable
-    public static IFluidHandler getFluidHandlerAt(@Nullable BlockEntity te, Direction intSide) {
+    public static ResourceHandler<FluidResource> getFluidHandlerAt(@Nullable BlockEntity te, Direction intSide) {
         if (te != null) {
             return mcjty.lib.varia.CapabilityTools.fluidHandler(te.getLevel().getCapability(Capabilities.Fluid.BLOCK, te.getBlockPos(), intSide));
         } else {

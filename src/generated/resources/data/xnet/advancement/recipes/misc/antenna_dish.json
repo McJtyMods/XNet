@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "xnet:antenna_dish"
+        "recipes": "xnet:antenna_dish"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

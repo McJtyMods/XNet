@@ -1,0 +1,13 @@
+{
+  "pack": {
+    "description": "ModXNet resources",
+    "min_format": [
+      97,
+      1
+    ],
+    "max_format": [
+      121,
+      0
+    ]
+  }
+}

@@ -1,5 +1,7 @@
 package mcjty.xnet.modules.cables;
 
+import java.util.List;
+import java.util.function.Supplier;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
@@ -21,6 +23,7 @@ import mcjty.xnet.setup.Registration;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.resources.Identifier;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
@@ -37,9 +40,6 @@ import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
-
-import java.util.List;
-import java.util.function.Supplier;
 
 import static mcjty.lib.datagen.DataGen.has;
 import static mcjty.xnet.XNet.tab;
@@ -124,6 +124,7 @@ public class CableModule implements IModule {
     public void initDatagen(DataGen dataGen, HolderLookup.Provider provider) {
         dataGen.add(
                 Dob.blockBuilder(ADVANCED_CONNECTOR)
+                        .blockTags(List.of(BlockTags.BLOCKS_MOTION_NO_LEAVES))
                         // @todo 1.21 correct loot tables for copy of data
                         .loot(p -> {
                             p.addLootTable(ADVANCED_CONNECTOR.get(), LootTable.lootTable()
@@ -136,6 +137,7 @@ public class CableModule implements IModule {
                         })
                         .stonePickaxeTags(),
                 Dob.blockBuilder(CONNECTOR)
+                        .blockTags(List.of(BlockTags.BLOCKS_MOTION_NO_LEAVES))
                         // @todo 1.21 correct loot tables for copy of data
                         .loot(p -> {
                             p.addLootTable(CONNECTOR.get(), LootTable.lootTable()
@@ -148,6 +150,7 @@ public class CableModule implements IModule {
                         })
                         .stonePickaxeTags(),
                 Dob.blockBuilder(NETCABLE)
+                        .blockTags(List.of(BlockTags.BLOCKS_MOTION_NO_LEAVES))
                         .loot(p -> {
                             p.addLootTable(NETCABLE.get(), LootTable.lootTable()
                                     .withPool(DataGenHelper.getLootTableEntry("cable_blue", NETCABLE.get(), NETCABLE_BLUE.get(), CableColor.BLUE))

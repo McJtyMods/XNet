@@ -9,7 +9,7 @@
         }
       ],
       "name": "redstone_proxy_upd",
-      "rolls": 1.0
+      "rolls": 1
     }
   ],
   "random_sequence": "xnet:blocks/redstone_proxy_upd"

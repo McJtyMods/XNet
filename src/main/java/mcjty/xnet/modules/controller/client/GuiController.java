@@ -2,6 +2,10 @@ package mcjty.xnet.modules.controller.client;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mojang.blaze3d.platform.InputConstants;
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.Nonnull;
 import mcjty.lib.base.StyleConfig;
 import mcjty.lib.client.GuiTools;
 import mcjty.lib.client.RenderHelper;
@@ -46,12 +50,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import org.lwjgl.glfw.GLFW;
-
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 
 import static mcjty.lib.gui.widgets.Widgets.*;
 import static mcjty.xnet.apiimpl.Constants.*;
@@ -211,7 +210,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         if (getSelectedChannel() == -1) {
             return false;
         }
-        if (keyCode == GLFW.GLFW_KEY_UP) {
+        if (keyCode == InputConstants.KEY_UP) {
             int sel = connectorList.getSelected();
             if (sel > 0) {
                 sel--;
@@ -219,7 +218,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 selectConnectorEditor(connectorPositions.get(sel), getSelectedChannel());
             }
             return true;
-        } else if (keyCode == GLFW.GLFW_KEY_DOWN) {
+        } else if (keyCode == InputConstants.KEY_DOWN) {
             int sel = connectorList.getSelected();
             if (sel != -1) {
                 if (sel < connectorList.getChildCount() - 1) {
@@ -236,14 +235,14 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     private boolean handleClipboard(int keyCode) {
         if (SafeClientTools.isCtrlKeyDown()) {
-            if (keyCode == GLFW.GLFW_KEY_C) {
+            if (keyCode == InputConstants.KEY_C) {
                 if (getSelectedChannel() != -1) {
                     copyConnector();
                 } else {
                     showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + ERROR_NOTHING_SELECTED.i18n());
                 }
                 return true;
-            } else if (keyCode == GLFW.GLFW_KEY_V) {
+            } else if (keyCode == InputConstants.KEY_V) {
                 if (getSelectedChannel() != -1) {
                     pasteConnector();
                 } else {
@@ -745,10 +744,10 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
             int y = (int) window.getToplevel().getBounds().getY();
             RenderHelper.drawVerticalGradientRect(graphics, x+channel * 14 + 41, y+22, x+channel * 14 + 41+12, y+230, 0x33aaffff, 0x33aaffff);
         }
-        IEnergyStorage h = mcjty.lib.varia.CapabilityTools.energyHandler(tileEntity.getLevel().getCapability(Capabilities.Energy.BLOCK, tileEntity.getBlockPos(), null));
+        EnergyHandler h = mcjty.lib.varia.CapabilityTools.energyHandler(tileEntity.getLevel().getCapability(Capabilities.Energy.BLOCK, tileEntity.getBlockPos(), null));
         if (h != null) {
-            long currentRF = h.getEnergyStored();
-            int max = h.getMaxEnergyStored();
+            long currentRF = h.getAmountAsLong();
+            long max = h.getCapacityAsLong();
             energyBar.value(currentRF).maxValue(max);
         }
     }

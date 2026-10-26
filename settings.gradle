@@ -10,3 +10,10 @@ pluginManagement {
 plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
 }
+
+// Until the 26.3 RFToolsBase artifact is published, use its local checkout.
+def localBase = file('../RFToolsBase_neo')
+if (new File(localBase, 'build.gradle').isFile()) {
+    include 'RFToolsBase'
+    project(':RFToolsBase').projectDir = localBase
+}

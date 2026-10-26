@@ -1,5 +1,8 @@
 package mcjty.xnet.modules.wireless;
 
+import java.util.List;
+import java.util.function.Supplier;
+import javax.annotation.Nonnull;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.blocks.RBlock;
 import mcjty.lib.blocks.RotationType;
@@ -8,20 +11,23 @@ import mcjty.lib.builder.TooltipBuilder;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
+import mcjty.lib.datagen.model.ModelFile;
+import mcjty.lib.datagen.model.VariantBlockStateBuilder;
 import mcjty.lib.modules.IModule;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.modules.various.VariousModule;
+import mcjty.rftoolsbase.tools.ManualHelper;
 import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.modules.wireless.blocks.TileEntityWirelessRouter;
 import mcjty.xnet.modules.wireless.client.GuiWirelessRouter;
 import mcjty.xnet.modules.wireless.data.WirelessRouterData;
 import mcjty.xnet.setup.Config;
 import mcjty.xnet.setup.Registration;
-import mcjty.rftoolsbase.tools.ManualHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -36,14 +42,9 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import mcjty.lib.datagen.model.ModelFile;
-import mcjty.lib.datagen.model.VariantBlockStateBuilder;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
-
-import javax.annotation.Nonnull;
-import java.util.function.Supplier;
 
 import static mcjty.lib.datagen.DataGen.has;
 import static mcjty.xnet.XNet.tab;
@@ -169,6 +170,7 @@ public class WirelessRouterModule implements IModule {
     public void initDatagen(DataGen dataGen, HolderLookup.Provider provider) {
         dataGen.add(
                 Dob.blockBuilder(WIRELESS_ROUTER)
+                        .blockTags(List.of(BlockTags.BLOCKS_MOTION_NO_LEAVES))
                         .ironPickaxeTags()
                         .parentedItem("block/wireless_router")
                         .standardLoot(ITEM_WIRELESS_ROUTER_DATA.get())
@@ -185,6 +187,7 @@ public class WirelessRouterModule implements IModule {
                                         .unlockedBy("frame", has(VariousModule.MACHINE_FRAME.get())),
                                 "oCo", "rFr", "oro"),
                 Dob.blockBuilder(ANTENNA)
+                        .blockTags(List.of(BlockTags.BLOCKS_MOTION_NO_LEAVES))
                         .simpleLoot()
                         .ironPickaxeTags()
                         .shaped(builder -> builder
@@ -192,6 +195,7 @@ public class WirelessRouterModule implements IModule {
                                         .unlockedBy("bars", has(Items.IRON_BARS)),
                                 "IiI", "IiI", " i "),
                 Dob.blockBuilder(ANTENNA_BASE)
+                        .blockTags(List.of(BlockTags.BLOCKS_MOTION_NO_LEAVES))
                         .simpleLoot()
                         .ironPickaxeTags()
                         .shaped(builder -> builder
@@ -199,6 +203,7 @@ public class WirelessRouterModule implements IModule {
                                         .unlockedBy("block", has(Items.IRON_BLOCK)),
                                 " i ", " i ", "iIi"),
                 Dob.blockBuilder(ANTENNA_DISH)
+                        .blockTags(List.of(BlockTags.BLOCKS_MOTION_NO_LEAVES))
                         .simpleLoot()
                         .ironPickaxeTags()
                         .shaped(builder -> builder
