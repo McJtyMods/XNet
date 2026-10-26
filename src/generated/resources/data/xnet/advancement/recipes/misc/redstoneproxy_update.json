@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "xnet:redstoneproxy_update"
+        "recipes": "xnet:redstoneproxy_update"
       },
       "trigger": "minecraft:recipe_unlocked"
     },

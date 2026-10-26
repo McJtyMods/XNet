@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "xnet:netcable_yellow_dye"
+        "recipes": "xnet:netcable_yellow_dye"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

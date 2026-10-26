@@ -14,12 +14,20 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.fabricmc.fabric-loom' version '1.17.17'
+    id 'net.fabricmc.fabric-loom' version '1.17.21'
 }
 
 apply plugin: 'com.hypherionmc.modutils.modpublisher'
 
-apply from: 'https://raw.githubusercontent.com/McJtyMods/MultiWorkSpace/26.2_fabric/gradletools.gradle'
+// Use Multi_fabric's shared tools in standalone and integrated checkouts.
+def sharedTools = [rootProject.file('gradletools.gradle'),
+                   file('../Multi_fabric/gradletools.gradle'),
+                   file('../gradletools.gradle')].find { it.isFile() }
+if (sharedTools != null) {
+    apply from: sharedTools
+} else {
+    apply from: 'https://raw.githubusercontent.com/McJtyMods/MultiWorkSpace/26.3_fabric/gradletools.gradle'
+}
 
 group = "com.github.mcjty"
 base.archivesName = "xnet-fabric"

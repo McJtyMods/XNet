@@ -38,7 +38,7 @@ public class FacadeTileEntity extends GenericTileEntity implements IFacadeSuppor
     @Override
     public BlockState getMimicBlock() {
         // Packet serialization must not create attachments and queue another chunk update.
-        MimicData data = getAttached(FacadeModule.MIMIC_DATA);
+        MimicData data = ((net.fabricmc.fabric.api.attachment.v1.AttachmentTarget) this).getAttached(FacadeModule.MIMIC_DATA);
         BlockState state = data == null ? null : data.state();
         if (state == null || state.isAir()) {
             return null;

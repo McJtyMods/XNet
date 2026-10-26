@@ -75,6 +75,7 @@ public class RouterModule implements IModule {
     public void initDatagen(DataGen dataGen, HolderLookup.Provider provider) {
         dataGen.add(
                 Dob.blockBuilder(ROUTER)
+                        .blockTags(java.util.List.of(net.minecraft.tags.BlockTags.BLOCKS_MOTION_NO_LEAVES))
                         .ironPickaxeTags()
                         .parentedItem("block/router")
                         .standardLoot(ITEM_ROUTER_DATA.get())

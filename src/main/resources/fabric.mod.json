@@ -24,13 +24,13 @@
     ]
   },
   "depends": {
-    "fabricloader": ">=0.19.3",
-    "minecraft": "~26.2",
+    "fabricloader": ">=0.19.5",
+    "minecraft": "~26.3",
     "java": ">=25",
-    "fabric-api": ">=0.155.2+26.2",
-    "forgeconfigapiport": ">=26.2.1",
-    "mcjtylib": ">=26.2-10.0.1-fabric",
-    "rftoolsbase": ">=26.2-8.0.0-fabric"
+    "fabric-api": ">=0.164.0+26.3",
+    "forgeconfigapiport": ">=26.3.1",
+    "mcjtylib": ">=26.3-11.0.1-fabric",
+    "rftoolsbase": ">=26.3-9.0.0-fabric"
   },
   "suggests": {
     "theoneprobe": "*",

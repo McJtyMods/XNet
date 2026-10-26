@@ -10,3 +10,10 @@ pluginManagement {
 plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
 }
+
+// Use the local port until RFToolsBase's 26.3 Fabric artifact is published.
+def localBase = file('../RFToolsBase_fabric')
+if (new File(localBase, 'build.gradle').isFile()) {
+    include 'RFToolsBase'
+    project(':RFToolsBase').projectDir = localBase
+}

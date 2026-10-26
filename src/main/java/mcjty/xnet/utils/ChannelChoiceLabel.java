@@ -113,7 +113,7 @@ public class ChannelChoiceLabel extends AbstractLabel<ChannelChoiceLabel> {
             if (choices.length == 0) {
                 return null;
             }
-            if (button == 1 || SafeClientTools.isSneaking()) {
+            if (button == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_RIGHT || SafeClientTools.isSneaking()) {
                 choiceIndex--;
                 if (choiceIndex < 0) {
                     choiceIndex = choices.length - 1;

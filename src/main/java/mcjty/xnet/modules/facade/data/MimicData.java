@@ -21,7 +21,7 @@ public record MimicData(@Nonnull BlockState state) {
     }
 
     public static final Codec<MimicData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            BlockState.CODEC.fieldOf("state").forGetter(MimicData::state)
+            mcjty.xnet.modules.facade.MimicBlockSupport.BLOCK_STATE_CODEC.fieldOf("state").forGetter(MimicData::state)
     ).apply(instance, MimicData::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, MimicData> STREAM_CODEC = StreamCodec.composite(

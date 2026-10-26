@@ -1,3 +1,8 @@
+26.3-10.0.0-fabric:
+- Ported to Minecraft 26.3 with Fabric
+- Preserve legacy facade block states and their properties in existing worlds
+- Uses the published 26.3 McJtyLib and shared Multi_fabric build script
+
 26.2-9.0.0-fabric:
 - Ported to Minecraft 26.2 with Fabric
 - Updated Minecraft and Fabric APIs and regenerated resources for 26.2

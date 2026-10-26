@@ -8,7 +8,7 @@
           "name": "xnet:antenna_dish"
         }
       ],
-      "rolls": 1.0
+      "rolls": 1
     }
   ],
   "random_sequence": "xnet:blocks/antenna_dish"

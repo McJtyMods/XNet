@@ -48,6 +48,7 @@ public class VariousModule implements IModule {
     public void initDatagen(DataGen dataGen, HolderLookup.Provider provider) {
         dataGen.add(
                 Dob.blockBuilder(REDSTONE_PROXY)
+                        .blockTags(java.util.List.of(net.minecraft.tags.BlockTags.BLOCKS_MOTION_NO_LEAVES))
                         .stonePickaxeTags()
                         .simpleLoot()
                         .parentedItem("block/redstone_proxy")
@@ -57,6 +58,7 @@ public class VariousModule implements IModule {
                                         .unlockedBy("frame", has(mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())),
                                 "rrr", "rFr", "rrr"),
                 Dob.blockBuilder(REDSTONE_PROXY_UPD)
+                        .blockTags(java.util.List.of(net.minecraft.tags.BlockTags.BLOCKS_MOTION_NO_LEAVES))
                         .stonePickaxeTags()
                         .simpleLoot()
                         .parentedItem("block/redstone_proxy_upd")

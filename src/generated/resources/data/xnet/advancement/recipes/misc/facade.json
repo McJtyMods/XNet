@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "xnet:facade"
+        "recipes": "xnet:facade"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

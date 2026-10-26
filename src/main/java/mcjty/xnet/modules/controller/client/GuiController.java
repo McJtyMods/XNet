@@ -45,7 +45,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import mcjty.lib.varia.IEnergyStorage;
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -209,7 +209,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
         if (getSelectedChannel() == -1) {
             return false;
         }
-        if (keyCode == GLFW.GLFW_KEY_UP) {
+        if (keyCode == InputConstants.KEY_UP) {
             int sel = connectorList.getSelected();
             if (sel > 0) {
                 sel--;
@@ -217,7 +217,7 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
                 selectConnectorEditor(connectorPositions.get(sel), getSelectedChannel());
             }
             return true;
-        } else if (keyCode == GLFW.GLFW_KEY_DOWN) {
+        } else if (keyCode == InputConstants.KEY_DOWN) {
             int sel = connectorList.getSelected();
             if (sel != -1) {
                 if (sel < connectorList.getChildCount() - 1) {
@@ -234,14 +234,14 @@ public class GuiController extends GenericGuiContainer<TileEntityController, Gen
 
     private boolean handleClipboard(int keyCode) {
         if (SafeClientTools.isCtrlKeyDown()) {
-            if (keyCode == GLFW.GLFW_KEY_C) {
+            if (keyCode == InputConstants.KEY_C) {
                 if (getSelectedChannel() != -1) {
                     copyConnector();
                 } else {
                     showMessage(minecraft, this, getWindowManager(), 50, 50, ChatFormatting.RED + ERROR_NOTHING_SELECTED.i18n());
                 }
                 return true;
-            } else if (keyCode == GLFW.GLFW_KEY_V) {
+            } else if (keyCode == InputConstants.KEY_V) {
                 if (getSelectedChannel() != -1) {
                     pasteConnector();
                 } else {

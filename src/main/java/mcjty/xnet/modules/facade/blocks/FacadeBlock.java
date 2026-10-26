@@ -63,7 +63,7 @@ public class FacadeBlock extends NetCableBlock implements EntityBlock {
     }
 
     @Override
-    public void playerDestroy(@Nonnull Level worldIn, @Nonnull Player player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity te, @Nonnull ItemStack stack) {
+    public void playerDestroy(@Nonnull net.minecraft.server.level.ServerLevel worldIn, @Nonnull net.minecraft.server.level.ServerPlayer player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity te, @Nonnull ItemStack stack) {
         ItemStack item = new ItemStack(FacadeModule.FACADE.get());
         BlockState mimicBlock;
         if (te instanceof FacadeTileEntity) {

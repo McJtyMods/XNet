@@ -114,7 +114,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
     }
 
     @Override
-    public void playerDestroy(@Nonnull Level worldIn, @Nonnull Player player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity te, @Nonnull ItemStack stack) {
+    public void playerDestroy(@Nonnull net.minecraft.server.level.ServerLevel worldIn, @Nonnull net.minecraft.server.level.ServerPlayer player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity te, @Nonnull ItemStack stack) {
         if (te instanceof ConnectorTileEntity connectorTileEntity) {
             // If we are in mimic mode then the drop will be the facade as the connector will remain there
             if (connectorTileEntity.getMimicBlock() != null) {

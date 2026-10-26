@@ -80,6 +80,7 @@ public class ControllerModule implements IModule {
     public void initDatagen(DataGen dataGen, HolderLookup.Provider provider) {
         dataGen.add(
                 Dob.blockBuilder(CONTROLLER)
+                        .blockTags(java.util.List.of(net.minecraft.tags.BlockTags.BLOCKS_MOTION_NO_LEAVES))
                         .ironPickaxeTags()
                         .parentedItem("block/controller")
                         .standardLoot(ITEM_CONTROLLER_DATA.get())

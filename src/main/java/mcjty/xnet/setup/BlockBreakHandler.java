@@ -12,8 +12,10 @@ import net.minecraft.world.level.block.Block;
 public final class BlockBreakHandler {
     public static void register() {
         PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, be) -> {
+            if (!(world instanceof net.minecraft.server.level.ServerLevel serverLevel)
+                    || !(player instanceof net.minecraft.server.level.ServerPlayer serverPlayer)) return true;
             if (state.getBlock() instanceof FacadeBlock facade) {
-                if (!player.isCreative()) facade.playerDestroy(world, player, pos, state, be, player.getMainHandItem());
+                if (!player.isCreative()) facade.playerDestroy(serverLevel, serverPlayer, pos, state, be, player.getMainHandItem());
                 facade.replaceWithCable(world, pos, state);
                 return false;
             }

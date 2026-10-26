@@ -57,7 +57,7 @@ public final class ObjModelLoader {
                             }
                             var normal = new Vector3f(positions[1]).sub(positions[0])
                                     .cross(new Vector3f(positions[2]).sub(positions[0])).normalize();
-                            var info = BakedQuad.MaterialInfo.of(material, sprite.contents().transparency(), -1, true, 0);
+                            var info = BakedQuad.MaterialInfo.of(material, sprite.transparency(), -1, null, 0);
                             result.addUnculledFace(new BakedQuad(positions[0], positions[1], positions[2], positions[3],
                                     uv[0], uv[1], uv[2], uv[3], Direction.getApproximateNearest(normal.x, normal.y, normal.z), info));
                         }

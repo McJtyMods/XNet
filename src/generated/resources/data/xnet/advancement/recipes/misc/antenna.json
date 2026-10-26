@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "xnet:antenna"
+        "recipes": "xnet:antenna"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

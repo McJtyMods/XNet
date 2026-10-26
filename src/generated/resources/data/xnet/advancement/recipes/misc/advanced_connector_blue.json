@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "xnet:advanced_connector_blue"
+        "recipes": "xnet:advanced_connector_blue"
       },
       "trigger": "minecraft:recipe_unlocked"
     }

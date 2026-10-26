@@ -112,6 +112,7 @@ public class CableModule implements IModule {
     public void initDatagen(DataGen dataGen, HolderLookup.Provider provider) {
         dataGen.add(
                 Dob.blockBuilder(ADVANCED_CONNECTOR)
+                        .blockTags(java.util.List.of(net.minecraft.tags.BlockTags.BLOCKS_MOTION_NO_LEAVES))
                         // @todo 1.21 correct loot tables for copy of data
                         .loot(p -> {
                             p.addLootTable(ADVANCED_CONNECTOR.get(), LootTable.lootTable()
@@ -124,6 +125,7 @@ public class CableModule implements IModule {
                         })
                         .stonePickaxeTags(),
                 Dob.blockBuilder(CONNECTOR)
+                        .blockTags(java.util.List.of(net.minecraft.tags.BlockTags.BLOCKS_MOTION_NO_LEAVES))
                         // @todo 1.21 correct loot tables for copy of data
                         .loot(p -> {
                             p.addLootTable(CONNECTOR.get(), LootTable.lootTable()
@@ -136,6 +138,7 @@ public class CableModule implements IModule {
                         })
                         .stonePickaxeTags(),
                 Dob.blockBuilder(NETCABLE)
+                        .blockTags(java.util.List.of(net.minecraft.tags.BlockTags.BLOCKS_MOTION_NO_LEAVES))
                         .loot(p -> {
                             p.addLootTable(NETCABLE.get(), LootTable.lootTable()
                                     .withPool(DataGenHelper.getLootTableEntry("cable_blue", NETCABLE.get(), NETCABLE_BLUE.get(), CableColor.BLUE))
