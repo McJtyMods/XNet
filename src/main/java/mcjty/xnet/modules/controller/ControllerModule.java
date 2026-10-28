@@ -1,13 +1,21 @@
 package mcjty.xnet.modules.controller;
 
+import com.mojang.serialization.MapCodec;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
 import mcjty.lib.blocks.BaseBlock;
 import mcjty.lib.blocks.RBlock;
 import mcjty.lib.container.GenericContainer;
 import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
+import mcjty.lib.datagen.model.ModelFile;
+import mcjty.lib.datagen.model.VariantBlockStateBuilder;
+import mcjty.lib.items.BaseBlockItem;
 import mcjty.lib.modules.IModule;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.modules.various.VariousModule;
+import mcjty.rftoolsbase.tools.ModelDataGen;
 import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.modules.controller.client.GuiController;
 import mcjty.xnet.modules.controller.data.ControllerData;
@@ -23,14 +31,8 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import mcjty.lib.datagen.model.ModelFile;
-import mcjty.lib.datagen.model.VariantBlockStateBuilder;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredHolder;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Supplier;
 
 import static mcjty.lib.datagen.DataGen.has;
 import static mcjty.xnet.XNet.tab;
@@ -43,7 +45,7 @@ public class ControllerModule implements IModule {
     public static final RBlock<BaseBlock, BlockItem, TileEntityController> CONTROLLER = RBLOCKS.registerBlock("controller",
             TileEntityController.class,
             TileEntityController::createBlock,
-            (block, itemProperties) -> new BlockItem(block.get(), itemProperties.useBlockDescriptionPrefix()),
+            (block, itemProperties) -> new BaseBlockItem(block.get(), itemProperties.useBlockDescriptionPrefix()),
             TileEntityController::new);
     public static final Supplier<MenuType<GenericContainer>> CONTAINER_CONTROLLER = CONTAINERS.register("controller", GenericContainer::createContainerType);
 
@@ -55,7 +57,7 @@ public class ControllerModule implements IModule {
                         }
                         return data;
                     })
-                    .serialize(com.mojang.serialization.MapCodec.assumeMapUnsafe(ControllerData.CODEC))
+                    .serialize(MapCodec.assumeMapUnsafe(ControllerData.CODEC))
                     .build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ControllerData>> ITEM_CONTROLLER_DATA = COMPONENTS.registerComponentType(
             "controller_data",
@@ -96,11 +98,11 @@ public class ControllerModule implements IModule {
                             ModelFile modelOk = p.frontBasedModel(ITEM_CONTROLLER, p.modLoc("block/machine_controller"));
                             ModelFile modelError = p.frontBasedModel("controller_error", p.modLoc("block/machine_controller_error"));
                             VariantBlockStateBuilder builder = p.getVariantBuilder(ControllerModule.CONTROLLER.block().get());
-                            builder.forAllStates(state -> mcjty.rftoolsbase.tools.ModelDataGen.rotated(
+                            builder.forAllStates(state -> ModelDataGen.rotated(
                                     state.getValue(TileEntityController.ERROR) ? modelError : modelOk, state.getValue(BlockStateProperties.FACING)));
                         })
                         .shaped(builder -> builder
-                                        .define('F', mcjty.rftoolsbase.modules.various.VariousModule.MACHINE_FRAME.get())
+                                        .define('F', VariousModule.MACHINE_FRAME.get())
                                         .define('I', Items.REPEATER)
                                         .define('C', Items.COMPARATOR)
                                         .define('g', Tags.Items.INGOTS_GOLD)

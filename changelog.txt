@@ -1,3 +1,6 @@
+26.1.2-8.0.1:
+- Restored block tooltips, including the extra information shown while holding Shift
+
 26.1.2-8.0.0:
 - Ported to Minecraft 26.1.2 with NeoForge
 - Updated rendering, registration, persistence, networking, and generated resources
