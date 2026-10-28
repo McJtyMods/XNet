@@ -1,3 +1,6 @@
+26.3-10.0.1:
+- Restored block tooltips, including the extra information shown while holding Shift
+
 26.3-10.0.0:
 - Ported to Minecraft 26.3 with NeoForge
 - Uses the published 26.3 McJtyLib and shared MultiWorkspace build script

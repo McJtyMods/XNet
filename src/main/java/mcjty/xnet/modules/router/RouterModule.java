@@ -1,5 +1,6 @@
 package mcjty.xnet.modules.router;
 
+import com.mojang.serialization.MapCodec;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,9 +12,11 @@ import mcjty.lib.datagen.DataGen;
 import mcjty.lib.datagen.Dob;
 import mcjty.lib.datagen.model.ModelFile;
 import mcjty.lib.datagen.model.VariantBlockStateBuilder;
+import mcjty.lib.items.BaseBlockItem;
 import mcjty.lib.modules.IModule;
 import mcjty.lib.varia.OrientationTools;
 import mcjty.rftoolsbase.modules.various.VariousModule;
+import mcjty.rftoolsbase.tools.ModelDataGen;
 import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.modules.controller.data.ControllerData;
 import mcjty.xnet.modules.router.blocks.TileEntityRouter;
@@ -44,13 +47,13 @@ public class RouterModule implements IModule {
     public static final RBlock<BaseBlock, BlockItem, TileEntityRouter> ROUTER = RBLOCKS.registerBlock("router",
             TileEntityRouter.class,
             TileEntityRouter::createBlock,
-            (block, itemProperties) -> new BlockItem(block.get(), itemProperties.useBlockDescriptionPrefix()),
+            (block, itemProperties) -> new BaseBlockItem(block.get(), itemProperties.useBlockDescriptionPrefix()),
             TileEntityRouter::new);
     public static final Supplier<MenuType<GenericContainer>> CONTAINER_ROUTER = CONTAINERS.register("router", GenericContainer::createContainerType);
 
     public static final Supplier<AttachmentType<RouterData>> ROUTER_DATA = ATTACHMENT_TYPES.register(
             "router_data", () -> AttachmentType.builder(() -> RouterData.EMPTY)
-                    .serialize(com.mojang.serialization.MapCodec.assumeMapUnsafe(RouterData.CODEC))
+                    .serialize(MapCodec.assumeMapUnsafe(RouterData.CODEC))
                     .build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<RouterData>> ITEM_ROUTER_DATA = COMPONENTS.registerComponentType(
             "router_data",
@@ -92,7 +95,7 @@ public class RouterModule implements IModule {
                             ModelFile modelOk = p.frontBasedModel(ITEM_ROUTER, p.modLoc("block/machine_router"));
                             ModelFile modelError = p.frontBasedModel("router_error", p.modLoc("block/machine_router_error"));
                             VariantBlockStateBuilder builder = p.getVariantBuilder(ROUTER.block().get());
-                            builder.forAllStates(state -> mcjty.rftoolsbase.tools.ModelDataGen.rotated(
+                            builder.forAllStates(state -> ModelDataGen.rotated(
                                     state.getValue(TileEntityController.ERROR) ? modelError : modelOk, state.getValue(BlockStateProperties.FACING)));
                         })
                         .shaped(builder -> builder
