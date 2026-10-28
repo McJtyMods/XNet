@@ -1,3 +1,6 @@
+26.2-9.0.1:
+- Restored block tooltips, including the extra information shown while holding Shift
+
 26.2-9.0.0:
 - Ported to Minecraft 26.2 with NeoForge
 - Updated Minecraft APIs and regenerated resources for 26.2
