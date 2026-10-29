@@ -1,3 +1,6 @@
+26.3-10.0.1-fabric:
+- Restored block tooltips, including the extra information shown while holding Shift
+
 26.3-10.0.0-fabric:
 - Ported to Minecraft 26.3 with Fabric
 - Preserve legacy facade block states and their properties in existing worlds
