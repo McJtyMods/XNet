@@ -19,7 +19,13 @@ plugins {
 
 apply plugin: 'com.hypherionmc.modutils.modpublisher'
 
-apply from: 'https://raw.githubusercontent.com/McJtyMods/MultiWorkSpace/26.2_fabric/gradletools.gradle'
+def localGradleTools = [
+        project.findProperty('gradletools_path') ? file(project.property('gradletools_path')) : null,
+        rootProject.file('gradletools.gradle'),
+        file('../Multi_fabric/gradletools.gradle'),
+        file('gradletools.gradle')
+].find { it != null && it.isFile() }
+apply from: localGradleTools ?: 'https://raw.githubusercontent.com/McJtyMods/MultiWorkSpace/26.2_fabric/gradletools.gradle'
 
 group = "com.github.mcjty"
 base.archivesName = "xnet-fabric"
