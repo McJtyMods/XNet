@@ -1,5 +1,6 @@
 26.2-9.0.2-fabric:
 - Fixed item channels losing items when a destination with an item limit is followed by one without a limit
+- Fixed adjacent Redstone Proxy (update) blocks causing repeated neighbor updates and server lag (#644)
 
 26.2-9.0.1-fabric:
 - Restored block tooltips, including the extra information shown while holding Shift
