@@ -15,9 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class RedstoneProxyUBlock extends RedstoneProxyBlock implements ITooltipSettings {
 
@@ -35,17 +33,12 @@ public class RedstoneProxyUBlock extends RedstoneProxyBlock implements ITooltipS
         }
     }
 
-    private final Set<BlockPos> loopDetector = new HashSet<>();
-
     @SuppressWarnings("deprecation")
     @Override
     public void neighborChanged(@Nonnull BlockState state, @Nonnull Level worldIn, @Nonnull BlockPos pos, @Nonnull Block blockIn, @Nonnull BlockPos fromPos, boolean isMoving) {
-        if(loopDetector.add(pos)) {
-            try {
-                worldIn.updateNeighborsAt(pos, this);
-            } finally {
-                loopDetector.remove(pos);
-            }
+        // A queued notification from another updating proxy must not be sent back.
+        if (!(blockIn instanceof RedstoneProxyUBlock)) {
+            worldIn.updateNeighborsAt(pos, this);
         }
     }
 }
