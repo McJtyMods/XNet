@@ -344,8 +344,6 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 continue;
             }
 
-            ItemStack remaining;
-
             IItemHandler destination = getItemHandlerAt(consumer.getConnectedEntity(), consumer.settings().getFacing());
             if (destination == null) {
                 continue;
@@ -356,37 +354,28 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 continue;
             }
             BlockEntity te = consumer.getConnectedEntity();
-            int toinsert = total;
+            int toInsert = total;
             Integer count = settings.getCount();
             if (count != null) {
                 int amount = isStorageScanner(te)
                                      ? RFToolsSupport.countItems(te, matcher, count)
                                      : countItems(destination, matcher);
-                int caninsert = count - amount;
-                if (caninsert <= 0) {
+                int canInsert = count - amount;
+                if (canInsert <= 0) {
                     continue;
                 }
-                toinsert = Math.min(toinsert, caninsert);
-                source = source.copy();
-                source.setCount(toinsert);
+                toInsert = Math.min(toInsert, canInsert);
             }
 
-            remaining = isStorageScanner(te)
-                                ? RFToolsSupport.insertItem(te, source, false)
-                                : ItemHandlerHelper.insertItem(destination, source, false);
+            ItemStack offered = source.copyWithCount(toInsert);
+            ItemStack remaining = isStorageScanner(te)
+                                ? RFToolsSupport.insertItem(te, offered, false)
+                                : ItemHandlerHelper.insertItem(destination, offered, false);
 
-            int actuallyinserted = toinsert - remaining.getCount();
-            if (count == null) {
-                // If we are not using a count then we restore 'stack' here as that is what
-                // we actually have to keep inserting until it is empty. If we are using a count
-                // then we don't do this as we don't want to risk stack getting null (on 1.10.2)
-                // from the insertItem() and then not being able to set stacksize a few lines
-                // above this
-                source = remaining;
-            }
-            if (actuallyinserted > 0) {
+            int actuallyInserted = toInsert - remaining.getCount();
+            if (actuallyInserted > 0) {
                 roundRobinOffset = (roundRobinOffset + 1) % consumersSize;
-                total -= actuallyinserted;
+                total -= actuallyInserted;
                 if (total <= 0) {
                     return 0;
                 }
