@@ -30,7 +30,8 @@ public final class TestRegistration {
             new Test("partial_fluid_transfer", PortGameTests::partialFluidTransfer),
             new Test("fluid_limits", PortGameTests::fluidLimits),
             new Test("tablet_transactions", PortGameTests::tabletTransactions),
-            new Test("legacy_facade", PortGameTests::legacyFacade));
+            new Test("legacy_facade", PortGameTests::legacyFacade),
+            new Test("adjacent_redstone_proxies", PortGameTests::adjacentRedstoneProxies));
     static Item tabletCard;
 
     @SubscribeEvent

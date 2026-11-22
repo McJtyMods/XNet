@@ -5,6 +5,8 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import mcjty.rftoolsbase.api.xnet.channels.IControllerContext;
 import mcjty.rftoolsbase.api.xnet.helper.AbstractConnectorSettings;
 import mcjty.rftoolsbase.api.xnet.keys.ConsumerId;
@@ -18,6 +20,7 @@ import mcjty.xnet.apiimpl.fluids.FluidChannelSettings;
 import mcjty.xnet.apiimpl.fluids.FluidConnectorSettings;
 import mcjty.xnet.apiimpl.items.ItemChannelSettings;
 import mcjty.xnet.apiimpl.items.ItemConnectorSettings;
+import mcjty.xnet.modules.various.VariousModule;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -25,10 +28,15 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BarrelBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.properties.AttachFace;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.level.BlockEvent.NeighborNotifyEvent;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
@@ -154,6 +162,39 @@ public final class PortGameTests {
         var encoded = (net.minecraft.nbt.CompoundTag) codec.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, data).getOrThrow();
         test.assertTrue(encoded.getCompoundOrEmpty("state").contains("id"), "Facade should write the 26.3 state format");
         test.assertTrue(codec.parse(net.minecraft.nbt.NbtOps.INSTANCE, encoded).getOrThrow().equals(data), "26.3 facade component did not round trip");
+        test.succeed();
+    }
+
+    public static void adjacentRedstoneProxies(GameTestHelper test) {
+        var level = test.getLevel();
+        var proxy = test.absolutePos(new BlockPos(2, 1, 2));
+        var adjacentProxy = test.absolutePos(new BlockPos(2, 1, 3));
+        var lamp = new BlockPos(3, 1, 2);
+        var lever = proxy.above();
+        var proxyState = VariousModule.REDSTONE_PROXY_UPD.get().defaultBlockState();
+        level.setBlock(proxy, proxyState, Block.UPDATE_CLIENTS);
+        level.setBlock(adjacentProxy, proxyState, Block.UPDATE_CLIENTS);
+        level.setBlock(test.absolutePos(lamp), Blocks.REDSTONE_LAMP.defaultBlockState(), Block.UPDATE_CLIENTS);
+
+        var adjacentUpdates = new AtomicInteger();
+        Consumer<NeighborNotifyEvent> onNeighborNotify = event -> {
+            if (event.getLevel() == level && event.getPos().equals(adjacentProxy)) {
+                adjacentUpdates.incrementAndGet();
+            }
+        };
+        NeoForge.EVENT_BUS.addListener(NeighborNotifyEvent.class, onNeighborNotify);
+        try {
+            // Deliver a single input notification directly to the proxy, as an XNet connector does.
+            level.setBlock(lever, Blocks.LEVER.defaultBlockState()
+                    .setValue(BlockStateProperties.ATTACH_FACE, AttachFace.FLOOR)
+                    .setValue(BlockStateProperties.POWERED, true), Block.UPDATE_CLIENTS);
+            level.neighborChanged(proxy, Blocks.LEVER, null);
+        } finally {
+            NeoForge.EVENT_BUS.unregister(onNeighborNotify);
+        }
+
+        test.assertTrue(adjacentUpdates.get() == 0, "Adjacent proxy rebroadcast a proxy's update");
+        test.assertBlockProperty(lamp, BlockStateProperties.LIT, true);
         test.succeed();
     }
 
