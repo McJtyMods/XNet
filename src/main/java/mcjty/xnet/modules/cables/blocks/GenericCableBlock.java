@@ -243,7 +243,7 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
         WorldBlob worldBlob = blobData.getWorldBlob(world);
         CableColor color = world.getBlockState(pos).getValue(COLOR);
         worldBlob.createCableSegment(pos, new ColorId(color.ordinal()+1));
-        blobData.save();
+        blobData.saveTopology(world);
     }
 
     @Override
@@ -259,7 +259,7 @@ public abstract class GenericCableBlock extends Block implements TOPInfoProvider
             XNetBlobData blobData = XNetBlobData.get(world);
             WorldBlob worldBlob = blobData.getWorldBlob(world);
             worldBlob.removeCableSegment(pos);
-            blobData.save();
+            blobData.saveTopology(world);
         }
     }
 

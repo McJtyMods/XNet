@@ -9,11 +9,11 @@
   "pages": [
     {
       "type": "text",
-      "text": "The Router connects multiple XNet controller networks. Attach it to a routing cable network, then publish or consume channels from the linked controllers."
+      "text": "A Router links XNet Controller networks. To share a channel, name it in the Controller, then give it a published name in the Router. Channels with the same published name and type can connect."
     },
     {
       "type": "text",
-      "text": "Use routing cables and routing connectors for the router network. Normal colored cables stay local to one controller network."
+      "text": "For a local Controller network, run colored Network Cable to a matching Connector against the Router.$(br2)To link this Router to another Router or a Wireless Router, place a Routing Connector at each end and join them with Routing Network Cable."
     },
     {
       "type": "crafting",

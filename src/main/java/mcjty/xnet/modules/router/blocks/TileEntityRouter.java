@@ -30,6 +30,7 @@ import mcjty.xnet.modules.router.LocalChannelId;
 import mcjty.xnet.modules.router.RouterModule;
 import mcjty.xnet.modules.router.data.RouterData;
 import mcjty.xnet.multiblock.ColorId;
+import mcjty.xnet.multiblock.WirelessChannelKey;
 import mcjty.xnet.multiblock.WorldBlob;
 import mcjty.xnet.multiblock.XNetBlobData;
 import mcjty.xnet.multiblock.XNetWirelessChannels;
@@ -57,6 +58,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -172,6 +174,14 @@ public final class TileEntityRouter extends GenericTileEntity {
     }
 
     public void findLocalChannelInfo(List<ControllerChannelClientInfo> list, boolean onlyPublished, boolean remote) {
+        findLocalChannelInfo(list, onlyPublished, remote, null);
+    }
+
+    public void findPublishedChannelInfo(List<ControllerChannelClientInfo> list, WirelessChannelKey key) {
+        findLocalChannelInfo(list, true, true, key);
+    }
+
+    private void findLocalChannelInfo(List<ControllerChannelClientInfo> list, boolean onlyPublished, boolean remote, @Nullable WirelessChannelKey key) {
         RouterData data = getData(RouterModule.ROUTER_DATA);
         LogicTools.forEachConnector(level, getBlockPos(), connectorPos -> {
             TileEntityController controller = LogicTools.getControllerForConnector(level, connectorPos);
@@ -184,6 +194,9 @@ public final class TileEntityRouter extends GenericTileEntity {
                         String publishedName = data.publishedChannels().get(id);
                         if (publishedName == null) {
                             publishedName = "";
+                        }
+                        if (key != null && (!key.name().equals(publishedName) || !channelInfo.getType().equals(key.channelType()))) {
+                            continue;
                         }
                         if ((!onlyPublished) || !publishedName.isEmpty()) {
                             ControllerChannelClientInfo ci = new ControllerChannelClientInfo(channelInfo.getChannelName(), publishedName, controller.getBlockPos(), channelInfo.getType(), remote, i);
@@ -216,7 +229,7 @@ public final class TileEntityRouter extends GenericTileEntity {
                         // channels that can be reached by them
                         LogicTools.forEachWirelessRouter(level, consumerPos, router -> {
                             if (!router.inError()) {
-                                router.findRemoteChannelInfo(list);
+                                router.findRemoteChannelInfo(list, getOwnerUUID());
                             }
                         });
                     });
@@ -229,7 +242,7 @@ public final class TileEntityRouter extends GenericTileEntity {
         return LogicTools.findRoutingConnector(level, getBlockPos(), worldBlob::getNetworkAt);
     }
 
-    public void addRoutedConnectors(Map<SidedConsumer, IConnectorSettings> connectors, @Nonnull BlockPos controllerPos, int channel, IChannelType type) {
+    public void addRoutedConnectors(Map<Level, Map<SidedConsumer, IConnectorSettings>> connectors, @Nonnull BlockPos controllerPos, int channel, IChannelType type) {
         if (inError()) {
             // We are in error. Don't do anything
             return;
@@ -238,23 +251,26 @@ public final class TileEntityRouter extends GenericTileEntity {
         RouterData data = getData(RouterModule.ROUTER_DATA);
         String publishedName = data.publishedChannels().get(id);
         if (publishedName != null && !publishedName.isEmpty()) {
+            Map<SidedConsumer, IConnectorSettings> localConnectors = connectors.computeIfAbsent(level, key -> new HashMap<>());
             NetworkId networkId = findRoutingNetwork();
             if (networkId != null) {
                 LogicTools.consumers(level, networkId)
                         .forEach(consumerPos -> {
-                            LogicTools.forEachRouter(level, consumerPos, router -> router.addConnectorsFromConnectedNetworks(connectors, publishedName, type));
+                            LogicTools.forEachRouter(level, consumerPos, router -> router.addConnectorsFromConnectedNetworks(localConnectors, publishedName, type));
                             LogicTools.forEachWirelessRouter(level, consumerPos, router -> {
                                 if (!router.inError()) {
                                     // First public
                                     router.addWirelessConnectors(connectors, publishedName, type, null);
-                                    // Now private
-                                    router.addWirelessConnectors(connectors, publishedName, type, getOwnerUUID());
+                                    UUID owner = getOwnerUUID();
+                                    if (owner != null) {
+                                        router.addWirelessConnectors(connectors, publishedName, type, owner);
+                                    }
                                 }
                             });
                         });
             } else {
                 // If there is no routing network that means we have a local network only
-                addConnectorsFromConnectedNetworks(connectors, publishedName, type);
+                addConnectorsFromConnectedNetworks(localConnectors, publishedName, type);
             }
         }
     }
@@ -359,7 +375,7 @@ public final class TileEntityRouter extends GenericTileEntity {
             XNetBlobData blobData = XNetBlobData.get(this.level);
             WorldBlob worldBlob = blobData.getWorldBlob(this.level);
             worldBlob.removeCableSegment(pos);
-            blobData.save();
+            blobData.saveTopology(this.level);
         }
     }
 
@@ -371,7 +387,7 @@ public final class TileEntityRouter extends GenericTileEntity {
             WorldBlob worldBlob = blobData.getWorldBlob(world);
             NetworkId networkId = worldBlob.newNetwork();
             worldBlob.createNetworkProvider(pos, new ColorId(CableColor.ROUTING.ordinal() + 1), networkId);
-            blobData.save();
+            blobData.saveTopology(world);
         }
     }
 }

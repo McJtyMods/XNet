@@ -2,7 +2,11 @@ package mcjty.xnet.modules.cables.blocks;
 
 import mcjty.lib.items.BaseBlockItem;
 import mcjty.xnet.modules.cables.CableColor;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -38,6 +42,18 @@ public class ColorBlockItem extends BaseBlockItem {
     public String getDescriptionId() {
         // We don't want the translation key of the block
         return super.getOrCreateDescriptionId();
+    }
+
+    @Override
+    public void appendHoverText(@Nonnull ItemStack stack, Item.TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flags) {
+        if (color == CableColor.ROUTING) {
+            String key = getBlock() instanceof ConnectorBlock
+                    ? "message.xnet.routing_connector.tooltip"
+                    : "message.xnet.routing_cable.tooltip";
+            tooltip.add(Component.translatable(key).withStyle(ChatFormatting.GRAY));
+        } else {
+            super.appendHoverText(stack, context, tooltip, flags);
+        }
     }
 
     @Override
