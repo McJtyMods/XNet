@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import static mcjty.xnet.apiimpl.Constants.TAG_AGE;
 import static mcjty.xnet.apiimpl.Constants.TAG_CHANNELS;
@@ -72,17 +72,16 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
 
         GlobalPos pos = GlobalPos.of(dimension, wirelessRouterPos);
         WirelessRouterInfo info = channelInfo.getRouter(pos);
+        boolean changed = info == null || !network.equals(info.getNetworkId());
         if (info == null) {
             info = new WirelessRouterInfo(pos);
             channelInfo.updateRouterInfo(pos, info);
-
-            // Global version increase to make sure all wireless routers can detect if there is a need
-            // to make their local network dirty to ensure that all controllers connected to that network
-            // get a chance to pick up the new transmitted channel
-            updateGlobalChannelVersion();
         }
         info.setAge(0);
         info.setNetworkId(network);
+        if (changed) {
+            updateGlobalChannelVersion();
+        }
         save();
 
 //        cnt--;
@@ -169,10 +168,10 @@ public class XNetWirelessChannels extends AbstractWorldData<XNetWirelessChannels
         return channelToWireless.get(key);
     }
 
-    public void forEachChannel(@Nullable UUID owner, Consumer<WirelessChannelInfo> consumer) {
+    public void forEachChannel(@Nullable UUID owner, BiConsumer<WirelessChannelKey, WirelessChannelInfo> consumer) {
         channelToWireless.forEach((key, info) -> {
-            if ((owner == null && key.owner() == null) || (owner != null && (key.owner() == null || owner.equals(key.owner())))) {
-                consumer.accept(info);
+            if (key.owner() == null || key.owner().equals(owner)) {
+                consumer.accept(key, info);
             }
         });
     }

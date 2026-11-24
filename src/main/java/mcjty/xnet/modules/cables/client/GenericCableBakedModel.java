@@ -39,7 +39,7 @@ import static mcjty.xnet.modules.cables.client.CablePatterns.SpriteIdx.SPRITE_TH
 
 public class GenericCableBakedModel extends AbstractDynamicBakedModel {
 
-    private TextureAtlasSprite spriteCable;
+    private static final ResourceLocation CABLE_PARTICLE_TEXTURE = new ResourceLocation(XNet.MODID, "block/cable0/normal_netcable");
 
     public static class CableTextures {
         private TextureAtlasSprite spriteConnector;
@@ -138,7 +138,7 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
 
             initTextures();
             CableTextures ct = cableTextures[index];
-            spriteCable = ct.spriteNormalCable;
+            TextureAtlasSprite spriteCable = ct.spriteNormalCable;
             GenericCableBlock block = (GenericCableBlock) state.getBlock();
             TextureAtlasSprite spriteConnector;
             if (block.isAdvancedConnector()) {
@@ -339,7 +339,7 @@ public class GenericCableBakedModel extends AbstractDynamicBakedModel {
     @Nonnull
     @Override
     public TextureAtlasSprite getParticleIcon() {
-        return spriteCable == null ? getTexture(new ResourceLocation("minecraft", "missingno")) : spriteCable;
+        return getTexture(CABLE_PARTICLE_TEXTURE);
     }
 
     @Nonnull

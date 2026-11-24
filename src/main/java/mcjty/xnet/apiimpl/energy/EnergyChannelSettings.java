@@ -12,6 +12,7 @@ import mcjty.rftoolsbase.api.xnet.helper.DefaultChannelSettings;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.XNet;
 import mcjty.xnet.apiimpl.enums.InsExtMode;
+import mcjty.xnet.logic.LogicTools;
 import mcjty.xnet.modules.cables.blocks.ConnectorBlock;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.setup.Config;
@@ -83,7 +84,7 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
             BlockPos connectorPos = extractor.connectorPos();
 
             Direction side = extractor.sidedConsumer().side();
-            if (!LevelTools.isLoaded(world, extractor.getBlockPos())) {
+            if (!extractor.isLoaded()) {
                 continue;
             }
 
@@ -155,10 +156,9 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
 
     private long insertEnergy(@Nonnull IControllerContext context, long energy) {
         long total = 0;
-        Level world = context.getControllerWorld();
         for (EnergyConnectedEntity consumer : energyConsumers) {
             EnergyConnectorSettings settings = consumer.settings();
-            if (!LevelTools.isLoaded(world, consumer.getBlockPos())) {
+            if (!consumer.isLoaded()) {
                 continue;
             }
             BlockEntity te = consumer.getConnectedEntity();
@@ -231,18 +231,19 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
                 }
             }
 
-            connectors = context.getRoutedConnectors(channel);
-            for (var entry : connectors.entrySet()) {
-                EnergyConnectorSettings con = (EnergyConnectorSettings) entry.getValue();
-                EnergyConnectedEntity connectedBlock = getConnectedBlockInfo(context, entry, world, con);
-                if (connectedBlock == null) {
-                    continue;
+            LogicTools.routedConnectors(context, channel).forEach((remoteLevel, routed) -> {
+                for (var entry : routed.entrySet()) {
+                    EnergyConnectorSettings con = (EnergyConnectorSettings) entry.getValue();
+                    EnergyConnectedEntity connectedBlock = getConnectedBlockInfo(context, entry, remoteLevel, con);
+                    if (connectedBlock == null) {
+                        continue;
+                    }
+                    if (con.getEnergyMode() == InsExtMode.INS) {
+                        energyConsumers.add(connectedBlock);
+                        maxConsume += connectedBlock.rate();
+                    }
                 }
-                if (con.getEnergyMode() == InsExtMode.INS) {
-                    energyConsumers.add(connectedBlock);
-                    maxConsume += connectedBlock.rate();
-                }
-            }
+            });
 
             energyExtractors.sort((o1, o2) -> o2.settings().getPriority().compareTo(o1.settings().getPriority()));
             energyConsumers.sort((o1, o2) -> o2.settings().getPriority().compareTo(o1.settings().getPriority()));
@@ -253,16 +254,15 @@ public class EnergyChannelSettings extends DefaultChannelSettings implements ICh
     private EnergyConnectedEntity getConnectedBlockInfo(
             IControllerContext context, Map.Entry<SidedConsumer, IConnectorSettings> entry, @Nonnull Level world, @Nonnull EnergyConnectorSettings con
     ) {
-        BlockPos connectorPos = context.findConsumerPosition(entry.getKey().consumerId());
-        if (connectorPos == null) {
+        BlockPos connectorPos = LogicTools.findConsumerPosition(context, world, entry.getKey().consumerId());
+        if (!LevelTools.isLoaded(world, connectorPos)
+                || !(world.getBlockEntity(connectorPos) instanceof ConnectorTileEntity connectorTileEntity)) {
             return null;
         }
-        ConnectorTileEntity connectorTileEntity = (ConnectorTileEntity) world.getBlockEntity(connectorPos);
-        if (connectorTileEntity == null) {
-            return null;
-        }
-
         BlockPos connectedBlockPos = connectorPos.relative(entry.getKey().side());
+        if (!LevelTools.isLoaded(world, connectedBlockPos)) {
+            return null;
+        }
         BlockEntity connectedEntity = world.getBlockEntity(connectedBlockPos);
         if (connectedEntity == null) {
             return null;

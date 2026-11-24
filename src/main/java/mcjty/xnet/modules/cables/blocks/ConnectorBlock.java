@@ -363,7 +363,7 @@ public class ConnectorBlock extends GenericCableBlock implements ITooltipSetting
         WorldBlob worldBlob = blobData.getWorldBlob(world);
         CableColor color = world.getBlockState(pos).getValue(COLOR);
         worldBlob.createNetworkConsumer(pos, new ColorId(color.ordinal() + 1), consumer);
-        blobData.save();
+        blobData.saveTopology(world);
     }
 
     public static boolean isAdvancedConnector(@Nonnull Level world, @Nonnull BlockPos pos) {

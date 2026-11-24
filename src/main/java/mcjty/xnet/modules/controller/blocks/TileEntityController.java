@@ -150,7 +150,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
 
     // Cached/transient data
     private final Map<SidedConsumer, IConnectorSettings> cachedConnectors[] = new Map[MAX_CHANNELS];
-    private final Map<SidedConsumer, IConnectorSettings> cachedRoutedConnectors[] = new Map[MAX_CHANNELS];
+    private final Map<Level, Map<SidedConsumer, IConnectorSettings>> cachedRoutedConnectors[] = new Map[MAX_CHANNELS];
 
     @Cap(type = CapType.ITEMS_AUTOMATION)
     private final GenericItemHandler items = GenericItemHandler.create(this, CONTAINER_FACTORY)
@@ -264,16 +264,10 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     }
 
     private void checkNetwork(WorldBlob worldBlob) {
-        if (networkId != null && networkChecker.get().isDirtyAndMarkClean(worldBlob)) {
-            cleanCaches();
-            return;
-        }
-
-        // Check wireless
-        XNetWirelessChannels channels = XNetWirelessChannels.get(level);
-        if (wirelessVersion != channels.getGlobalChannelVersion()) {
-            wirelessVersion = channels.getGlobalChannelVersion();
-            setChanged();
+        boolean networkChanged = networkId != null && networkChecker.get().isDirtyAndMarkClean(worldBlob);
+        int currentWirelessVersion = XNetWirelessChannels.get(level).getGlobalChannelVersion();
+        if (networkChanged || wirelessVersion != currentWirelessVersion) {
+            wirelessVersion = currentWirelessVersion;
             cleanCaches();
         }
     }
@@ -384,6 +378,10 @@ public final class TileEntityController extends TickingTileEntity implements ICo
     @Override
     @Nonnull
     public Map<SidedConsumer, IConnectorSettings> getRoutedConnectors(int channel) {
+        return getRoutedConnectorsByLevel(channel).computeIfAbsent(level, key -> new HashMap<>());
+    }
+
+    public Map<Level, Map<SidedConsumer, IConnectorSettings>> getRoutedConnectorsByLevel(int channel) {
         if (cachedRoutedConnectors[channel] == null) {
             cachedRoutedConnectors[channel] = new HashMap<>();
 
@@ -574,13 +572,12 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         String name = (String) data.get(TAG_NAME);
         channels[channel].setChannelName(name);
 
-        XNetWirelessChannels channels = XNetWirelessChannels.get(level);
-        channels.updateGlobalChannelVersion();
         markAsDirty();
     }
 
     public void markAsDirty() {
         networkDirty();
+        XNetWirelessChannels.get(level).updateGlobalChannelVersion();
         markDirtyQuick();
     }
 
@@ -1053,7 +1050,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
         XNetBlobData blobData = XNetBlobData.get(this.level);
         WorldBlob worldBlob = blobData.getWorldBlob(this.level);
         worldBlob.removeCableSegment(pos);
-        blobData.save();
+        blobData.saveTopology(this.level);
     }
 
     @Override
@@ -1090,7 +1087,7 @@ public final class TileEntityController extends TickingTileEntity implements ICo
             }
             NetworkId networkId = worldBlob.newNetwork();
             worldBlob.createNetworkProvider(pos, newColor, networkId);
-            blobData.save();
+            blobData.saveTopology(world);
 
             BlockEntity te = world.getBlockEntity(pos);
             if (te instanceof TileEntityController) {

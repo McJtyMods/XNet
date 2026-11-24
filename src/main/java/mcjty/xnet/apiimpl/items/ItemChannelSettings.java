@@ -18,7 +18,9 @@ import mcjty.xnet.apiimpl.enums.ChannelMode;
 import mcjty.xnet.apiimpl.enums.InsExtMode;
 import mcjty.xnet.apiimpl.items.enums.StackMode;
 import mcjty.xnet.compat.RFToolsSupport;
+import mcjty.xnet.logic.LogicTools;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
+import mcjty.xnet.modules.controller.blocks.TileEntityController;
 import mcjty.xnet.setup.Config;
 import mcjty.xnet.utils.CastTools;
 import net.minecraft.core.BlockPos;
@@ -54,12 +56,15 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
     // Cache data
     private List<ConnectedEntity<ItemConnectorSettings>> itemExtractors = null;
-    private List<ConnectedEntity<ItemConnectorSettings>> itemConsumers = null;
+    private List<ItemConsumer> itemConsumers = null;
     private boolean[] consumerFull; // Array of filled consumers in which you don't have to try to insert
     private ChannelMode channelMode = ChannelMode.PRIORITY;
     private int delay = 0;
     private int roundRobinOffset = 0;
     private final Map<ConsumerId, Integer> extractIndices = new HashMap<>();
+
+    private record ItemConsumer(ConnectedEntity<ItemConnectorSettings> endpoint, IControllerContext filterContext) {
+    }
 
     public ChannelMode getChannelMode() {
         return channelMode;
@@ -170,7 +175,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
 
             ConsumerId consumerId = extractor.sidedConsumer().consumerId();
 
-            if (!LevelTools.isLoaded(world, extractor.getBlockPos())) {
+            if (!extractor.isLoaded()) {
                 continue;
             }
 
@@ -294,10 +299,11 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
             if (consumerFull[i]) {
                 continue;
             }
-            ConnectedEntity<ItemConnectorSettings> consumer = itemConsumers.get(i);
+            ItemConsumer target = itemConsumers.get(i);
+            ConnectedEntity<ItemConnectorSettings> consumer = target.endpoint();
             ItemConnectorSettings settings = consumer.settings();
 
-            if (!LevelTools.isLoaded(world, consumer.getBlockPos())) {
+            if (!consumer.isLoaded()) {
                 continue;
             }
 
@@ -306,7 +312,7 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 continue;
             }
 
-            Predicate<ItemStack> matcher = settings.getMatcher(context);
+            Predicate<ItemStack> matcher = settings.getMatcher(target.filterContext());
             if (!matcher.test(source) || !checkRedstone(settings, consumer.getConnectorEntity(), context)) {
                 continue;
             }
@@ -413,24 +419,32 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
                 if (con.getItemMode() == InsExtMode.EXT) {
                     itemExtractors.add(connectedEntity);
                 } else {
-                    itemConsumers.add(connectedEntity);
+                    itemConsumers.add(new ItemConsumer(connectedEntity, context));
                 }
 
             }
-            connectors = context.getRoutedConnectors(channel);
-            for (Map.Entry<SidedConsumer, IConnectorSettings> entry : connectors.entrySet()) {
-                ItemConnectorSettings con = (ItemConnectorSettings) entry.getValue();
-                if (con.getItemMode() == InsExtMode.INS) {
-                    ConnectedEntity<ItemConnectorSettings> connectedEntity;
-                    connectedEntity = getConnectedEntityInfo(context, entry, world, con);
-                    if (connectedEntity == null) {
-                        continue;
+            LogicTools.routedConnectors(context, channel).forEach((remoteLevel, routed) -> {
+                for (Map.Entry<SidedConsumer, IConnectorSettings> entry : routed.entrySet()) {
+                    ItemConnectorSettings con = (ItemConnectorSettings) entry.getValue();
+                    if (con.getItemMode() == InsExtMode.INS) {
+                        ConnectedEntity<ItemConnectorSettings> connectedEntity;
+                        connectedEntity = getConnectedEntityInfo(context, entry, remoteLevel, con);
+                        if (connectedEntity == null) {
+                            continue;
+                        }
+                        // Numbered filters belong to the controller on the destination connector's network.
+                        IControllerContext filterContext = con.getFilterIndex() != -1 && context instanceof TileEntityController
+                                ? LogicTools.getControllerForConnector(remoteLevel, connectedEntity.connectorPos())
+                                : context;
+                        if (filterContext != null) {
+                            itemConsumers.add(new ItemConsumer(connectedEntity, filterContext));
+                        }
                     }
-                    itemConsumers.add(connectedEntity);
                 }
-            }
+            });
 
-            itemConsumers.sort((o1, o2) -> o2.settings().getPriority().compareTo(o1.settings().getPriority()));
+            itemConsumers.sort((first, second) -> second.endpoint().settings().getPriority()
+                    .compareTo(first.endpoint().settings().getPriority()));
         }
     }
 
@@ -438,15 +452,15 @@ public class ItemChannelSettings extends DefaultChannelSettings implements IChan
     private ConnectedEntity<ItemConnectorSettings> getConnectedEntityInfo(
             IControllerContext context, Map.Entry<SidedConsumer, IConnectorSettings> entry, Level world, ItemConnectorSettings con
     ) {
-        BlockPos connectorPos = context.findConsumerPosition(entry.getKey().consumerId());
-        if (connectorPos == null) {
-            return null;
-        }
-        ConnectorTileEntity connectorEntity = (ConnectorTileEntity) world.getBlockEntity(connectorPos);
-        if (connectorEntity == null) {
+        BlockPos connectorPos = LogicTools.findConsumerPosition(context, world, entry.getKey().consumerId());
+        if (!LevelTools.isLoaded(world, connectorPos)
+                || !(world.getBlockEntity(connectorPos) instanceof ConnectorTileEntity connectorEntity)) {
             return null;
         }
         BlockPos connectedBlockPos = connectorPos.relative(entry.getKey().side());
+        if (!LevelTools.isLoaded(world, connectedBlockPos)) {
+            return null;
+        }
         BlockEntity connectedEntity = world.getBlockEntity(connectedBlockPos);
         if (connectedEntity == null) {
             return null;
