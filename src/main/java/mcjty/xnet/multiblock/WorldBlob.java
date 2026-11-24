@@ -53,6 +53,25 @@ public class WorldBlob implements IWorldBlob {
         this.dimensionType = dimensionType;
     }
 
+    public boolean hasEndpointsNearChunk(ChunkPos pos) {
+        // A connected machine or router can be across a chunk border from its connector.
+        return hasEndpoints(pos.x(), pos.z())
+                || hasConnectorOnBorder(pos.x() - 1, pos.z(), Direction.EAST)
+                || hasConnectorOnBorder(pos.x() + 1, pos.z(), Direction.WEST)
+                || hasConnectorOnBorder(pos.x(), pos.z() - 1, Direction.SOUTH)
+                || hasConnectorOnBorder(pos.x(), pos.z() + 1, Direction.NORTH);
+    }
+
+    private boolean hasEndpoints(int x, int z) {
+        ChunkBlob blob = chunkBlobMap.get(ChunkPos.pack(x, z));
+        return blob != null && (!blob.getNetworkProviders().isEmpty() || !blob.getNetworkConsumers().isEmpty());
+    }
+
+    private boolean hasConnectorOnBorder(int x, int z, Direction border) {
+        ChunkBlob blob = chunkBlobMap.get(ChunkPos.pack(x, z));
+        return blob != null && blob.getNetworkConsumers().keySet().stream().anyMatch(pos -> pos.isBorder(border));
+    }
+
     public ResourceKey<Level> getDimensionType() {
         return dimensionType;
     }
