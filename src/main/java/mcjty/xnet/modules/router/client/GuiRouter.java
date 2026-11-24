@@ -24,6 +24,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 import static mcjty.lib.gui.widgets.Widgets.horizontal;
 import static mcjty.lib.gui.widgets.Widgets.label;
@@ -40,10 +41,14 @@ import static mcjty.xnet.utils.I18nConstants.POS_LABEL;
 
 public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericContainer> {
 
+    private static final int REMOTE_REFRESH_TICKS = 20;
+
     private WidgetList localChannelList;
     private WidgetList remoteChannelList;
     private boolean needsRefresh = true;
     private int listDirty;
+    private int remoteRefreshTicks;
+    private List<ControllerChannelClientInfo> displayedRemoteChannels;
 
     private static final Identifier iconGuiElements = Identifier.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
 
@@ -81,6 +86,8 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
         tileEntity.clientLocalChannels = null;
         tileEntity.clientRemoteChannels = null;
         needsRefresh = true;
+        displayedRemoteChannels = null;
+        remoteRefreshTicks = REMOTE_REFRESH_TICKS;
         listDirty = 3;
         requestListsIfNeeded();
     }
@@ -95,32 +102,29 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
         if (!listsReady()) {
             return;
         }
-        if (!needsRefresh) {
-            return;
-        }
-        needsRefresh = false;
-
-        localChannelList.removeChildren();
-        localChannelList.rowheight(40);
-        int sel = localChannelList.getSelected();
-
         TileEntityRouter tileEntity = getBE();
-
-        for (ControllerChannelClientInfo channel : tileEntity.clientLocalChannels) {
-            localChannelList.children(makeChannelLine(channel, true));
+        if (needsRefresh) {
+            needsRefresh = false;
+            int selected = localChannelList.getSelected();
+            localChannelList.removeChildren();
+            localChannelList.rowheight(40);
+            for (ControllerChannelClientInfo channel : tileEntity.clientLocalChannels) {
+                localChannelList.children(makeChannelLine(channel, true));
+            }
+            localChannelList.selected(selected);
         }
 
-        localChannelList.selected(sel);
-
-        remoteChannelList.removeChildren();
-        remoteChannelList.rowheight(40);
-        sel = remoteChannelList.getSelected();
-
-        for (ControllerChannelClientInfo channel : tileEntity.clientRemoteChannels) {
-            remoteChannelList.children(makeChannelLine(channel, false));
+        List<ControllerChannelClientInfo> remoteChannels = tileEntity.clientRemoteChannels;
+        if (!remoteChannels.equals(displayedRemoteChannels)) {
+            displayedRemoteChannels = remoteChannels;
+            int selected = remoteChannelList.getSelected();
+            remoteChannelList.removeChildren();
+            remoteChannelList.rowheight(40);
+            for (ControllerChannelClientInfo channel : remoteChannels) {
+                remoteChannelList.children(makeChannelLine(channel, false));
+            }
+            remoteChannelList.selected(selected);
         }
-
-        remoteChannelList.selected(sel);
     }
 
     private Panel makeChannelLine(ControllerChannelClientInfo channel, boolean local) {
@@ -179,6 +183,15 @@ public class GuiRouter extends GenericGuiContainer<TileEntityRouter, GenericCont
         }
     }
 
+
+    @Override
+    protected void containerTick() {
+        super.containerTick();
+        if (listsReady() && --remoteRefreshTicks <= 0) {
+            remoteRefreshTicks = REMOTE_REFRESH_TICKS;
+            Networking.sendToServer(PacketGetListFromServer.create(getBE().getBlockPos(), CMD_GETREMOTECHANNELS.name()));
+        }
+    }
 
     @Override
     protected void renderBg(@Nonnull GuiGraphicsExtractor graphics, float partialTicks, int mouseX, int mouseY) {
