@@ -42,6 +42,7 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
 
     public static final Identifier iconGuiElements = Identifier.fromNamespaceAndPath(XNet.MODID, "textures/gui/guielements.png");
     private int colors = 0;     // Colors for this channel
+    private int unloadedSensorColors;
     private List<ConnectedOptionalEntity<LogicConnectorSettings>> sensors = null;
     private List<ConnectedBlock<LogicConnectorSettings>> outputs = null;
 
@@ -85,12 +86,12 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
         updateCache(channel, context);
         Level world = context.getControllerWorld();
 
-        colors = 0;
+        colors = unloadedSensorColors;
         for (ConnectedOptionalEntity<LogicConnectorSettings> connectedBlock : sensors) {
             LogicConnectorSettings settings = connectedBlock.settings();
             int sensorColors = 0;
             BlockPos pos = connectedBlock.getBlockPos();
-            if (!LevelTools.isLoaded(world, pos)) {
+            if (!connectedBlock.isLoaded()) {
                 // If it is not chunkloaded we just use the color settings as we last remembered it
                 colors |= settings.getColorMask();
                 continue;
@@ -113,8 +114,7 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
         for (ConnectedBlock<LogicConnectorSettings> connector : outputs) {
             LogicConnectorSettings settings = connector.settings();
 
-            BlockPos connectorPos = connector.connectorPos();
-            if (!LevelTools.isLoaded(world, connectorPos)) {
+            if (!connector.isLoaded()) {
                 continue;
             }
 
@@ -138,6 +138,7 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
         if (sensors == null) {
             sensors = new ArrayList<>();
             outputs = new ArrayList<>();
+            unloadedSensorColors = 0;
             Level world = context.getControllerWorld();
             Map<SidedConsumer, IConnectorSettings> connectors = context.getConnectors(channel);
             for (Map.Entry<SidedConsumer, IConnectorSettings> entry : connectors.entrySet()) {
@@ -145,6 +146,11 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
                 ConnectedBlock<LogicConnectorSettings> connectedBlock;
                 connectedBlock = getConnectedBlockInfo(context, entry, world, con);
                 if (connectedBlock == null) {
+                    BlockPos pos = context.findConsumerPosition(entry.getKey().consumerId());
+                    if (con.getLogicMode() == LogicMode.SENSOR && pos != null
+                            && (!LevelTools.isLoaded(world, pos) || !LevelTools.isLoaded(world, pos.relative(entry.getKey().side())))) {
+                        unloadedSensorColors |= con.getColorMask();
+                    }
                     continue;
                 }
                 if (con.getLogicMode() == LogicMode.SENSOR) {
@@ -155,18 +161,19 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
                 }
             }
 
-            connectors = context.getRoutedConnectors(channel);
-            for (Map.Entry<SidedConsumer, IConnectorSettings> entry : connectors.entrySet()) {
-                LogicConnectorSettings con = (LogicConnectorSettings) entry.getValue();
-                if (con.getLogicMode() == LogicMode.OUTPUT) {
-                    ConnectedBlock<LogicConnectorSettings> connectedBlock;
-                    connectedBlock = getConnectedBlockInfo(context, entry, world, con);
-                    if (connectedBlock == null) {
-                        continue;
+            LogicTools.routedConnectors(context, channel).forEach((remoteLevel, routed) -> {
+                for (Map.Entry<SidedConsumer, IConnectorSettings> entry : routed.entrySet()) {
+                    LogicConnectorSettings con = (LogicConnectorSettings) entry.getValue();
+                    if (con.getLogicMode() == LogicMode.OUTPUT) {
+                        ConnectedBlock<LogicConnectorSettings> connectedBlock;
+                        connectedBlock = getConnectedBlockInfo(context, entry, remoteLevel, con);
+                        if (connectedBlock == null) {
+                            continue;
+                        }
+                        outputs.add(connectedBlock);
                     }
-                    outputs.add(connectedBlock);
                 }
-            }
+            });
         }
     }
 
@@ -182,15 +189,15 @@ public class LogicChannelSettings extends DefaultChannelSettings implements ICha
     private ConnectedBlock<LogicConnectorSettings> getConnectedBlockInfo(
             IControllerContext context, Map.Entry<SidedConsumer, IConnectorSettings> entry, @Nonnull Level world, @Nonnull LogicConnectorSettings con
     ) {
-        BlockPos connectorPos = context.findConsumerPosition(entry.getKey().consumerId());
-        if (connectorPos == null) {
-            return null;
-        }
-        ConnectorTileEntity connectorEntity = (ConnectorTileEntity) world.getBlockEntity(connectorPos);
-        if (connectorEntity == null) {
+        BlockPos connectorPos = LogicTools.findConsumerPosition(context, world, entry.getKey().consumerId());
+        if (!LevelTools.isLoaded(world, connectorPos)
+                || !(world.getBlockEntity(connectorPos) instanceof ConnectorTileEntity connectorEntity)) {
             return null;
         }
         BlockPos connectedBlockPos = connectorPos.relative(entry.getKey().side());
+        if (!LevelTools.isLoaded(world, connectedBlockPos)) {
+            return null;
+        }
         BlockEntity connectedEntity = world.getBlockEntity(connectedBlockPos);
         if (connectedEntity == null) {
             return new ConnectedBlock<>(entry.getKey(), con, connectorPos, connectedBlockPos, connectorEntity);

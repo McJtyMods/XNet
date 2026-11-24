@@ -6,6 +6,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
@@ -54,6 +55,20 @@ public class XNetBlobData extends AbstractWorldData<XNetBlobData> {
         return worldBlobMap.get(type);
     }
 
+    public void saveTopology(Level level) {
+        save();
+        XNetWirelessChannels.get(level).updateGlobalChannelVersion();
+    }
+
+    public static void onChunkAvailabilityChanged(Level level, ChunkPos pos) {
+        if (LevelTools.getOverworld(level) == null) {
+            return;
+        }
+        WorldBlob blob = get(level).worldBlobMap.get(level.dimension());
+        if (blob != null && blob.hasEndpointsNearChunk(pos)) {
+            XNetWirelessChannels.get(level).updateGlobalChannelVersion();
+        }
+    }
 
     @Nonnull
     @Override

@@ -45,6 +45,9 @@
 
     "message.xnet.shiftmessage": "<Press Shift>",
 
+    "message.xnet.routing_cable.tooltip": "Links Routers and Wireless Routers using Routing Connectors.",
+    "message.xnet.routing_connector.tooltip": "Place against a Router or Wireless Router. Join with Routing Network Cable.",
+
     "message.xnet.facade.header": "This block can mimic other blocks and be used to cover XNet cables",
     "message.xnet.facade.gold": "Right or sneak-right click on block to mimic. Right or sneak-right click on cable/connector to hide",
     "message.xnet.facade.info": "Mimicking: ",
@@ -58,9 +61,9 @@
 
     "message.xnet.controller.header": "The base block for automation in XNet",
 
-    "message.xnet.router.header": "With this block you can connect multiple channels (controllers)",
+    "message.xnet.router.header": "Use colored Connectors for Controllers and Routing Connectors for the routing network.",
 
-    "message.xnet.wireless_router.header": "With this block you can connect multiple channels remotely. Connect this to a normal router using a router cable",
+    "message.xnet.wireless_router.header": "Link to a Router with Routing Network Cable and a Routing Connector at each end.",
     "message.xnet.wireless_router.gold": "This needs an antenna on top to work!",
 
     "message.xnet.antenna.header": "Place one or two antenna's on top of an antenna base",
