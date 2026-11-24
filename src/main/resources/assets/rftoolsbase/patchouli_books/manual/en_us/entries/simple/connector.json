@@ -7,7 +7,7 @@
     "xnet:connector_green": 0,
     "xnet:connector_blue": 0,
     "xnet:connector_yellow": 0,
-    "xnet:connector_routing": 0,
+    "xnet:connector_routing": 2,
     "xnet:advanced_connector_red": 0,
     "xnet:advanced_connector_green": 0,
     "xnet:advanced_connector_blue": 0,
@@ -27,7 +27,7 @@
     },
     {
       "type": "text",
-      "text": "Routing Connectors are for routing networks. Use them with routing cables when linking networks through Routers or Wireless Routers."
+      "text": "Place a Routing Connector directly against each Router or Wireless Router on the routing network. Join them with Routing Network Cable. Use a colored Connector where a Controller's local network meets a Router."
     },
     {
       "type": "crafting",

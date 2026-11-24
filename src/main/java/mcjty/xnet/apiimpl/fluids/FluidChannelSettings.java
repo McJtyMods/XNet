@@ -23,6 +23,7 @@ import mcjty.xnet.apiimpl.ConnectedEntity;
 import mcjty.xnet.apiimpl.EnumStringTranslators;
 import mcjty.xnet.apiimpl.enums.ChannelMode;
 import mcjty.xnet.apiimpl.enums.InsExtMode;
+import mcjty.xnet.logic.LogicTools;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import mcjty.xnet.setup.Config;
 import mcjty.xnet.utils.CastTools;
@@ -123,7 +124,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
                 continue;
             }
 
-            if (!LevelTools.isLoaded(world, extractor.getBlockPos())) {
+            if (!extractor.isLoaded()) {
                 continue;
             }
             if (!checkRedstone(settings, extractor.getConnectorEntity(), context)) {
@@ -187,7 +188,6 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
     }
 
     private int insertFluid(@Nonnull IControllerContext context, ResourceHandler<FluidResource> source, @Nonnull FluidStack stack) {
-        Level world = context.getControllerWorld();
         if (channelMode == ChannelMode.PRIORITY) {
             roundRobinOffset = 0;       // Always start at 0
         }
@@ -196,7 +196,7 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
             int i = (j + roundRobinOffset)  % fluidConsumers.size();
             ConnectedEntity<FluidConnectorSettings> consumer = fluidConsumers.get(i);
             FluidConnectorSettings settings = consumer.settings();
-            if (!LevelTools.isLoaded(world, consumer.getBlockPos())) {
+            if (!consumer.isLoaded()) {
                 continue;
             }
             ResourceHandler<FluidResource> destination = getFluidHandlerAt(consumer.getConnectedEntity(), consumer.settings().getFacing());
@@ -272,18 +272,19 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
                 }
             }
 
-            connectors = context.getRoutedConnectors(channel);
-            for (var entry : connectors.entrySet()) {
-                FluidConnectorSettings con = (FluidConnectorSettings) entry.getValue();
-                if (con.getFluidMode() == InsExtMode.INS) {
-                    ConnectedEntity<FluidConnectorSettings> connectedEntity;
-                    connectedEntity = getConnectedEntityInfo(context, entry, world, con);
-                    if (connectedEntity == null) {
-                        continue;
+            LogicTools.routedConnectors(context, channel).forEach((remoteLevel, routed) -> {
+                for (var entry : routed.entrySet()) {
+                    FluidConnectorSettings con = (FluidConnectorSettings) entry.getValue();
+                    if (con.getFluidMode() == InsExtMode.INS) {
+                        ConnectedEntity<FluidConnectorSettings> connectedEntity;
+                        connectedEntity = getConnectedEntityInfo(context, entry, remoteLevel, con);
+                        if (connectedEntity == null) {
+                            continue;
+                        }
+                        fluidConsumers.add(connectedEntity);
                     }
-                    fluidConsumers.add(connectedEntity);
                 }
-            }
+            });
 
             fluidConsumers.sort((o1, o2) -> o2.settings().getPriority().compareTo(o1.settings().getPriority()));
         }
@@ -293,15 +294,15 @@ public class FluidChannelSettings extends DefaultChannelSettings implements ICha
     private ConnectedEntity<FluidConnectorSettings> getConnectedEntityInfo(
             IControllerContext context, Map.Entry<SidedConsumer, IConnectorSettings> entry, @Nonnull Level world, @Nonnull FluidConnectorSettings con
     ) {
-        BlockPos connectorPos = context.findConsumerPosition(entry.getKey().consumerId());
-        if (connectorPos == null) {
-            return null;
-        }
-        ConnectorTileEntity connectorTileEntity = (ConnectorTileEntity) world.getBlockEntity(connectorPos);
-        if (connectorTileEntity == null) {
+        BlockPos connectorPos = LogicTools.findConsumerPosition(context, world, entry.getKey().consumerId());
+        if (!LevelTools.isLoaded(world, connectorPos)
+                || !(world.getBlockEntity(connectorPos) instanceof ConnectorTileEntity connectorTileEntity)) {
             return null;
         }
         BlockPos connectedBlockPos = connectorPos.relative(entry.getKey().side());
+        if (!LevelTools.isLoaded(world, connectedBlockPos)) {
+            return null;
+        }
         BlockEntity connectedEntity = world.getBlockEntity(connectedBlockPos);
         if (connectedEntity == null) {
             return null;

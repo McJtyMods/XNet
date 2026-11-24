@@ -1,8 +1,11 @@
 package mcjty.xnet.setup;
 
+import mcjty.xnet.multiblock.XNetBlobData;
 import mcjty.xnet.multiblock.XNetWirelessChannels;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
 public class ForgeEventHandlers {
@@ -10,6 +13,20 @@ public class ForgeEventHandlers {
     private static final int AMOUNT = 10;
 
     private int cnt = AMOUNT;
+
+    @SubscribeEvent
+    public void onChunkLoad(ChunkEvent.Load event) {
+        if (event.getLevel() instanceof ServerLevel level) {
+            XNetBlobData.onChunkAvailabilityChanged(level, event.getChunk().getPos());
+        }
+    }
+
+    @SubscribeEvent
+    public void onChunkUnload(ChunkEvent.Unload event) {
+        if (event.getLevel() instanceof ServerLevel level) {
+            XNetBlobData.onChunkAvailabilityChanged(level, event.getChunk().getPos());
+        }
+    }
 
     @SubscribeEvent
     public void onWorldTick(LevelTickEvent.Pre event) {
