@@ -1,5 +1,6 @@
 package mcjty.xnet.apiimpl;
 
+import mcjty.lib.varia.LevelTools;
 import mcjty.rftoolsbase.api.xnet.keys.SidedConsumer;
 import mcjty.xnet.modules.cables.blocks.ConnectorTileEntity;
 import net.minecraft.core.BlockPos;
@@ -40,6 +41,12 @@ public class ConnectedBlock<T> {
     @Nonnull
     public ConnectorTileEntity getConnectorEntity() {
         return connectorEntity;
+    }
+
+    public boolean isLoaded() {
+        return !connectorEntity.isRemoved()
+                && LevelTools.isLoaded(connectorEntity.getLevel(), connectorPos)
+                && LevelTools.isLoaded(connectorEntity.getLevel(), blockPos);
     }
 
 }

@@ -9,6 +9,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -103,5 +104,18 @@ public class ControllerChannelClientInfo {
 
     public boolean isRemote() {
         return remote;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof ControllerChannelClientInfo other
+                && remote == other.remote && index == other.index
+                && channelName.equals(other.channelName) && publishedName.equals(other.publishedName)
+                && pos.equals(other.pos) && channelType.equals(other.channelType);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(channelName, publishedName, pos, channelType, remote, index);
     }
 }

@@ -30,4 +30,9 @@ public class ConnectedEntity<T> extends ConnectedBlock<T> {
     public BlockEntity getConnectedEntity() {
         return connectedEntity;
     }
+
+    @Override
+    public boolean isLoaded() {
+        return super.isLoaded() && !connectedEntity.isRemoved();
+    }
 }

@@ -13,7 +13,7 @@
     },
     {
       "type": "text",
-      "text": "Wireless routers work with routing networks. Use routing cables and connectors on the local side, then publish or consume channels through the router GUI."
+      "text": "Place a Routing Connector against the Wireless Router and another against the regular Router. Join them with Routing Network Cable. Connect the Controller network to the regular Router and publish channels in its GUI."
     },
     {
       "type": "crafting",
