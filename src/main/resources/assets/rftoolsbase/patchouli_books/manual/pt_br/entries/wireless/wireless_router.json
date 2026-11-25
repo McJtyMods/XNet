@@ -1,0 +1,12 @@
+{
+  "name": "Roteador Sem Fio",
+  "icon": "xnet:wireless_router",
+  "category": "rftoolsbase:category_xnet_wireless",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "text",
+      "text": "Conexão sem fio de redes. @todo"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "Rede Simples",
+  "description": "Uma rede simples",
+  "parent": "rftoolsbase:category_xnet",
+  "icon": "xnet:netcable_red",
+  "sortnum": 10
+}

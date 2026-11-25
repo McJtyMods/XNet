@@ -1,0 +1,12 @@
+{
+  "name": "Conectores",
+  "icon": "xnet:connector_red",
+  "category": "rftoolsbase:category_xnet_simple",
+  "sortnum": 30,
+  "pages": [
+    {
+      "type": "text",
+      "text": "Para realmente conectar seu cabo a um bloco ou máquina, você precisa de um Conector."
+    }
+  ]
+}
