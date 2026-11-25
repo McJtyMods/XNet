@@ -91,10 +91,15 @@ public class Constants {
     public static final String TAG_RS_COUNTER = "RSCounter";
     public static final String TAG_RS_TIMER = "RSTimer";
     public static final String TAG_RS_COUNTING_HOLDER = "RSCountingHolder";
+    public static final String TAG_RS_COUNTING_CURRENT = "RSCountingCurrent";
     public static final String TAG_RS_TICKS_HOLDER = "RSTicksHolder";
+    public static final String TAG_RS_TICKS_CURRENT = "RSTicksCurrent";
     public static final String TAG_IMPULSE = "impulse";
     public static final String TAG_IMPULSE_DUR = "impulseDuration";
     public static final String TAG_IMPULSE_REM = "impulseRemaining";
+    public static final String TAG_RS_FLIP_FLAP = "RSFlipFlapState";
+    public static final String TAG_RS_LAST_INPUT = "RSLastInputTrue";
+
 
     public static final String TAG_TOOLTIP = "tooltip";
     public static final String TAG_WORLDS = "worlds";
